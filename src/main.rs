@@ -11,22 +11,24 @@ use rand::Rng;
 use evmap;
 use std::thread;
 use std::sync::Arc;
+use threadpool::ThreadPool;
+
 
 
 fn main() {
+    let pool = ThreadPool::with_name("worker".into(), 2);
     let mut bvec = Vec::new();
     bvec.push(88);
     let mut vec = Arc::new(bvec);
     loop {
         for _i in 0..10 {
             let x = vec.clone();
-            let handler = thread::spawn(move || {
+            let _handler = pool.execute(move || {
                 println!("Here is the vector: {:?}", &x);
                 
-            });
-            handler.join().unwrap();
+            });      
         }
-
+        pool.join();
         let n = Arc::get_mut(&mut vec).unwrap();
         n.push(99);
 

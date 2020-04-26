@@ -12,7 +12,7 @@ im = { version = "*", features = ["proptest", "serde"] }
 evmap = "9.0"
 fnv = "1.0.3"
 rand = "0.6.5"
-thread-scoped = "1.0.2"
+threadpool = "1.8.0"
 
 [profile.release]
 opt-level = 3
