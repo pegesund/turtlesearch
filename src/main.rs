@@ -39,7 +39,8 @@ struct SearchCommand {
     command: SearchCommands,
     person_id: String,
     param: String,
-    result: Option<String>
+    result: Option<String>,
+    result_channel: async_std::sync::Sender<SearchCommand>
 }
 
 fn main() {
@@ -48,7 +49,6 @@ fn main() {
         task::block_on(real_main());    
     });
     t.join().unwrap();
-    
 }
 
 async fn real_main() {
@@ -59,37 +59,36 @@ async fn real_main() {
 
     
     let channel_receiver_c = channel_receiver.clone();
-    let result_sender_c = result_sender.clone();
-
-
-    
 
     let add_command = SearchCommand {
         command: SearchCommands::Update,
         person_id:  String::from("petter"),
         param:  String::from("book"),
-        result: None
+        result: None,
+        result_channel: result_sender.clone()
     };
 
     let read_command = SearchCommand {
         command: SearchCommands::Search,
         person_id:  String::from("petter"),
         param:  String::from("book"),
-        result: None
+        result: None,
+        result_channel: result_sender.clone()
     };
 
     let die_command = SearchCommand {
         command: SearchCommands::Die,
         person_id:  String::from(""),
         param:  String::from(""),
-        result: None
+        result: None,
+        result_channel: result_sender.clone()
     };
 
     channel_sender.send(add_command.clone()).await;
     channel_sender.send(read_command.clone()).await;
     channel_sender.send(die_command.clone()).await;
 
-    let task1 = executor_loop(channel_receiver_c, result_sender_c);
+    let task1 = executor_loop(channel_receiver_c);
     let task2 = result_loop(result_receiver);
     task::block_on(async move {
         let future1 = task::spawn(task1);
@@ -114,7 +113,7 @@ async fn result_loop(result_receiver: async_std::sync::Receiver<SearchCommand>) 
     }
 }
 
-async fn executor_loop(receiver: async_std::sync::Receiver<SearchCommand>, result: async_std::sync::Sender<SearchCommand>) {
+async fn executor_loop(receiver: async_std::sync::Receiver<SearchCommand>) {
     let pool = ThreadPool::with_name("worker".into(), 2);
     let bvec = Vec::new();
     let mut vec = Arc::new(bvec);
@@ -135,7 +134,7 @@ async fn executor_loop(receiver: async_std::sync::Receiver<SearchCommand>, resul
                 println!("Pushed: {:?}", &execute_command.param);
             },
             SearchCommands::Die => {    
-                result.send(execute_command).await;    
+                execute_command.result_channel.clone().send(execute_command).await;    
                 break
             }
         }
