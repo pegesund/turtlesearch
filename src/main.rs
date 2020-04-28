@@ -22,7 +22,33 @@ use std::thread;
 // use futures::future::join;
 
 // use async_std::task;
+use actix_web::{web, App, HttpServer};
+use std::sync::Mutex;
 
+struct AppState {
+    app_name: String,
+}
+
+async fn index(data: web::Data<AppState>) -> String {
+    let app_name = &data.app_name; // <- get app_name
+
+    format!("Hello {}!", app_name) // <- response with app_name
+}
+
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+    main_search();
+    HttpServer::new(|| {
+        App::new()
+            .data(AppState {
+                app_name: String::from("Actix-web"),
+            })
+            .route("/", web::get().to(index))
+    })
+    .bind("127.0.0.1:8088")?
+    .run()
+    .await
+}
 
 #[derive(PartialEq)]
 #[derive(Debug)]
@@ -43,17 +69,14 @@ struct SearchCommand {
     result_channel: async_std::sync::Sender<SearchCommand>
 }
 
-fn main() {
+fn main_search() {
     println!("Entering here");
     let t = thread::spawn(move || {
         task::block_on(real_main());    
     });
-    t.join().unwrap();
 }
 
 async fn real_main() {
-    println!("In real main");
-
     let (channel_sender, channel_receiver) = channel(1000);
     let (result_sender, result_receiver) = channel(1000);
 
@@ -93,7 +116,7 @@ async fn real_main() {
     task::block_on(async move {
         let future1 = task::spawn(task1);
         let future2 = task::spawn(task2);
-        futures::join!(future1, future2);
+        futures::join!(future2, future1);
     });
 
     println!("Program ended!");
@@ -134,6 +157,7 @@ async fn executor_loop(receiver: async_std::sync::Receiver<SearchCommand>) {
                 println!("Pushed: {:?}", &execute_command.param);
             },
             SearchCommands::Die => {    
+                pool.join();
                 execute_command.result_channel.clone().send(execute_command).await;    
                 break
             }
