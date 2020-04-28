@@ -9,12 +9,20 @@ extern crate rand;
 // use std::time::Instant;
 // use rand::Rng;
 // use evmap;
-use std::thread;
 use std::sync::Arc;
 use threadpool::ThreadPool;
-use crossbeam_channel::bounded;
-use std::time::Duration;
+// use std::time::Duration;
 // use std::collections::BinaryHeap;
+use async_std::sync::channel;
+// use futures::executor::block_on;
+// use futures::excutor::join;
+// use futures::future::Future;
+use async_std::task;
+use std::thread;
+// use futures::future::join;
+
+// use async_std::task;
+
 
 #[derive(PartialEq)]
 #[derive(Debug)]
@@ -34,23 +42,35 @@ struct SearchCommand {
     result: Option<String>
 }
 
-
-
 fn main() {
+    println!("Entering here");
+    let t = thread::spawn(move || {
+        task::block_on(real_main());    
+    });
+    t.join().unwrap();
+    
+}
 
-    let (channel_sender, channel_receiver) = bounded(1000);
+async fn real_main() {
+    println!("In real main");
+
+    let (channel_sender, channel_receiver) = channel(1000);
+    let (result_sender, result_receiver) = channel(1000);
+
+    
+    let channel_receiver_c = channel_receiver.clone();
+    let result_sender_c = result_sender.clone();
+
+
+    
+
     let add_command = SearchCommand {
         command: SearchCommands::Update,
         person_id:  String::from("petter"),
         param:  String::from("book"),
         result: None
     };
-    thread::spawn(move || 
-        executor_loop(channel_receiver)
-    );
-    for _ in 0..10 {
-        channel_sender.send(add_command.clone()).unwrap();
-    }
+
     let read_command = SearchCommand {
         command: SearchCommands::Search,
         person_id:  String::from("petter"),
@@ -58,53 +78,65 @@ fn main() {
         result: None
     };
 
-    
+    let die_command = SearchCommand {
+        command: SearchCommands::Die,
+        person_id:  String::from(""),
+        param:  String::from(""),
+        result: None
+    };
 
-    thread::sleep(Duration::from_secs(2));
-    channel_sender.send(read_command).unwrap();
-    loop {}
+    channel_sender.send(add_command.clone()).await;
+    channel_sender.send(read_command.clone()).await;
+    channel_sender.send(die_command.clone()).await;
+
+    let task1 = executor_loop(channel_receiver_c, result_sender_c);
+    let task2 = result_loop(result_receiver);
+    task::block_on(async move {
+        let future1 = task::spawn(task1);
+        let future2 = task::spawn(task2);
+        futures::join!(future1, future2);
+    });
+
+    println!("Program ended!");
 }
 
+async fn result_loop(result_receiver: async_std::sync::Receiver<SearchCommand>) {
+    loop 
+    {
+        let res = result_receiver.clone().recv().await.unwrap();
+        match res.command {
+            SearchCommands::Die => {
+                println!("I died");
+                break;
+            },
+            _ => println!("People alwayas say so much unrelevant")
+        }
+    }
+}
 
-fn executor_loop(receiver: crossbeam_channel::Receiver<SearchCommand>) {
-
+async fn executor_loop(receiver: async_std::sync::Receiver<SearchCommand>, result: async_std::sync::Sender<SearchCommand>) {
     let pool = ThreadPool::with_name("worker".into(), 2);
     let bvec = Vec::new();
     let mut vec = Arc::new(bvec);
     loop {
-        let mut commands: Vec<SearchCommand>;
-        loop {
-            commands = receiver.try_iter().collect();
-            if commands.len() > 0 { break };    
-        }
-        
-        println!("Got something: {:?}", commands);
-        let read_commands: Vec<SearchCommand> = commands.iter().filter(|c| c.command == SearchCommands::Search).cloned().collect();
-        let write_commands: Vec<SearchCommand> = commands.iter().filter(|c| c.command != SearchCommands::Search).cloned().collect();
+        let execute_command = receiver.recv().await.unwrap();
 
-        for read_command in read_commands {
-            let cloned_vec = vec.clone();
-            match read_command.command {
-                SearchCommands::Search => {
-                    let _handler = pool.execute(move || {
-                        println!("Here is the vector: {:?}", &cloned_vec);
-                    });      
-                },
-                _ => println!("Should never happend, non read command in read")
-            }
-        }
-        pool.join();
-        
-        let mut_vec = Arc::get_mut(&mut vec).unwrap();
-        for write_command in write_commands {
-            match write_command.command {
-                SearchCommands::Update => {
-                    mut_vec.push(write_command.param.clone());                    
-                    println!("Pushed: {:?}", &write_command.param);
-                },
-                SearchCommands::Die => break,
-                _ => println!("Should never happend, 
-                non read command in read")
+        match execute_command.command {
+            SearchCommands::Search => {
+                let cloned_vec = vec.clone();
+                let _handler = pool.execute(move || {
+                    println!("Here is the vector: {:?}", &cloned_vec);
+                });      
+            },
+            SearchCommands::Update => {
+                pool.join();        
+                let mut_vec = Arc::get_mut(&mut vec).unwrap();
+                mut_vec.push(execute_command.param.clone());                    
+                println!("Pushed: {:?}", &execute_command.param);
+            },
+            SearchCommands::Die => {    
+                result.send(execute_command).await;    
+                break
             }
         }
     }
