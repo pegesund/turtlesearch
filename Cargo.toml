@@ -19,6 +19,7 @@ threadpool = "1.8.0"
 futures = "0.3.4"
 actix-web = "2.0"
 actix-rt = "1.0"
+duplicate = "0.2.1"
 
 
 

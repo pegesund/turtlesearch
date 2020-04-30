@@ -2,6 +2,9 @@ mod structures;
 mod searcher;
 mod server;
 use crate::server::start_server;
+use structures::WordIndex;
+use crate::structures::HasID;
+
 
 extern crate rand;
 
@@ -20,9 +23,23 @@ extern crate rand;
 // use actix_web::{web, App, HttpServer};
 
 
+
+
 #[actix_rt::main]
 async fn main() {
-    start_server().await.unwrap();
+    if false {start_server().await.unwrap() }
+    let mut wi = WordIndex {
+        id: 99,
+        position: Vec::new(),
+        freq: 0
+    };
+    
+    wi.insert(22);
+    wi.insert(23);
+    wi.insert(21);
+    wi.insert(18);
+    wi.insert(33);
+    println!("wi: {:?}", wi);
 }
 
 

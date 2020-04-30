@@ -68,7 +68,6 @@ async fn executor_loop(receiver: async_std::sync::Receiver<SearchCommand>) {
 
         match execute_command.command {
             SearchCommands::Search => {
-                let cloned_vec = vec.clone();
                 let _handler = pool.execute(move || {
                     // println!("Here is the vector: {:?}", &cloned_vec);
                     let mut res =  execute_command.clone();
