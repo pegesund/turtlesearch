@@ -39,7 +39,8 @@ async fn main() {
     wi.insert(21);
     wi.insert(18);
     wi.insert(33);
-    println!("wi: {:?}", wi);
+    let found = wi.get_child_by_id(21);
+    println!("wi: {:?} {:?}", wi, found);
 }
 
 
