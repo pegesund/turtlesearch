@@ -20,6 +20,8 @@ futures = "0.3.4"
 actix-web = "2.0"
 actix-rt = "1.0"
 duplicate = "0.2.1"
+rocksdb = "0.14.0"
+byte_array = "0.1.3"
 
 
 

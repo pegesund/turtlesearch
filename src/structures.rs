@@ -53,24 +53,29 @@ use std::sync::{RwLock};
     
     pub trait HasID <E: Debug + Clone + Ord + Copy> {
         fn get_id(&self) -> u64;
-        fn get_vec(&mut self) -> &mut Vec<E>;
-        fn get_vec_immutable(&self) -> &Vec<E>;
+        fn get_vec_mut(&mut self) -> &mut Vec<E>;
+        fn get_vec(&self) -> &Vec<E>;
         fn insert(&mut self, element: E) -> () {
-            let insert_pos = match self.get_vec().binary_search(&element) {
+            let insert_pos = match self.get_vec_mut().binary_search(&element) {
                 Ok(_) => panic!("tried to insert duplicate in non duplicate vector!"),
                 Err(pos) => pos
             };
-            self.get_vec().insert(insert_pos, element);
-            println!("New value: {:?}", self.get_vec());
+            self.get_vec_mut().insert(insert_pos, element);
+            println!("New value: {:?}", self.get_vec_mut());
         }
-        fn get_child_by_id(&self, id: E) -> &E {
-            
-            let res = match &self.get_vec_immutable().binary_search(&id) {
-                Ok(pos) => &self.get_vec_immutable()[*pos],
-                Err(_) => panic!("not found, should not happend")
+        fn get_child_by_id(&self, id: E) -> Option<E> {
+            let res = match &self.get_vec().binary_search(&id) {
+                Ok(pos) => Some (self.get_vec()[*pos]),
+                Err(_) => None
             };
             res
-        
+        }
+        fn get_child_by_id_mut(&mut self, id: E) -> Option<&mut E> {
+            let res = match self.get_vec_mut().binary_search(&id) {
+                Ok(pos) => Some (&mut self.get_vec_mut()[pos]),
+                Err(_) => None
+            };
+            res
         }
     }
     
@@ -107,8 +112,8 @@ use std::sync::{RwLock};
     
     impl HasID<u64> for WordIndex  {
         fn get_id(&self) -> u64 { self.id }
-        fn get_vec(&mut self) -> &mut Vec<u64> { &mut self.position }
-        fn get_vec_immutable(&self) -> &Vec<u64> { &self.position }
+        fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
+        fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
 
     
