@@ -51,7 +51,7 @@ use std::sync::{RwLock};
         pub words: Vec<WordIndex>
     }
     
-    pub trait HasID <E: Debug + Clone + Ord + Copy> {
+    pub trait HasID <E: Debug + Clone + Ord> {
         fn get_id(&self) -> u64;
         fn get_vec_mut(&mut self) -> &mut Vec<E>;
         fn get_vec(&self) -> &Vec<E>;
@@ -62,9 +62,9 @@ use std::sync::{RwLock};
             };
             self.get_vec_mut().insert(insert_pos, element);
         }
-        fn get_child_by_id(&self, id: E) -> Option<E> {
+        fn get_child_by_id(&self, id: E) -> Option<&E> {
             let res = match &self.get_vec().binary_search(&id) {
-                Ok(pos) => Some (self.get_vec()[*pos]),
+                Ok(pos) => Some (&self.get_vec()[*pos]),
                 Err(_) => None
             };
             res
@@ -114,6 +114,12 @@ use std::sync::{RwLock};
         fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
         fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
+impl HasID<WordIndex> for DocumentIndex  {
+    fn get_id(&self) -> u64 { self.id }
+    fn get_vec_mut(&mut self) -> &mut Vec<WordIndex> { &mut self.words }
+    fn get_vec(&self) -> &Vec<WordIndex> { &self.words }
+}
+
 
     
 

@@ -65,6 +65,35 @@ impl BinaryBuilder for WordIndex {
 
 
 
+
+
+impl BinaryBuilder for DocumentIndex {
+    fn new() ->
+             DocumentIndex {
+        let res = DocumentIndex {
+            id: 0,
+            words: Vec::new()
+        };
+        return res;
+    }
+
+    fn from_raw(ba: &mut ByteArray) -> Option<Self> {
+        let id = ba.read();
+        let num: u64 = ba.read();
+        let mut words = Vec::new();
+        for i in 0..num { words.push(ba.read()) }
+        return Some(DocumentIndex {
+            id,
+            words
+        });
+    }
+    fn to_raw(&self, mut ba: &mut ByteArray) {
+        ba <<= &self.id;
+        ba <<= &self.words.len();
+        for i in 0..self.words.len() { ba <<= &self.words[i] }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -72,7 +101,7 @@ mod tests {
     #[test]
     fn serializing_word_index() {
         let mut wi = WordIndex {
-            id: 99,
+            id: 199,
             position: Vec::new(),
             freq: 0
         };
@@ -84,7 +113,7 @@ mod tests {
         wi.insert(33);
         let mut found = wi.get_child_by_id(21);
         match found.as_mut() {
-            Some(v) => *v = 42,
+            Some(v) => *v = &42,
             None => {}
         }
         let ba = &mut ByteArray::new();
@@ -93,6 +122,43 @@ mod tests {
         let wi2 = WordIndex::from_raw(ba).unwrap();
         println!("Here is wi2: {:?}", wi2);
         assert_eq!(wi, wi2);
+    }
+
+    #[test]
+    fn serializing_doc_index() {
+        let mut di = DocumentIndex {
+            id: 99,
+            words: Vec::new()
+        };
+
+        di.insert(WordIndex {
+            id: 199,
+            position: Vec::new(),
+            freq: 0
+        });
+
+        di.insert(WordIndex {
+            id: 10,
+            position: Vec::new(),
+            freq: 0
+        });
+
+        di.insert(WordIndex {
+            id: 200,
+            position: Vec::new(),
+            freq: 0
+        });
+
+
+        let ba = &mut ByteArray::new();
+        let raw = di.to_raw(ba);
+        let di2 = DocumentIndex::from_raw(ba).unwrap();
+        println!("Here is wi2: {:?}", di2);
+        // check cloning
+        assert_eq!(di, di2);
+        // check sort order
+        let word_ids: Vec<u64> = di2.words.iter().map(|i| i.id).collect();
+        assert_eq!(word_ids, vec![10,199,200]);
     }
 
 }
