@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_imports)]
 mod structures;
 mod searcher;
 mod server;
@@ -30,32 +33,9 @@ extern crate rand;
 // use actix_web::{web, App, HttpServer};
 
 
-
-
 #[actix_rt::main]
 async fn main() {
     if false {start_server().await.unwrap() }
-    let mut wi = WordIndex {
-        id: 99,
-        position: Vec::new(),
-        freq: 0
-    };
-    
-    wi.insert(22);
-    wi.insert(23);
-    wi.insert(21);
-    wi.insert(18);
-    wi.insert(33);
-    let mut found = wi.get_child_by_id(21);
-    match found.as_mut() {
-        Some(v) => *v = 42,
-        None => {},
-    }
-    let mut ba = &mut ByteArray::new();
-    println!("wi: {:?} {:?}", wi, found);
-    let raw = wi.to_raw(ba);
-    let wi2 = WordIndex::from_raw(ba);
-    println!("Here is wi2: {:?}", wi2);
 }
 
 

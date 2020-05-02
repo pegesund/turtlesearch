@@ -4,8 +4,8 @@ use std::cmp::Ordering;
 use duplicate::duplicate;
 
 use std::sync::{RwLock};
-    
-    #[allow(dead_code)]
+
+#[allow(dead_code)]
     #[derive(PartialEq)]
     #[derive(Debug)]
     #[derive(Clone)]
@@ -61,7 +61,6 @@ use std::sync::{RwLock};
                 Err(pos) => pos
             };
             self.get_vec_mut().insert(insert_pos, element);
-            println!("New value: {:?}", self.get_vec_mut());
         }
         fn get_child_by_id(&self, id: E) -> Option<E> {
             let res = match &self.get_vec().binary_search(&id) {
