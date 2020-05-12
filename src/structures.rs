@@ -114,11 +114,12 @@ use std::sync::{RwLock};
         fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
         fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
-impl HasID<WordIndex> for DocumentIndex  {
-    fn get_id(&self) -> u64 { self.id }
-    fn get_vec_mut(&mut self) -> &mut Vec<WordIndex> { &mut self.words }
-    fn get_vec(&self) -> &Vec<WordIndex> { &self.words }
-}
+
+    impl HasID<WordIndex> for DocumentIndex  {
+        fn get_id(&self) -> u64 { self.id }
+        fn get_vec_mut(&mut self) -> &mut Vec<WordIndex> { &mut self.words }
+        fn get_vec(&self) -> &Vec<WordIndex> { &self.words }
+    }
 
 
     

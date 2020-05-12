@@ -4,6 +4,10 @@ use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use crate::structures::*;
 
+use std::cell::{RefCell, RefMut};
+use std::collections::HashMap;
+use std::rc::Rc;
+
 
 
 /*
@@ -97,6 +101,7 @@ impl BinaryBuilder for DocumentIndex {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::rc::Rc;
 
     #[test]
     fn serializing_word_index() {
@@ -159,6 +164,37 @@ mod tests {
         // check sort order
         let word_ids: Vec<u64> = di2.words.iter().map(|i| i.id).collect();
         assert_eq!(word_ids, vec![10,199,200]);
+    }
+
+    #[test]
+    fn serializing_ownership() {
+        let shared_map: Rc<RefCell<_>> = Rc::new(RefCell::new(HashMap::new()));
+        {
+            let b1 = shared_map.borrow();
+            println!("Map: {:?}", b1);
+        }
+        // Create a new block to limit the scope of the dynamic borrow
+        {
+            let mut map: RefMut<_> = shared_map.borrow_mut();
+            map.insert("africa", 92388);
+            map.insert("kyoto", 11837);
+            map.insert("piccadilly", 11826);
+            map.insert("marbles", 38);
+        }
+
+        // Note that if we had not let the previous borrow of the cache fall out
+        // of scope then the subsequent borrow would cause a dynamic thread panic.
+        // This is the major hazard of using `RefCell`.
+        let total: i32 = shared_map.borrow().values().sum();
+        println!("{}", total);
+    }
+
+    #[test]
+    fn string_parse() {
+        let str = "abc☯";
+        let v_vec: Vec<u16> = str.chars().map(|c| c as u16).collect();
+        println!("Value: {:?}", v_vec);
+
     }
 
 }
