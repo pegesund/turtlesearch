@@ -36,10 +36,10 @@ let _ = DB::destroy(&Options::default(), path);
 }
 
 
-impl BinaryBuilder for WordIndex {
-    fn new() ->  
-        WordIndex {
-            let res = WordIndex {
+impl BinaryBuilder for DocumentWordIndex {
+    fn new() ->
+             DocumentWordIndex {
+            let res = DocumentWordIndex {
             id: 0,
             position: Vec::new(),
             freq: 0
@@ -53,7 +53,7 @@ impl BinaryBuilder for WordIndex {
         let mut vec = Vec::new();
         for i in 0..num { vec.push(ba.read()) }
         let freq = ba.read();
-        return Some(WordIndex {
+        return Some(DocumentWordIndex {
             id,
             position: vec,
             freq
@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn serializing_word_index() {
-        let mut wi = WordIndex {
+        let mut wi = DocumentWordIndex {
             id: 199,
             position: Vec::new(),
             freq: 0
@@ -124,7 +124,7 @@ mod tests {
         let ba = &mut ByteArray::new();
         println!("wi: {:?} {:?}", wi, found);
         let raw = wi.to_raw(ba);
-        let wi2 = WordIndex::from_raw(ba).unwrap();
+        let wi2 = DocumentWordIndex::from_raw(ba).unwrap();
         println!("Here is wi2: {:?}", wi2);
         assert_eq!(wi, wi2);
     }
@@ -136,19 +136,19 @@ mod tests {
             words: Vec::new()
         };
 
-        di.insert(WordIndex {
+        di.insert(DocumentWordIndex {
             id: 199,
             position: Vec::new(),
             freq: 0
         });
 
-        di.insert(WordIndex {
+        di.insert(DocumentWordIndex {
             id: 10,
             position: Vec::new(),
             freq: 0
         });
 
-        di.insert(WordIndex {
+        di.insert(DocumentWordIndex {
             id: 200,
             position: Vec::new(),
             freq: 0

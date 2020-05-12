@@ -6,7 +6,7 @@ mod searcher;
 mod server;
 mod serializing;
 use crate::server::start_server;
-use structures::WordIndex;
+use structures::DocumentWordIndex;
 use crate::structures::HasID;
 use byte_array::{
     BinaryBuilder,

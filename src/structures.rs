@@ -36,7 +36,7 @@ use std::sync::{RwLock};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct WordIndex {
+    pub struct DocumentWordIndex {
         pub id: u64,
         pub position: Vec<u64>,
         pub freq: u64
@@ -48,11 +48,32 @@ use std::sync::{RwLock};
     #[derive(Eq)]
     pub struct DocumentIndex {
         pub id: u64,
-        pub words: Vec<WordIndex>
+        pub words: Vec<DocumentWordIndex>
     }
-    
-    pub trait HasID <E: Debug + Clone + Ord> {
-        fn get_id(&self) -> u64;
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
+    pub struct Word {
+        pub id: u64,
+        pub freq: u64,
+        pub word: String,
+        pub docs: Vec<DocumentIndex>
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
+    pub struct WordIndex {
+        pub id: u64,
+        pub freq: u64,
+        pub words: Vec<Word>
+    }
+
+pub trait HasID <E: Debug + Clone + Ord, F:  Debug + Clone + Ord + PartialOrd + Eq + PartialEq > {
+        fn get_id(&self) -> F;
         fn get_vec_mut(&mut self) -> &mut Vec<E>;
         fn get_vec(&self) -> &Vec<E>;
         fn insert(&mut self, element: E) -> () {
@@ -79,8 +100,10 @@ use std::sync::{RwLock};
     }
     
     #[duplicate(
-        [ all_classes [ WordIndex ]]
+        [ all_classes [ DocumentWordIndex ]]
         [ all_classes [ DocumentIndex ]]
+        [ all_classes [ Word ]]
+        [ all_classes [ WordIndex ]]
     )]
     impl PartialEq for all_classes {
         fn eq(&self, other: &Self) -> bool {
@@ -89,8 +112,10 @@ use std::sync::{RwLock};
     }
     
     #[duplicate(
-        [ all_classes [ WordIndex ]]
+        [ all_classes [ DocumentWordIndex ]]
         [ all_classes [ DocumentIndex ]]
+        [ all_classes [ Word ]]
+        [ all_classes [ WordIndex ]]
     )]
     impl PartialOrd for all_classes {
         fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -99,8 +124,10 @@ use std::sync::{RwLock};
     }
     
     #[duplicate(
-        [ all_classes [ WordIndex ]]
+        [ all_classes [ DocumentWordIndex ]]
         [ all_classes [ DocumentIndex ]]
+        [ all_classes [ Word ]]
+        [ all_classes [ WordIndex ]]
     )]
     impl Ord for all_classes {
         fn cmp(&self, other: &Self) -> Ordering {
@@ -109,19 +136,28 @@ use std::sync::{RwLock};
     }
     
     
-    impl HasID<u64> for WordIndex  {
+    impl HasID<u64, u64> for DocumentWordIndex {
         fn get_id(&self) -> u64 { self.id }
         fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
         fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
 
-    impl HasID<WordIndex> for DocumentIndex  {
+    impl HasID<DocumentWordIndex, u64> for DocumentIndex  {
         fn get_id(&self) -> u64 { self.id }
-        fn get_vec_mut(&mut self) -> &mut Vec<WordIndex> { &mut self.words }
-        fn get_vec(&self) -> &Vec<WordIndex> { &self.words }
+        fn get_vec_mut(&mut self) -> &mut Vec<DocumentWordIndex> { &mut self.words }
+        fn get_vec(&self) -> &Vec<DocumentWordIndex> { &self.words }
+    }
+
+    impl HasID<DocumentIndex, String> for Word  {
+        fn get_id(&self) -> String { self.word.clone() }
+        fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
+        fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
 
 
-    
-
+    impl HasID<Word, u64> for WordIndex {
+        fn get_id(&self) -> u64 { self.id }
+        fn get_vec_mut(&mut self) -> &mut Vec<Word> { &mut self.words }
+        fn get_vec(&self) -> &Vec<Word> { &self.words }
+    }
 
