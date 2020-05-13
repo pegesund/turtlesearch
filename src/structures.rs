@@ -56,9 +56,8 @@ use std::sync::{RwLock};
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct Word {
-        pub id: u64,
+        pub id: String,
         pub freq: u64,
-        pub word: String,
         pub docs: Vec<DocumentIndex>
     }
 
@@ -72,8 +71,7 @@ use std::sync::{RwLock};
         pub words: Vec<Word>
     }
 
-pub trait HasID <E: Debug + Clone + Ord, F:  Debug + Clone + Ord + PartialOrd + Eq + PartialEq > {
-        fn get_id(&self) -> F;
+pub trait HasID <E: Debug + Clone + Ord > {
         fn get_vec_mut(&mut self) -> &mut Vec<E>;
         fn get_vec(&self) -> &Vec<E>;
         fn insert(&mut self, element: E) -> () {
@@ -136,27 +134,23 @@ pub trait HasID <E: Debug + Clone + Ord, F:  Debug + Clone + Ord + PartialOrd + 
     }
     
     
-    impl HasID<u64, u64> for DocumentWordIndex {
-        fn get_id(&self) -> u64 { self.id }
+    impl HasID<u64> for DocumentWordIndex {
         fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
         fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
 
-    impl HasID<DocumentWordIndex, u64> for DocumentIndex  {
-        fn get_id(&self) -> u64 { self.id }
+    impl HasID<DocumentWordIndex> for DocumentIndex  {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentWordIndex> { &mut self.words }
         fn get_vec(&self) -> &Vec<DocumentWordIndex> { &self.words }
     }
 
-    impl HasID<DocumentIndex, String> for Word  {
-        fn get_id(&self) -> String { self.word.clone() }
+    impl HasID<DocumentIndex> for Word  {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
         fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
 
 
-    impl HasID<Word, u64> for WordIndex {
-        fn get_id(&self) -> u64 { self.id }
+    impl HasID<Word> for WordIndex {
         fn get_vec_mut(&mut self) -> &mut Vec<Word> { &mut self.words }
         fn get_vec(&self) -> &Vec<Word> { &self.words }
     }
