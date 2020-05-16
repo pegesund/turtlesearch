@@ -56,7 +56,8 @@ use std::sync::{RwLock};
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct Word {
-        pub id: String,
+        pub id: u64,
+        pub word: String,
         pub freq: u64,
         pub docs: Vec<DocumentIndex>
     }
@@ -96,40 +97,44 @@ pub trait HasID <E: Debug + Clone + Ord > {
             res
         }
     }
-    
+
     #[duplicate(
-        [ all_classes [ DocumentWordIndex ]]
-        [ all_classes [ DocumentIndex ]]
-        [ all_classes [ Word ]]
-        [ all_classes [ WordIndex ]]
+        the_class sort_field;
+        [ DocumentWordIndex ] [ id ];
+        [ DocumentIndex ] [ id ];
+        [ WordIndex ] [ id ];
+        [ Word ] [ word ];
     )]
-    impl PartialEq for all_classes {
+    impl PartialEq for the_class {
         fn eq(&self, other: &Self) -> bool {
-            self.id == other.id
+            self.sort_field == other.sort_field
         }
     }
-    
+
     #[duplicate(
-        [ all_classes [ DocumentWordIndex ]]
-        [ all_classes [ DocumentIndex ]]
-        [ all_classes [ Word ]]
-        [ all_classes [ WordIndex ]]
+        the_class;
+        [ DocumentWordIndex ];
+        [ DocumentIndex ];
+        [ WordIndex ];
+        [ Word ];
     )]
-    impl PartialOrd for all_classes {
+    impl PartialOrd for the_class {
         fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
             Some(self.cmp(other))
         }
     }
     
     #[duplicate(
-        [ all_classes [ DocumentWordIndex ]]
-        [ all_classes [ DocumentIndex ]]
-        [ all_classes [ Word ]]
-        [ all_classes [ WordIndex ]]
+        the_class sort_field;
+        [ DocumentWordIndex ] [ id ];
+        [ DocumentIndex ] [ id ];
+        [ WordIndex ] [ id ];
+        [ Word ] [ word ];
     )]
-    impl Ord for all_classes {
+
+    impl Ord for the_class {
         fn cmp(&self, other: &Self) -> Ordering {
-            self.id.cmp(&other.id)
+            self.sort_field.cmp(&other.sort_field)
         }
     }
     
@@ -149,9 +154,9 @@ pub trait HasID <E: Debug + Clone + Ord > {
         fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
 
-
+/*
     impl HasID<Word> for WordIndex {
         fn get_vec_mut(&mut self) -> &mut Vec<Word> { &mut self.words }
         fn get_vec(&self) -> &Vec<Word> { &self.words }
     }
-
+*/
