@@ -4,6 +4,8 @@ use std::cmp::Ordering;
 use duplicate::duplicate;
 
 use std::sync::{RwLock};
+use float_cmp::ApproxEq;
+
 
 #[allow(dead_code)]
     #[derive(PartialEq)]
@@ -55,8 +57,7 @@ use std::sync::{RwLock};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct Word {
-        pub id: u64,
+    pub struct WordSorted {
         pub word: String,
         pub freq: u64,
         pub docs: Vec<DocumentIndex>
@@ -66,13 +67,40 @@ use std::sync::{RwLock};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
+    pub struct IntegerSorted {
+        pub int: u64,
+        pub docs: Vec<u64>
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct FloatSorted {
+        pub float: f64,
+        pub docs: Vec<u64>
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
+    pub struct DateSorted {
+        pub date: u64,
+        pub docs: Vec<u64>
+    }
+
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
     pub struct WordIndex {
         pub id: u64,
         pub freq: u64,
-        pub words: Vec<Word>
+        pub words: Vec<WordSorted>
     }
 
-pub trait HasID <E: Debug + Clone + Ord > {
+    pub trait HasID <E: Debug + Clone + Ord > {
         fn get_vec_mut(&mut self) -> &mut Vec<E>;
         fn get_vec(&self) -> &Vec<E>;
         fn insert(&mut self, element: E) -> () {
@@ -103,7 +131,10 @@ pub trait HasID <E: Debug + Clone + Ord > {
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
         [ WordIndex ] [ id ];
-        [ Word ] [ word ];
+        [ WordSorted ] [ word ];
+        [ IntegerSorted ] [ int ];
+        [ DateSorted ] [ date ];
+
     )]
     impl PartialEq for the_class {
         fn eq(&self, other: &Self) -> bool {
@@ -111,13 +142,28 @@ pub trait HasID <E: Debug + Clone + Ord > {
         }
     }
 
+
+    impl PartialEq for FloatSorted {
+        fn eq(&self, other: &Self) -> bool {
+            self.float.approx_eq(other.float, (0.0, 2))
+        }
+    }
+
+    impl Eq for FloatSorted {
+
+    }
+
     #[duplicate(
         the_class;
         [ DocumentWordIndex ];
         [ DocumentIndex ];
         [ WordIndex ];
-        [ Word ];
+        [ WordSorted ];
+        [ FloatSorted ];
+        [ IntegerSorted ];
+        [ DateSorted ];
     )]
+
     impl PartialOrd for the_class {
         fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
             Some(self.cmp(other))
@@ -129,7 +175,9 @@ pub trait HasID <E: Debug + Clone + Ord > {
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
         [ WordIndex ] [ id ];
-        [ Word ] [ word ];
+        [ WordSorted ] [ word ];
+        [ IntegerSorted ] [ int ];
+        [ DateSorted ] [ date ];
     )]
 
     impl Ord for the_class {
@@ -137,7 +185,12 @@ pub trait HasID <E: Debug + Clone + Ord > {
             self.sort_field.cmp(&other.sort_field)
         }
     }
-    
+
+    impl Ord for FloatSorted {
+        fn cmp(&self, other: &Self) -> Ordering {
+            self.float.partial_cmp(&other.float).unwrap()
+        }
+    }
     
     impl HasID<u64> for DocumentWordIndex {
         fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
@@ -149,14 +202,14 @@ pub trait HasID <E: Debug + Clone + Ord > {
         fn get_vec(&self) -> &Vec<DocumentWordIndex> { &self.words }
     }
 
-    impl HasID<DocumentIndex> for Word  {
+    impl HasID<DocumentIndex> for WordSorted {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
         fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
 
-/*
-    impl HasID<Word> for WordIndex {
-        fn get_vec_mut(&mut self) -> &mut Vec<Word> { &mut self.words }
-        fn get_vec(&self) -> &Vec<Word> { &self.words }
+
+    impl HasID<WordSorted> for WordIndex {
+        fn get_vec_mut(&mut self) -> &mut Vec<WordSorted> { &mut self.words }
+        fn get_vec(&self) -> &Vec<WordSorted> { &self.words }
     }
-*/
+
