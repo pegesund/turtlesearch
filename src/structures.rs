@@ -76,6 +76,7 @@ use float_cmp::ApproxEq;
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
+    #[derive(Copy)]
     pub struct FloatSorted<'a> {
         pub value: f64,
         pub doc_ids: &'a Vec<u64>
@@ -245,7 +246,7 @@ use float_cmp::ApproxEq;
     }
 
 
-    pub trait Between<B: Clone + Ord + Debug> {
+    pub trait Between<B: Clone + Debug> {
         fn between(&self, start: B, stop: B) -> (usize, usize);
     }
 
@@ -298,11 +299,32 @@ use float_cmp::ApproxEq;
 
         }
     }
-/*
-    impl GetValue<&str> for WordSorted<'_> {
-        fn get_value(&self) -> &str {
-            return self.value;
+
+
+impl Between<f64> for FieldIndex<FloatSorted<'_>> {
+
+    fn between(&self,start: f64, stop: f64) -> (usize, usize) {
+
+        let mut start_index = match self.get_vec().binary_search_by(|&e| e.value.partial_cmp(&start).unwrap() ) {
+            Ok(pos) => pos,
+            Err(pos) => pos
+        };
+
+        let stop_index = match self.get_vec().binary_search_by(|&e| e.value.partial_cmp(&stop).unwrap() ) {
+            Ok(pos) => pos,
+            Err(pos) => pos
+        };
+
+        while self.get_vec()[start_index].value.approx_eq(start, (0.0, 2)) && start_index > 0{
+            start_index = start_index - 1
         }
+
+        while self.get_vec()[stop_index].value.approx_eq(stop, (0.0, 2)) && stop_index < self.index.len() - 1 {
+            start_index = start_index + 1
+        }
+
+        return (start_index, stop_index)
+
     }
-*/
+}
 
