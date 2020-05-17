@@ -7,7 +7,7 @@ mod server;
 mod serializing;
 use crate::server::start_server;
 use structures::DocumentWordIndex;
-use crate::structures::HasID;
+use crate::structures::HasChildren;
 use byte_array::{
     BinaryBuilder,
     ByteArray,

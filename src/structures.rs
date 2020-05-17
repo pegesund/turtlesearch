@@ -58,7 +58,7 @@ use float_cmp::ApproxEq;
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct WordSorted {
-        pub word: String,
+        pub value: String,
         pub freq: u64,
         pub docs: Vec<DocumentIndex>
     }
@@ -68,16 +68,16 @@ use float_cmp::ApproxEq;
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct IntegerSorted {
-        pub int: u64,
-        pub docs: Vec<u64>
+        pub value: u64,
+        pub doc_ids: Vec<u64>
     }
 
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
     pub struct FloatSorted {
-        pub float: f64,
-        pub docs: Vec<u64>
+        pub value: f64,
+        pub doc_ids: Vec<u64>
     }
 
     #[allow(dead_code)]
@@ -85,8 +85,8 @@ use float_cmp::ApproxEq;
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct DateSorted {
-        pub date: u64,
-        pub docs: Vec<u64>
+        pub value: u64,
+        pub doc_ids: Vec<u64>
     }
 
 
@@ -100,12 +100,19 @@ use float_cmp::ApproxEq;
         pub words: Vec<WordSorted>
     }
 
-    pub trait HasID <E: Debug + Clone + Ord > {
+
+
+
+
+
+
+
+    pub trait HasChildren<E: Debug + Clone + Ord > {
         fn get_vec_mut(&mut self) -> &mut Vec<E>;
         fn get_vec(&self) -> &Vec<E>;
         fn insert(&mut self, element: E) -> () {
             let insert_pos = match self.get_vec_mut().binary_search(&element) {
-                Ok(_) => panic!("tried to insert duplicate in non duplicate vector!"),
+                Ok(pos) => pos,
                 Err(pos) => pos
             };
             self.get_vec_mut().insert(insert_pos, element);
@@ -131,9 +138,9 @@ use float_cmp::ApproxEq;
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
         [ WordIndex ] [ id ];
-        [ WordSorted ] [ word ];
-        [ IntegerSorted ] [ int ];
-        [ DateSorted ] [ date ];
+        [ WordSorted ] [ value ];
+        [ IntegerSorted ] [ value ];
+        [ DateSorted ] [ value ];
 
     )]
     impl PartialEq for the_class {
@@ -145,7 +152,7 @@ use float_cmp::ApproxEq;
 
     impl PartialEq for FloatSorted {
         fn eq(&self, other: &Self) -> bool {
-            self.float.approx_eq(other.float, (0.0, 2))
+            self.value.approx_eq(other.value, (0.0, 2))
         }
     }
 
@@ -175,9 +182,9 @@ use float_cmp::ApproxEq;
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
         [ WordIndex ] [ id ];
-        [ WordSorted ] [ word ];
-        [ IntegerSorted ] [ int ];
-        [ DateSorted ] [ date ];
+        [ WordSorted ] [ value ];
+        [ IntegerSorted ] [ value ];
+        [ DateSorted ] [ value ];
     )]
 
     impl Ord for the_class {
@@ -188,28 +195,82 @@ use float_cmp::ApproxEq;
 
     impl Ord for FloatSorted {
         fn cmp(&self, other: &Self) -> Ordering {
-            self.float.partial_cmp(&other.float).unwrap()
+            self.value.partial_cmp(&other.value).unwrap()
         }
     }
-    
-    impl HasID<u64> for DocumentWordIndex {
+
+
+    impl HasChildren<u64> for DocumentWordIndex {
         fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
         fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
 
-    impl HasID<DocumentWordIndex> for DocumentIndex  {
+    impl HasChildren<DocumentWordIndex> for DocumentIndex  {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentWordIndex> { &mut self.words }
         fn get_vec(&self) -> &Vec<DocumentWordIndex> { &self.words }
     }
 
-    impl HasID<DocumentIndex> for WordSorted {
+
+    impl HasChildren<WordSorted> for WordIndex {
+        fn get_vec_mut(&mut self) -> &mut Vec<WordSorted> { &mut self.words }
+        fn get_vec(&self) -> &Vec<WordSorted> { &self.words }
+    }
+
+    impl HasChildren<DocumentIndex> for WordSorted {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
         fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
 
 
-    impl HasID<WordSorted> for WordIndex {
-        fn get_vec_mut(&mut self) -> &mut Vec<WordSorted> { &mut self.words }
-        fn get_vec(&self) -> &Vec<WordSorted> { &self.words }
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+
+    pub struct FieldIndex<G:Debug + Clone + Ord > {
+        pub name: String,
+        pub index: Vec<G>
     }
+
+    impl<G: Clone + Ord + Debug> HasChildren<G> for FieldIndex<G> {
+        fn get_vec_mut(&mut self) -> &mut Vec<G> { &mut self.index }
+        fn get_vec(&self) -> &Vec<G> { &self.index }
+    }
+
+
+    pub trait Between<B: Clone + Ord + Debug> {
+        fn between(&self, start: B, stop: B) -> (usize, usize) {
+            return (0, 0)
+        }
+    }
+
+
+
+    impl <B: Clone + Ord + Debug> Between<B> for FieldIndex<B> {
+
+        fn between(&self,start: B, stop: B) -> (usize, usize) {
+
+            let mut start_index = match self.index.binary_search(&start) {
+                Ok(pos) => pos,
+                Err(pos) => pos
+            };
+
+            let stop_index = match self.index.binary_search(&stop) {
+                Ok(pos) => pos,
+                Err(pos) => pos
+            };
+
+            while self.index[start_index] == start && start_index > 0{
+                start_index = start_index - 1
+            }
+
+            while self.index[stop_index] == stop && stop_index < self.index.len() - 1 {
+                start_index = start_index + 1
+            }
+
+            return (start_index, stop_index)
+
+        }
+    }
+
+
 
