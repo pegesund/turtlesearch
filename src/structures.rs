@@ -57,8 +57,8 @@ use float_cmp::ApproxEq;
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct WordSorted {
-        pub value: String,
+    pub struct WordSorted<'a> {
+        pub value:  &'a str,
         pub freq: u64,
         pub docs: Vec<DocumentIndex>
     }
@@ -67,9 +67,10 @@ use float_cmp::ApproxEq;
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct IntegerSorted {
+    #[derive(Copy)]
+    pub struct IntegerSorted<'a> {
         pub value: u64,
-        pub doc_ids: Vec<u64>
+        pub doc_ids: &'a Vec<u64>
     }
 
     #[allow(dead_code)]
@@ -94,16 +95,11 @@ use float_cmp::ApproxEq;
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct WordIndex {
+    pub struct WordIndex<'a> {
         pub id: u64,
         pub freq: u64,
-        pub words: Vec<WordSorted>
+        pub words: Vec<WordSorted<'a>>
     }
-
-
-
-
-
 
 
 
@@ -137,9 +133,7 @@ use float_cmp::ApproxEq;
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
-        [ WordIndex ] [ id ];
-        [ WordSorted ] [ value ];
-        [ IntegerSorted ] [ value ];
+        [ IntegerSorted<'_> ] [ value ];
         [ DateSorted ] [ value ];
 
     )]
@@ -148,6 +142,19 @@ use float_cmp::ApproxEq;
             self.sort_field == other.sort_field
         }
     }
+
+    #[duplicate(
+    the_class sort_field;
+    [ WordIndex<'a> ] [ id ];
+    [ WordSorted<'a> ] [ value ];
+    )]
+
+    impl <'a> PartialEq for the_class {
+        fn eq(&self, other: &Self) -> bool {
+            self.sort_field == other.sort_field
+        }
+}
+
 
 
     impl PartialEq for FloatSorted {
@@ -164,14 +171,14 @@ use float_cmp::ApproxEq;
         the_class;
         [ DocumentWordIndex ];
         [ DocumentIndex ];
-        [ WordIndex ];
-        [ WordSorted ];
+        [ WordIndex<'a> ];
+        [ WordSorted<'a> ];
         [ FloatSorted ];
-        [ IntegerSorted ];
+        [ IntegerSorted<'_> ];
         [ DateSorted ];
     )]
 
-    impl PartialOrd for the_class {
+    impl <'a> PartialOrd for the_class {
         fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
             Some(self.cmp(other))
         }
@@ -181,13 +188,13 @@ use float_cmp::ApproxEq;
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
-        [ WordIndex ] [ id ];
-        [ WordSorted ] [ value ];
-        [ IntegerSorted ] [ value ];
+        [ WordIndex<'a> ] [ id ];
+        [ WordSorted<'a> ] [ value ];
+        [ IntegerSorted<'_> ] [ value ];
         [ DateSorted ] [ value ];
     )]
 
-    impl Ord for the_class {
+    impl <'a> Ord for the_class {
         fn cmp(&self, other: &Self) -> Ordering {
             self.sort_field.cmp(&other.sort_field)
         }
@@ -211,12 +218,12 @@ use float_cmp::ApproxEq;
     }
 
 
-    impl HasChildren<WordSorted> for WordIndex {
-        fn get_vec_mut(&mut self) -> &mut Vec<WordSorted> { &mut self.words }
-        fn get_vec(&self) -> &Vec<WordSorted> { &self.words }
+    impl <'a> HasChildren<WordSorted<'a>> for WordIndex<'a> {
+        fn get_vec_mut(&mut self) -> &mut Vec<WordSorted<'a>> { &mut self.words }
+        fn get_vec(&self) -> &Vec<WordSorted<'a>> { &self.words }
     }
 
-    impl HasChildren<DocumentIndex> for WordSorted {
+    impl <'a> HasChildren<DocumentIndex> for WordSorted<'a> {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
         fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
@@ -238,32 +245,47 @@ use float_cmp::ApproxEq;
 
 
     pub trait Between<B: Clone + Ord + Debug> {
-        fn between(&self, start: B, stop: B) -> (usize, usize) {
-            return (0, 0)
+        fn between(&self, start: B, stop: B) -> (usize, usize);
+    }
+
+    pub trait GetValue<V: Clone + Debug > {
+        fn get_value(&self) -> V;
+    }
+
+    #[duplicate(
+    the_class val_type;
+    [ IntegerSorted<'_> ] [ u64 ];
+    [ DateSorted ] [ u64 ];
+    [ FloatSorted ] [ f64 ];
+    )]
+    impl GetValue<val_type> for the_class {
+        fn get_value(&self) -> val_type {
+            return self.value;
         }
     }
 
 
 
-    impl <B: Clone + Ord + Debug> Between<B> for FieldIndex<B> {
 
-        fn between(&self,start: B, stop: B) -> (usize, usize) {
+    impl Between<u64> for FieldIndex<IntegerSorted<'_>> {
 
-            let mut start_index = match self.index.binary_search(&start) {
+        fn between(&self,start: u64, stop: u64) -> (usize, usize) {
+
+            let mut start_index = match self.get_vec().binary_search_by_key(&start, |&e| e.value) {
                 Ok(pos) => pos,
                 Err(pos) => pos
             };
 
-            let stop_index = match self.index.binary_search(&stop) {
+            let stop_index = match self.get_vec().binary_search_by_key(&start, |&e| e.value) {
                 Ok(pos) => pos,
                 Err(pos) => pos
             };
 
-            while self.index[start_index] == start && start_index > 0{
+            while self.get_vec()[start_index].value == start && start_index > 0{
                 start_index = start_index - 1
             }
 
-            while self.index[stop_index] == stop && stop_index < self.index.len() - 1 {
+            while self.get_vec()[stop_index].value == stop && stop_index < self.index.len() - 1 {
                 start_index = start_index + 1
             }
 
@@ -271,6 +293,11 @@ use float_cmp::ApproxEq;
 
         }
     }
-
-
+/*
+    impl GetValue<&str> for WordSorted<'_> {
+        fn get_value(&self) -> &str {
+            return self.value;
+        }
+    }
+*/
 
