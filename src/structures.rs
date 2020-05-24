@@ -5,7 +5,9 @@ use duplicate::duplicate;
 
 use std::sync::{RwLock};
 use float_cmp::ApproxEq;
-
+use std::cell::{RefCell, RefMut};
+use std::collections::HashMap;
+use std::rc::Rc;
 
 #[allow(dead_code)]
     #[derive(PartialEq)]
@@ -50,17 +52,17 @@ use float_cmp::ApproxEq;
     #[derive(Eq)]
     pub struct DocumentIndex {
         pub id: u64,
-        pub words: Vec<DocumentWordIndex>
+        pub words: Rc<RefCell<Vec<DocumentWordIndex>>>
     }
 
     #[allow(dead_code)]
     #[derive(Debug)]
-    #[derive(Clone)]
+    #[derive(Clone, Copy)]
     #[derive(Eq)]
     pub struct WordSorted<'a> {
         pub value:  &'a str,
         pub freq: u64,
-        pub docs: Vec<DocumentIndex>
+        pub docs: &'a Vec<DocumentIndex>
     }
 
     #[allow(dead_code)]
@@ -103,8 +105,11 @@ use float_cmp::ApproxEq;
         pub words: Vec<WordSorted<'a>>
     }
 
-
-
+/*
+    pub trait HasMutableChildren<E: Debug + Clone + Ord > {
+        fn insert(&mut self, )
+    }
+*/
     pub trait HasChildren<E: Debug + Clone + Ord > {
         fn get_vec_mut(&mut self) -> &mut Vec<E>;
         fn get_vec(&self) -> &Vec<E>;
@@ -214,22 +219,24 @@ use float_cmp::ApproxEq;
         fn get_vec(&self) -> &Vec<u64> { &self.position }
     }
 
+/*
     impl HasChildren<DocumentWordIndex> for DocumentIndex  {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentWordIndex> { &mut self.words }
         fn get_vec(&self) -> &Vec<DocumentWordIndex> { &self.words }
     }
-
+*/
 
     impl <'a> HasChildren<WordSorted<'a>> for WordIndex<'a> {
         fn get_vec_mut(&mut self) -> &mut Vec<WordSorted<'a>> { &mut self.words }
         fn get_vec(&self) -> &Vec<WordSorted<'a>> { &self.words }
     }
 
+/*
     impl <'a> HasChildren<DocumentIndex> for WordSorted<'a> {
         fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
         fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
     }
-
+*/
 
     #[allow(dead_code)]
     #[derive(Debug)]
@@ -326,5 +333,10 @@ impl Between<f64> for FieldIndex<FloatSorted<'_>> {
         return (start_index, stop_index)
 
     }
+}
+
+fn insert_into_document_index(document_index: DocumentIndex) {
+    let words  = document_index.words;
+    let words_mut = words.borrow_mut();
 }
 

@@ -69,14 +69,13 @@ impl BinaryBuilder for DocumentWordIndex {
 
 
 
+/*
 
-
-impl BinaryBuilder for DocumentIndex {
-    fn new() ->
-             DocumentIndex {
+impl <'a> BinaryBuilder for DocumentIndex {
+    fn new() -> DocumentIndex {
         let res = DocumentIndex {
             id: 0,
-            words: Vec::new()
+            words: Rc::new(RefCell::new(Vec::new()))
         };
         return res;
     }
@@ -84,7 +83,7 @@ impl BinaryBuilder for DocumentIndex {
     fn from_raw(ba: &mut ByteArray) -> Option<Self> {
         let id = ba.read();
         let num: u64 = ba.read();
-        let mut words = Vec::new();
+        let words = Rc::new(RefCell::new(Vec::new()));
         for i in 0..num { words.push(ba.read()) }
         return Some(DocumentIndex {
             id,
@@ -133,7 +132,7 @@ mod tests {
     fn serializing_doc_index() {
         let mut di = DocumentIndex {
             id: 99,
-            words: Vec::new()
+            words: &Vec::new()
         };
 
         di.insert(DocumentWordIndex {
@@ -198,3 +197,5 @@ mod tests {
     }
 
 }
+
+*/
