@@ -12,14 +12,14 @@ mod tests {
         println!("---------- Testing between!");
         let is1 = IntegerSorted {
             value: 0,
-            doc_ids: &Rc::new(RefCell::new(vec![]))
+            doc_ids: Rc::new(RefCell::new(vec![]))
         };
         is1.insert(1);
         is1.insert(2);
 
         let is2 = IntegerSorted {
             value: 0,
-            doc_ids: &Rc::new(RefCell::new(vec![]))
+            doc_ids: Rc::new(RefCell::new(vec![]))
         };
         is2.insert(1);
         is2.insert(2);
@@ -27,21 +27,21 @@ mod tests {
 
         let is3 = IntegerSorted {
             value: 0,
-            doc_ids: &Rc::new(RefCell::new(vec![]))
+            doc_ids: Rc::new(RefCell::new(vec![]))
         };
         is2.insert(1);
         is2.insert(2);
 
         let is4 = IntegerSorted {
             value: 0,
-            doc_ids: &Rc::new(RefCell::new(vec![]))
+            doc_ids: Rc::new(RefCell::new(vec![]))
         };
         is2.insert(1);
         is2.insert(2);
 
         let is5 = IntegerSorted {
             value: 0,
-            doc_ids: &Rc::new(RefCell::new(vec![]))
+            doc_ids: Rc::new(RefCell::new(vec![]))
         };
         is2.insert(1);
         is2.insert(2);

@@ -68,30 +68,29 @@ use std::borrow::{BorrowMut, Borrow};
 
     #[allow(dead_code)]
     #[derive(Debug)]
-    #[derive(Clone, Copy)]
+    #[derive(Clone)]
     #[derive(Eq)]
-    pub struct IntegerSorted<'a> {
+    pub struct IntegerSorted {
         pub value: u64,
-        pub doc_ids: &'a Rc<RefCell<Vec<u64>>>
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
+
 
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
-    #[derive(Copy)]
-    pub struct FloatSorted<'a> {
+    pub struct FloatSorted {
         pub value: f64,
-        pub doc_ids: &'a Rc<RefCell<Vec<u64>>>
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
 
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    #[derive(Copy)]
-    pub struct DateSorted<'a> {
+    pub struct DateSorted {
         pub value: u64,
-        pub doc_ids: &'a Rc<RefCell<Vec<u64>>>
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
 
 
@@ -110,8 +109,8 @@ use std::borrow::{BorrowMut, Borrow};
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
-        [ IntegerSorted <'_>] [ value ];
-        [ DateSorted <'_>] [ value ];
+        [ IntegerSorted ] [ value ];
+        [ DateSorted ] [ value ];
 
     )]
     impl PartialEq for the_class {
@@ -134,13 +133,13 @@ use std::borrow::{BorrowMut, Borrow};
 
 
 
-    impl PartialEq for FloatSorted<'_> {
+    impl PartialEq for FloatSorted {
         fn eq(&self, other: &Self) -> bool {
             self.value.approx_eq(other.value, (0.0, 2))
         }
     }
 
-    impl Eq for FloatSorted<'_> {
+    impl Eq for FloatSorted {
 
     }
 
@@ -150,9 +149,9 @@ use std::borrow::{BorrowMut, Borrow};
         [ DocumentIndex ];
         [ WordIndex<'a> ];
         [ WordSorted<'a> ];
-        [ FloatSorted<'a> ];
-        [ IntegerSorted <'_>];
-        [ DateSorted <'_>];
+        [ FloatSorted ];
+        [ IntegerSorted ];
+        [ DateSorted ];
     )]
 
     impl <'a> PartialOrd for the_class {
@@ -167,8 +166,8 @@ use std::borrow::{BorrowMut, Borrow};
         [ DocumentIndex ] [ id ];
         [ WordIndex<'a> ] [ id ];
         [ WordSorted<'a> ] [ value ];
-        [ IntegerSorted <'a>] [ value ];
-        [ DateSorted <'a> ] [ value ];
+        [ IntegerSorted ] [ value ];
+        [ DateSorted  ] [ value ];
     )]
 
     impl <'a> Ord for the_class {
@@ -177,7 +176,7 @@ use std::borrow::{BorrowMut, Borrow};
         }
     }
 
-    impl Ord for FloatSorted<'_> {
+    impl Ord for FloatSorted {
         fn cmp(&self, other: &Self) -> Ordering {
             self.value.partial_cmp(&other.value).unwrap()
         }
@@ -203,9 +202,9 @@ use std::borrow::{BorrowMut, Borrow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted <'a> ] [ u64 ];
-    [ DateSorted <'a> ] [ u64 ];
-    [ FloatSorted<'a> ] [ f64 ];
+    [ IntegerSorted  ] [ u64 ];
+    [ DateSorted  ] [ u64 ];
+    [ FloatSorted ] [ f64 ];
     )]
     impl <'a> GetValue<val_type> for the_class {
         fn get_value(&self) -> val_type {
@@ -215,8 +214,8 @@ use std::borrow::{BorrowMut, Borrow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted <'a>] [ u64 ];
-    [ DateSorted  <'a>][ u64 ];
+    [ IntegerSorted ] [ u64 ];
+    [ DateSorted ][ u64 ];
     )]
     impl <'a> Between<u64> for FieldIndex<the_class> {
 
@@ -225,12 +224,12 @@ use std::borrow::{BorrowMut, Borrow};
             let index = self.get_vec().as_ref().borrow();
 
 
-            let mut start_index = match index.binary_search_by_key(&start, |&e| e.value) {
+            let mut start_index = match index.binary_search_by_key(&start, |e| e.value) {
                 Ok(pos) => pos,
                 Err(pos) => pos
             };
 
-            let stop_index = match index.binary_search_by_key(&start, |&e| e.value) {
+            let stop_index = match index.binary_search_by_key(&start, |e| e.value) {
                 Ok(pos) => pos,
                 Err(pos) => pos
             };
@@ -250,18 +249,18 @@ use std::borrow::{BorrowMut, Borrow};
     }
 
 
-impl Between<f64> for FieldIndex<FloatSorted<'_>> {
+impl Between<f64> for FieldIndex<FloatSorted> {
 
     fn between(&self,start: f64, stop: f64) -> (usize, usize) {
 
         let index = self.get_vec().as_ref().borrow();
 
-        let mut start_index = match index.binary_search_by(|&e| e.value.partial_cmp(&start).unwrap() ) {
+        let mut start_index = match index.binary_search_by(|e| e.value.partial_cmp(&start).unwrap() ) {
             Ok(pos) => pos,
             Err(pos) => pos
         };
 
-        let stop_index = match index.binary_search_by(|&e| e.value.partial_cmp(&stop).unwrap() ) {
+        let stop_index = match index.binary_search_by(|e| e.value.partial_cmp(&stop).unwrap() ) {
             Ok(pos) => pos,
             Err(pos) => pos
         };
@@ -322,9 +321,9 @@ impl HasChildrenNew<DocumentIndex> for WordSorted<'_> {
 
 #[duplicate(
 the_class val_type;
-    [ IntegerSorted <'a>] [ u64 ];
-    [ DateSorted <'a>] [ u64 ];
-    [ FloatSorted <'a>] [ u64 ];
+    [ IntegerSorted ] [ u64 ];
+    [ DateSorted ] [ u64 ];
+    [ FloatSorted ] [ u64 ];
 )]
 impl <'a> HasChildrenNew<val_type> for the_class {
     fn get_vec(&self) -> &Rc<RefCell<Vec<val_type>>> {
