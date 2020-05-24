@@ -67,15 +67,6 @@ impl BinaryBuilder for DocumentWordIndex {
     }
  }
 
-fn new_word_sorted<'a> ()  ->  WordSorted<'a> {
-    
-    let res = WordSorted {
-        value: "",
-        freq: 0,
-        docs: Rc::new(RefCell::new(vec![]))
-    };
-    return res
-}
 
 
 
