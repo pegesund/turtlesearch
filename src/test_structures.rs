@@ -6,6 +6,7 @@ mod tests {
     use super::*;
     use std::rc::Rc;
     use std::cell::RefCell;
+    use std::borrow::BorrowMut;
 
     #[test]
     fn between() {
@@ -92,6 +93,31 @@ mod tests {
         doc_index.insert(res2);
         doc_index.insert(res3);
 
+
+
         println!("DocumentWordIndex: {:?}", doc_index);
+        {
+            let zero = &mut doc_index.get_vec().as_ref().borrow_mut()[0];
+            println!("Zero: {:?}", zero);
+            zero.freq = 88;
+            zero.insert(888);
+            zero.insert(88);
+            zero.insert(8888);
+        }
+        println!("DocumentWordIndex: {:?}", doc_index);
+
+        {
+            let zero = &doc_index.get_vec().as_ref().borrow()[0];
+            assert_eq!(zero.freq, 88);
+            let zero_children = zero.get_vec().as_ref().borrow().to_vec();
+            assert_eq!(zero_children, vec![88,888,8888])
+        }
+
+        {
+            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordIndex| e.id).collect::<Vec<u64>>();
+            assert_eq!(children, &vec![0, 5, 10, 12])
+        }
+
+
     }
 }
