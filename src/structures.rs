@@ -8,6 +8,7 @@ use float_cmp::ApproxEq;
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::borrow::{BorrowMut, Borrow};
 
 #[allow(dead_code)]
     #[derive(PartialEq)]
@@ -42,7 +43,7 @@ use std::rc::Rc;
     #[derive(Eq)]
     pub struct DocumentWordIndex {
         pub id: u64,
-        pub position: Vec<u64>,
+        pub position: Rc<RefCell<Vec<u64>>>,
         pub freq: u64
     }    
     
@@ -214,10 +215,6 @@ use std::rc::Rc;
     }
 
 
-    impl HasChildren<u64> for DocumentWordIndex {
-        fn get_vec_mut(&mut self) -> &mut Vec<u64> { &mut self.position }
-        fn get_vec(&self) -> &Vec<u64> { &self.position }
-    }
 
 /*
     impl HasChildren<DocumentWordIndex> for DocumentIndex  {
@@ -336,7 +333,36 @@ impl Between<f64> for FieldIndex<FloatSorted<'_>> {
 }
 
 fn insert_into_document_index(document_index: DocumentIndex) {
-    let words  = document_index.words;
+    let mut words  = document_index.words;
     let words_mut = words.borrow_mut();
 }
 
+
+pub trait HasChildrenNew<E: Debug + Clone + Ord> {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
+
+    fn insert(&self, element: E) -> () {
+        let insert_pos = match self.get_vec().as_ref().borrow().binary_search(&element) {
+            Ok(pos) => pos,
+            Err(pos) => pos
+        };
+        {
+            // (*self.get_vec()).borrow_mut().insert(insert_pos, element);
+            (*(*self.get_vec())).borrow_mut().insert(insert_pos, element);
+        }
+    }
+}
+
+
+
+impl HasChildrenNew<DocumentWordIndex> for DocumentIndex {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordIndex>>> {
+        return &self.words;
+    }
+}
+
+impl HasChildrenNew<u64> for DocumentWordIndex {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<u64>>> {
+        return &self.position;
+    }
+}

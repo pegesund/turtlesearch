@@ -40,29 +40,29 @@ impl BinaryBuilder for DocumentWordIndex {
     fn new() ->
              DocumentWordIndex {
             let res = DocumentWordIndex {
-            id: 0,
-            position: Vec::new(),
-            freq: 0
+                id: 0,
+                position: Rc::new(RefCell::new(vec![])),
+                freq: 0
             };
         return res
     }
  
     fn from_raw(ba: &mut ByteArray) -> Option<Self> {
-        let id = ba.read();
+        let id: u64 = ba.read();
         let num: u64 = ba.read();
-        let mut vec = Vec::new();
-        for i in 0..num { vec.push(ba.read()) }
-        let freq = ba.read();
+        let vec: Rc<RefCell<Vec<u64>>> = Rc::new(RefCell::new(vec![]));
+        for i in 0..num { vec.borrow_mut().push(ba.read()) }
+        let freq: u64 = ba.read();
         return Some(DocumentWordIndex {
-            id,
-            position: vec,
-            freq
+            id: 0,
+            position: Rc::new(RefCell::new(vec![])),
+            freq: 0
         });
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
         ba <<= &self.id;
-        ba <<= &self.position.len();
-        for i in 0..self.position.len() { ba <<= &self.position[i] }
+        ba <<= &self.position.borrow().len();
+        for i in 0..self.position.borrow().len() { ba <<= &self.position.borrow()[i] }
         ba <<= &self.freq;
     }
  }
