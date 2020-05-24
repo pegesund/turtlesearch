@@ -8,7 +8,6 @@ mod serializing;
 mod test_structures;
 use crate::server::start_server;
 use structures::DocumentWordIndex;
-use crate::structures::HasChildren;
 use byte_array::{
     BinaryBuilder,
     ByteArray,

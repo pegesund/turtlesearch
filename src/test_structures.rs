@@ -11,29 +11,45 @@ mod tests {
     fn between() {
         println!("---------- Testing between!");
         let is1 = IntegerSorted {
-            value: 88,
-            doc_ids: &vec![1,2,3,4,5]
+            value: 0,
+            doc_ids: &Rc::new(RefCell::new(vec![]))
         };
-        let is2 = IntegerSorted {
-            value: 100,
-            doc_ids: &vec![1,2,3,4,5]
-        };
-        let is3 = IntegerSorted {
-            value: 10,
-            doc_ids: &vec![1,2,3,4,5]
-        };
-        let is4 = IntegerSorted {
-            value: 1,
-            doc_ids: &vec![1,2,3,4,5]
-        };
-        let is5 = IntegerSorted {
-            value: 99,
-            doc_ids: &vec![1,2,3,4,5]
-        };
+        is1.insert(1);
+        is1.insert(2);
 
-        let mut index = FieldIndex {
-            name: "testfoeød".to_string(),
-            index: vec![]
+        let is2 = IntegerSorted {
+            value: 0,
+            doc_ids: &Rc::new(RefCell::new(vec![]))
+        };
+        is2.insert(1);
+        is2.insert(2);
+
+
+        let is3 = IntegerSorted {
+            value: 0,
+            doc_ids: &Rc::new(RefCell::new(vec![]))
+        };
+        is2.insert(1);
+        is2.insert(2);
+
+        let is4 = IntegerSorted {
+            value: 0,
+            doc_ids: &Rc::new(RefCell::new(vec![]))
+        };
+        is2.insert(1);
+        is2.insert(2);
+
+        let is5 = IntegerSorted {
+            value: 0,
+            doc_ids: &Rc::new(RefCell::new(vec![]))
+        };
+        is2.insert(1);
+        is2.insert(2);
+
+
+        let index = FieldIndex {
+            name: "".to_string(),
+            index: Rc::new(RefCell::new(vec![]))
         };
 
         index.insert(is1);

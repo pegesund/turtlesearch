@@ -58,22 +58,21 @@ use std::borrow::{BorrowMut, Borrow};
 
     #[allow(dead_code)]
     #[derive(Debug)]
-    #[derive(Clone, Copy)]
+    #[derive(Clone)]
     #[derive(Eq)]
     pub struct WordSorted<'a> {
         pub value:  &'a str,
         pub freq: u64,
-        pub docs: &'a Vec<DocumentIndex>
+        pub docs: Rc<RefCell<Vec<DocumentIndex>>>
     }
 
     #[allow(dead_code)]
     #[derive(Debug)]
-    #[derive(Clone)]
+    #[derive(Clone, Copy)]
     #[derive(Eq)]
-    #[derive(Copy)]
     pub struct IntegerSorted<'a> {
         pub value: u64,
-        pub doc_ids: &'a Vec<u64>
+        pub doc_ids: &'a Rc<RefCell<Vec<u64>>>
     }
 
     #[allow(dead_code)]
@@ -82,17 +81,17 @@ use std::borrow::{BorrowMut, Borrow};
     #[derive(Copy)]
     pub struct FloatSorted<'a> {
         pub value: f64,
-        pub doc_ids: &'a Vec<u64>
+        pub doc_ids: &'a Rc<RefCell<Vec<u64>>>
     }
 
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
-    #[derive(Copy)]
     #[derive(Eq)]
+    #[derive(Copy)]
     pub struct DateSorted<'a> {
         pub value: u64,
-        pub doc_ids: &'a Vec<u64>
+        pub doc_ids: &'a Rc<RefCell<Vec<u64>>>
     }
 
 
@@ -103,45 +102,15 @@ use std::borrow::{BorrowMut, Borrow};
     pub struct WordIndex<'a> {
         pub id: u64,
         pub freq: u64,
-        pub words: Vec<WordSorted<'a>>
+        pub words: Rc<RefCell<Vec<WordSorted<'a>>>>
     }
 
-/*
-    pub trait HasMutableChildren<E: Debug + Clone + Ord > {
-        fn insert(&mut self, )
-    }
-*/
-    pub trait HasChildren<E: Debug + Clone + Ord > {
-        fn get_vec_mut(&mut self) -> &mut Vec<E>;
-        fn get_vec(&self) -> &Vec<E>;
-        fn insert(&mut self, element: E) -> () {
-            let insert_pos = match self.get_vec_mut().binary_search(&element) {
-                Ok(pos) => pos,
-                Err(pos) => pos
-            };
-            self.get_vec_mut().insert(insert_pos, element);
-        }
-        fn get_child_by_id(&self, id: E) -> Option<&E> {
-            let res = match &self.get_vec().binary_search(&id) {
-                Ok(pos) => Some (&self.get_vec()[*pos]),
-                Err(_) => None
-            };
-            res
-        }
-        fn get_child_by_id_mut(&mut self, id: E) -> Option<&mut E> {
-            let res = match self.get_vec_mut().binary_search(&id) {
-                Ok(pos) => Some (&mut self.get_vec_mut()[pos]),
-                Err(_) => None
-            };
-            res
-        }
-    }
 
     #[duplicate(
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
         [ DocumentIndex ] [ id ];
-        [ IntegerSorted<'_> ] [ value ];
+        [ IntegerSorted <'_>] [ value ];
         [ DateSorted <'_>] [ value ];
 
     )]
@@ -181,9 +150,9 @@ use std::borrow::{BorrowMut, Borrow};
         [ DocumentIndex ];
         [ WordIndex<'a> ];
         [ WordSorted<'a> ];
-        [ FloatSorted <'_>];
-        [ IntegerSorted<'_> ];
-        [ DateSorted<'_> ];
+        [ FloatSorted<'a> ];
+        [ IntegerSorted <'_>];
+        [ DateSorted <'_>];
     )]
 
     impl <'a> PartialOrd for the_class {
@@ -198,8 +167,8 @@ use std::borrow::{BorrowMut, Borrow};
         [ DocumentIndex ] [ id ];
         [ WordIndex<'a> ] [ id ];
         [ WordSorted<'a> ] [ value ];
-        [ IntegerSorted<'_> ] [ value ];
-        [ DateSorted<'_> ] [ value ];
+        [ IntegerSorted <'a>] [ value ];
+        [ DateSorted <'a> ] [ value ];
     )]
 
     impl <'a> Ord for the_class {
@@ -214,39 +183,13 @@ use std::borrow::{BorrowMut, Borrow};
         }
     }
 
-
-
-/*
-    impl HasChildren<DocumentWordIndex> for DocumentIndex  {
-        fn get_vec_mut(&mut self) -> &mut Vec<DocumentWordIndex> { &mut self.words }
-        fn get_vec(&self) -> &Vec<DocumentWordIndex> { &self.words }
-    }
-*/
-
-    impl <'a> HasChildren<WordSorted<'a>> for WordIndex<'a> {
-        fn get_vec_mut(&mut self) -> &mut Vec<WordSorted<'a>> { &mut self.words }
-        fn get_vec(&self) -> &Vec<WordSorted<'a>> { &self.words }
-    }
-
-/*
-    impl <'a> HasChildren<DocumentIndex> for WordSorted<'a> {
-        fn get_vec_mut(&mut self) -> &mut Vec<DocumentIndex> { &mut self.docs }
-        fn get_vec(&self) -> &Vec<DocumentIndex> { &self.docs }
-    }
-*/
-
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
 
     pub struct FieldIndex<G:Debug + Clone + Ord > {
         pub name: String,
-        pub index: Vec<G>
-    }
-
-    impl<G: Clone + Ord + Debug> HasChildren<G> for FieldIndex<G> {
-        fn get_vec_mut(&mut self) -> &mut Vec<G> { &mut self.index }
-        fn get_vec(&self) -> &Vec<G> { &self.index }
+        pub index:  Rc<RefCell<Vec<G>>>
     }
 
 
@@ -260,42 +203,44 @@ use std::borrow::{BorrowMut, Borrow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted<'_> ] [ u64 ];
-    [ DateSorted<'_> ] [ u64 ];
-    [ FloatSorted<'_> ] [ f64 ];
+    [ IntegerSorted <'a> ] [ u64 ];
+    [ DateSorted <'a> ] [ u64 ];
+    [ FloatSorted<'a> ] [ f64 ];
     )]
-    impl GetValue<val_type> for the_class {
+    impl <'a> GetValue<val_type> for the_class {
         fn get_value(&self) -> val_type {
             return self.value;
         }
     }
 
-
-
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted<'_> ] [ u64 ];
-    [ DateSorted<'_> ] [ u64 ];
+    [ IntegerSorted <'a>] [ u64 ];
+    [ DateSorted  <'a>][ u64 ];
     )]
-    impl Between<u64> for FieldIndex<the_class> {
+    impl <'a> Between<u64> for FieldIndex<the_class> {
 
         fn between(&self,start: val_type, stop: val_type) -> (usize, usize) {
 
-            let mut start_index = match self.get_vec().binary_search_by_key(&start, |&e| e.value) {
+            let index = self.get_vec().as_ref().borrow();
+
+
+            let mut start_index = match index.binary_search_by_key(&start, |&e| e.value) {
                 Ok(pos) => pos,
                 Err(pos) => pos
             };
 
-            let stop_index = match self.get_vec().binary_search_by_key(&start, |&e| e.value) {
+            let stop_index = match index.binary_search_by_key(&start, |&e| e.value) {
                 Ok(pos) => pos,
                 Err(pos) => pos
             };
 
-            while self.get_vec()[start_index].value == start && start_index > 0{
+            while index[start_index].value == start && start_index > 0{
                 start_index = start_index - 1
             }
 
-            while self.get_vec()[stop_index].value == stop && stop_index < self.index.len() - 1 {
+
+            while index[stop_index].value == stop && stop_index < index.len() - 1 {
                 start_index = start_index + 1
             }
 
@@ -309,21 +254,23 @@ impl Between<f64> for FieldIndex<FloatSorted<'_>> {
 
     fn between(&self,start: f64, stop: f64) -> (usize, usize) {
 
-        let mut start_index = match self.get_vec().binary_search_by(|&e| e.value.partial_cmp(&start).unwrap() ) {
+        let index = self.get_vec().as_ref().borrow();
+
+        let mut start_index = match index.binary_search_by(|&e| e.value.partial_cmp(&start).unwrap() ) {
             Ok(pos) => pos,
             Err(pos) => pos
         };
 
-        let stop_index = match self.get_vec().binary_search_by(|&e| e.value.partial_cmp(&stop).unwrap() ) {
+        let stop_index = match index.binary_search_by(|&e| e.value.partial_cmp(&stop).unwrap() ) {
             Ok(pos) => pos,
             Err(pos) => pos
         };
 
-        while self.get_vec()[start_index].value.approx_eq(start, (0.0, 2)) && start_index > 0{
+        while index[start_index].value.approx_eq(start, (0.0, 2)) && start_index > 0{
             start_index = start_index - 1
         }
 
-        while self.get_vec()[stop_index].value.approx_eq(stop, (0.0, 2)) && stop_index < self.index.len() - 1 {
+        while index[stop_index].value.approx_eq(stop, (0.0, 2)) && stop_index < index.len() - 1 {
             start_index = start_index + 1
         }
 
@@ -347,7 +294,6 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
             Err(pos) => pos
         };
         {
-            // (*self.get_vec()).borrow_mut().insert(insert_pos, element);
             (*(*self.get_vec())).borrow_mut().insert(insert_pos, element);
         }
     }
@@ -364,5 +310,30 @@ impl HasChildrenNew<DocumentWordIndex> for DocumentIndex {
 impl HasChildrenNew<u64> for DocumentWordIndex {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u64>>> {
         return &self.position;
+    }
+}
+
+impl HasChildrenNew<DocumentIndex> for WordSorted<'_> {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentIndex>>> {
+        return &self.docs;
+    }
+}
+
+
+#[duplicate(
+the_class val_type;
+    [ IntegerSorted <'a>] [ u64 ];
+    [ DateSorted <'a>] [ u64 ];
+    [ FloatSorted <'a>] [ u64 ];
+)]
+impl <'a> HasChildrenNew<val_type> for the_class {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<val_type>>> {
+        return &self.doc_ids;
+    }
+}
+
+impl<G: Debug + Clone + Ord > HasChildrenNew<G> for FieldIndex<G> {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<G>>> {
+        return &self.index;
     }
 }
