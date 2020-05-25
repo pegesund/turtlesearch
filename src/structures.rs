@@ -70,6 +70,24 @@ use std::borrow::{BorrowMut, Borrow};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
+    pub struct ChildrenDocs {
+        pub value: u64,
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
+    pub struct ParentDocs {
+        pub value: u64,
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
     pub struct IntegerSorted {
         pub value: u64,
         pub doc_ids: Rc<RefCell<Vec<u64>>>
@@ -111,6 +129,9 @@ use std::borrow::{BorrowMut, Borrow};
         [ DocumentIndex ] [ id ];
         [ IntegerSorted ] [ value ];
         [ DateSorted ] [ value ];
+        [ ParentDocs ] [ doc_ids ];
+        [ ChildrenDocs ] [ doc_ids ];
+
 
     )]
     impl PartialEq for the_class {
@@ -324,6 +345,8 @@ the_class val_type;
     [ IntegerSorted ] [ u64 ];
     [ DateSorted ] [ u64 ];
     [ FloatSorted ] [ u64 ];
+    [ ChildrenDocs ] [ u64 ];
+    [ ParentDocs ] [ u64 ];
 )]
 impl <'a> HasChildrenNew<val_type> for the_class {
     fn get_vec(&self) -> &Rc<RefCell<Vec<val_type>>> {
