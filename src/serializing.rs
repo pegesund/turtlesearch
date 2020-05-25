@@ -7,7 +7,7 @@ use crate::structures::*;
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
-
+use std::borrow::Borrow;
 
 
 /*
@@ -61,8 +61,8 @@ impl BinaryBuilder for DocumentWordIndex {
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
         ba <<= &self.id;
-        ba <<= &self.position.borrow().len();
-        for i in 0..self.position.borrow().len() { ba <<= &self.position.borrow()[i] }
+        ba <<= &self.position.as_ref().borrow().len();
+        for i in 0..self.position.as_ref().borrow().len() { ba <<= &self.position.as_ref().borrow()[i] }
         ba <<= &self.freq;
     }
  }
@@ -71,7 +71,6 @@ impl BinaryBuilder for DocumentWordIndex {
 
 
 
-/*
 
 impl <'a> BinaryBuilder for DocumentIndex {
     fn new() -> DocumentIndex {
@@ -85,19 +84,23 @@ impl <'a> BinaryBuilder for DocumentIndex {
     fn from_raw(ba: &mut ByteArray) -> Option<Self> {
         let id = ba.read();
         let num: u64 = ba.read();
-        let words = Rc::new(RefCell::new(Vec::new()));
+        let mut words =Vec::new();
         for i in 0..num { words.push(ba.read()) }
         return Some(DocumentIndex {
             id,
-            words
+            words:  Rc::new(RefCell::new(words))
         });
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
+        let words = self.words.as_ref().borrow();
         ba <<= &self.id;
-        ba <<= &self.words.len();
-        for i in 0..self.words.len() { ba <<= &self.words[i] }
+        ba <<= &words.len();
+        for i in 0..words.len() { ba <<= &words[i] }
     }
 }
+
+
+
 
 #[cfg(test)]
 mod tests {
@@ -106,9 +109,9 @@ mod tests {
 
     #[test]
     fn serializing_word_index() {
-        let mut wi = DocumentWordIndex {
+        let wi = DocumentWordIndex {
             id: 199,
-            position: Vec::new(),
+            position: Rc::new(RefCell::new(vec![])),
             freq: 0
         };
 
@@ -117,13 +120,8 @@ mod tests {
         wi.insert(21);
         wi.insert(18);
         wi.insert(33);
-        let mut found = wi.get_child_by_id(21);
-        match found.as_mut() {
-            Some(v) => *v = &42,
-            None => {}
-        }
         let ba = &mut ByteArray::new();
-        println!("wi: {:?} {:?}", wi, found);
+        println!("wi: {:?}", wi);
         let raw = wi.to_raw(ba);
         let wi2 = DocumentWordIndex::from_raw(ba).unwrap();
         println!("Here is wi2: {:?}", wi2);
@@ -132,26 +130,26 @@ mod tests {
 
     #[test]
     fn serializing_doc_index() {
-        let mut di = DocumentIndex {
+        let di = DocumentIndex {
             id: 99,
-            words: &Vec::new()
+            words: Rc::new(RefCell::new(vec![]))
         };
 
         di.insert(DocumentWordIndex {
             id: 199,
-            position: Vec::new(),
+            position: Rc::new(RefCell::new(vec![])),
             freq: 0
         });
 
         di.insert(DocumentWordIndex {
             id: 10,
-            position: Vec::new(),
+            position: Rc::new(RefCell::new(vec![])),
             freq: 0
         });
 
         di.insert(DocumentWordIndex {
             id: 200,
-            position: Vec::new(),
+            position: Rc::new(RefCell::new(vec![])),
             freq: 0
         });
 
@@ -163,41 +161,20 @@ mod tests {
         // check cloning
         assert_eq!(di, di2);
         // check sort order
-        let word_ids: Vec<u64> = di2.words.iter().map(|i| i.id).collect();
+        let word_ids: Vec<u64> = di2.words.as_ref().borrow().iter().map(|i| i.id).collect();
         assert_eq!(word_ids, vec![10,199,200]);
     }
+}
 
-    #[test]
-    fn serializing_ownership() {
-        let shared_map: Rc<RefCell<_>> = Rc::new(RefCell::new(HashMap::new()));
-        {
-            let b1 = shared_map.borrow();
-            println!("Map: {:?}", b1);
-        }
-        // Create a new block to limit the scope of the dynamic borrow
-        {
-            let mut map: RefMut<_> = shared_map.borrow_mut();
-            map.insert("africa", 92388);
-            map.insert("kyoto", 11837);
-            map.insert("piccadilly", 11826);
-            map.insert("marbles", 38);
-        }
+/*
 
-        // Note that if we had not let the previous borrow of the cache fall out
-        // of scope then the subsequent borrow would cause a dynamic thread panic.
-        // This is the major hazard of using `RefCell`.
-        let total: i32 = shared_map.borrow().values().sum();
-        println!("{}", total);
-    }
-
-    #[test]
-    fn string_parse() {
-        let str = "abc☯";
-        let v_vec: Vec<u16> = str.chars().map(|c| c as u16).collect();
-        println!("Value: {:?}", v_vec);
-
-    }
+#[test]
+fn string_parse() {
+    let str = "abc☯";
+    let v_vec: Vec<u16> = str.chars().map(|c| c as u16).collect();
+    println!("Value: {:?}", v_vec);
 
 }
+
 
 */
