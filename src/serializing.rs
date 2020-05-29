@@ -91,6 +91,7 @@ impl <'a> BinaryBuilder for DocumentIndex {
             words:  Rc::new(RefCell::new(words))
         });
     }
+
     fn to_raw(&self, mut ba: &mut ByteArray) {
         let words = self.words.as_ref().borrow();
         ba <<= &self.id;
@@ -98,8 +99,6 @@ impl <'a> BinaryBuilder for DocumentIndex {
         for i in 0..words.len() { ba <<= &words[i] }
     }
 }
-
-
 
 
 #[cfg(test)]
