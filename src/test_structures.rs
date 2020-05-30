@@ -25,7 +25,6 @@ mod tests {
         is2.insert(1);
         is2.insert(2);
 
-
         let is3 = IntegerSorted {
             value: 0,
             doc_ids: Rc::new(RefCell::new(vec![]))
@@ -49,6 +48,7 @@ mod tests {
 
 
         let index = FieldIndex {
+            // added comment
             name: "".to_string(),
             index: Rc::new(RefCell::new(vec![]))
         };

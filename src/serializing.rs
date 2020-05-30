@@ -54,9 +54,9 @@ impl BinaryBuilder for DocumentWordIndex {
         for i in 0..num { vec.borrow_mut().push(ba.read()) }
         let freq: u64 = ba.read();
         return Some(DocumentWordIndex {
-            id: 0,
+            id: id,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            freq: freq
         });
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
