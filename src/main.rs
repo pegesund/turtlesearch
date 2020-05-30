@@ -7,6 +7,7 @@ mod server;
 mod serializing;
 mod test_structures;
 mod rocks;
+mod test_rocks;
 use crate::server::start_server;
 use structures::DocumentWordIndex;
 use byte_array::{
