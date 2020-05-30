@@ -19,7 +19,8 @@ mod tests {
 
     #[test]
     fn test_save_document_word_index() {
-        let path = "/var/tmp/doc_index.rock";
+        let path = "/tmp/document_index.rock";
+
         let dwi = DocumentWordIndex {
             id: 199,
             position: Rc::new(RefCell::new(vec![])),
@@ -27,8 +28,8 @@ mod tests {
         };
         dwi.insert(88);
         dwi.insert(89);
-
-        let db= DB::open_default(path);
+        {
+        let db = DB::open_default(path);
         let db = match db {
             Err(err) => { println!("Go error while opening: {:?}", err); panic!("db trouble") }
             Ok(db) => db
@@ -41,7 +42,8 @@ mod tests {
         assert_eq!(dwi.position, dwi.position);
         assert_eq!(dwi.position.borrow().len(), 2);
 
-        // DB::destroy(&Options::default(), path).unwrap();
-        println!("document index word saved to db");
+    }
+    DB::destroy(&Options::default(), path).unwrap();
+    println!("document index word saved to db");
     }
 }
