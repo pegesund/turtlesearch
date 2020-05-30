@@ -1,5 +1,5 @@
 use rocksdb::{DB, Options};
-use crate::structures::{DocumentWordIndex, DocumentIndex};
+use crate::structures::{DocumentWordIndex};
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::cell::{RefCell, RefMut};

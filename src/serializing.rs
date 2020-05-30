@@ -67,40 +67,6 @@ impl BinaryBuilder for DocumentWordIndex {
     }
  }
 
-
-
-
-
-
-impl <'a> BinaryBuilder for DocumentIndex {
-    fn new() -> DocumentIndex {
-        let res = DocumentIndex {
-            id: 0,
-            words: Rc::new(RefCell::new(Vec::new()))
-        };
-        return res;
-    }
-
-    fn from_raw(ba: &mut ByteArray) -> Option<Self> {
-        let id = ba.read();
-        let num: u64 = ba.read();
-        let mut words =Vec::new();
-        for i in 0..num { words.push(ba.read()) }
-        return Some(DocumentIndex {
-            id,
-            words:  Rc::new(RefCell::new(words))
-        });
-    }
-
-    fn to_raw(&self, mut ba: &mut ByteArray) {
-        let words = self.words.as_ref().borrow();
-        ba <<= &self.id;
-        ba <<= &words.len();
-        for i in 0..words.len() { ba <<= &words[i] }
-    }
-}
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -127,42 +93,7 @@ mod tests {
         assert_eq!(wi, wi2);
     }
 
-    #[test]
-    fn serializing_doc_index() {
-        let di = DocumentIndex {
-            id: 99,
-            words: Rc::new(RefCell::new(vec![]))
-        };
 
-        di.insert(DocumentWordIndex {
-            id: 199,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
-        });
-
-        di.insert(DocumentWordIndex {
-            id: 10,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
-        });
-
-        di.insert(DocumentWordIndex {
-            id: 200,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
-        });
-
-
-        let ba = &mut ByteArray::new();
-        let raw = di.to_raw(ba);
-        let di2 = DocumentIndex::from_raw(ba).unwrap();
-        println!("Here is wi2: {:?}", di2);
-        // check cloning
-        assert_eq!(di, di2);
-        // check sort order
-        let word_ids: Vec<u64> = di2.words.as_ref().borrow().iter().map(|i| i.id).collect();
-        assert_eq!(word_ids, vec![10,199,200]);
-    }
 }
 
 /*

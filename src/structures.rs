@@ -47,14 +47,7 @@ use std::borrow::{BorrowMut, Borrow};
         pub freq: u64
     }    
     
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    #[derive(Eq)]
-    pub struct DocumentIndex {
-        pub id: u64,
-        pub words: Rc<RefCell<Vec<DocumentWordIndex>>>
-    }
+
 
     #[allow(dead_code)]
     #[derive(Debug)]
@@ -63,7 +56,7 @@ use std::borrow::{BorrowMut, Borrow};
     pub struct WordSorted<'a> {
         pub value:  &'a str,
         pub freq: u64,
-        pub docs: Rc<RefCell<Vec<DocumentIndex>>>
+        pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>
     }
 
     #[allow(dead_code)]
@@ -126,7 +119,6 @@ use std::borrow::{BorrowMut, Borrow};
     #[duplicate(
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
-        [ DocumentIndex ] [ id ];
         [ IntegerSorted ] [ value ];
         [ DateSorted ] [ value ];
         [ ParentDocs ] [ doc_ids ];
@@ -152,8 +144,6 @@ use std::borrow::{BorrowMut, Borrow};
         }
 }
 
-
-
     impl PartialEq for FloatSorted {
         fn eq(&self, other: &Self) -> bool {
             self.value.approx_eq(other.value, (0.0, 2))
@@ -167,7 +157,6 @@ use std::borrow::{BorrowMut, Borrow};
     #[duplicate(
         the_class;
         [ DocumentWordIndex ];
-        [ DocumentIndex ];
         [ WordIndex<'a> ];
         [ WordSorted<'a> ];
         [ FloatSorted ];
@@ -184,7 +173,6 @@ use std::borrow::{BorrowMut, Borrow};
     #[duplicate(
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
-        [ DocumentIndex ] [ id ];
         [ WordIndex<'a> ] [ id ];
         [ WordSorted<'a> ] [ value ];
         [ IntegerSorted ] [ value ];
@@ -299,12 +287,6 @@ impl Between<f64> for FieldIndex<FloatSorted> {
     }
 }
 
-fn insert_into_document_index(document_index: DocumentIndex) {
-    let mut words  = document_index.words;
-    let words_mut = words.borrow_mut();
-}
-
-
 pub trait HasChildrenNew<E: Debug + Clone + Ord> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
 
@@ -319,22 +301,14 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
     }
 }
 
-
-
-impl HasChildrenNew<DocumentWordIndex> for DocumentIndex {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordIndex>>> {
-        return &self.words;
-    }
-}
-
 impl HasChildrenNew<u64> for DocumentWordIndex {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u64>>> {
         return &self.position;
     }
 }
 
-impl HasChildrenNew<DocumentIndex> for WordSorted<'_> {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentIndex>>> {
+impl <'a> HasChildrenNew<DocumentWordIndex> for WordSorted<'a> {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordIndex>>> {
         return &self.docs;
     }
 }

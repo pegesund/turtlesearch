@@ -84,16 +84,15 @@ mod tests {
             position: Rc::new(RefCell::new(vec![])),
             freq: 0        };
 
-        let doc_index = DocumentIndex {
-            id: 0,
-            words: Rc::new(RefCell::new(vec![]))
+        let doc_index = WordSorted {
+            value: &"hupp",
+            freq: 100,
+            docs: Rc::new(RefCell::new(vec![]))
         };
         doc_index.insert(res0);
         doc_index.insert(res1);
         doc_index.insert(res2);
         doc_index.insert(res3);
-
-
 
         println!("DocumentWordIndex: {:?}", doc_index);
         {
