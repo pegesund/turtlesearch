@@ -90,6 +90,8 @@ mod tests {
             save_dwi_to_words_sorted(&db, &dwi4, &word_sorted2);
             let dwi_ids = load_words_sorted(&db, &"hupp");
             assert_eq!(dwi_ids, vec![1,2,3]);
+            let dwi_ids2 = load_words_sorted(&db, &"hypp");
+            assert_eq!(dwi_ids2, vec![4]);
         }
         DB::destroy(&Options::default(), path).unwrap();
     }
