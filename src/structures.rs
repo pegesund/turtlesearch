@@ -46,8 +46,6 @@ use std::borrow::{BorrowMut, Borrow};
         pub position: Rc<RefCell<Vec<u64>>>,
         pub freq: u64
     }    
-    
-
 
     #[allow(dead_code)]
     #[derive(Debug)]
@@ -322,6 +320,7 @@ the_class val_type;
     [ ChildrenDocs ] [ u64 ];
     [ ParentDocs ] [ u64 ];
 )]
+
 impl <'a> HasChildrenNew<val_type> for the_class {
     fn get_vec(&self) -> &Rc<RefCell<Vec<val_type>>> {
         return &self.doc_ids;

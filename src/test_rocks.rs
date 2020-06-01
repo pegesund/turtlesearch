@@ -46,4 +46,51 @@ mod tests {
     DB::destroy(&Options::default(), path).unwrap();
     println!("document index word saved to db");
     }
+
+    #[test]
+    fn test_save_and_load_word_sorted() {
+        let dwi1 = DocumentWordIndex {
+            id: 1,
+            position: Rc::new(RefCell::new(vec![])),
+            freq: 0
+        };
+        let dwi2 = DocumentWordIndex {
+            id: 2,
+            position: Rc::new(RefCell::new(vec![])),
+            freq: 0
+        };
+        let dwi3 = DocumentWordIndex {
+            id: 3,
+            position: Rc::new(RefCell::new(vec![])),
+            freq: 0        };
+
+        let dwi4 = DocumentWordIndex {
+            id: 4,
+            position: Rc::new(RefCell::new(vec![])),
+            freq: 0        };
+
+        let word_sorted1 = WordSorted {
+            value: &"hupp",
+            freq: 100,
+            docs: Rc::new(RefCell::new(vec![]))
+        };
+
+        let word_sorted2 = WordSorted {
+            value: &"hypp",
+            freq: 100,
+            docs: Rc::new(RefCell::new(vec![]))
+        };
+
+        let path = "/tmp/words_sorted.rock";
+        {
+            let db = DB::open_default(path).unwrap();
+            save_dwi_to_words_sorted(&db, &dwi1, &word_sorted1);
+            save_dwi_to_words_sorted(&db, &dwi2, &word_sorted1);
+            save_dwi_to_words_sorted(&db, &dwi3, &word_sorted1);
+            save_dwi_to_words_sorted(&db, &dwi4, &word_sorted2);
+            let dwi_ids = load_words_sorted(&db, &"hupp");
+            assert_eq!(dwi_ids, vec![1,2,3]);
+        }
+        DB::destroy(&Options::default(), path).unwrap();
+    }
 }
