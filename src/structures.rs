@@ -8,7 +8,7 @@ use float_cmp::ApproxEq;
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
-use std::borrow::{BorrowMut, Borrow};
+use std::borrow::{BorrowMut, Borrow, Cow};
 
 #[allow(dead_code)]
     #[derive(PartialEq)]
@@ -51,8 +51,8 @@ use std::borrow::{BorrowMut, Borrow};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct WordSorted<'a> {
-        pub value:  &'a str,
+    pub struct WordSorted {
+        pub value: Rc<RefCell<String>>,
         pub freq: u64,
         pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>
     }
@@ -107,10 +107,10 @@ use std::borrow::{BorrowMut, Borrow};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct WordIndex<'a> {
+    pub struct WordIndex {
         pub id: u64,
         pub freq: u64,
-        pub words: Rc<RefCell<Vec<WordSorted<'a>>>>
+        pub words: Rc<RefCell<Vec<WordSorted>>>
     }
 
 
@@ -132,8 +132,8 @@ use std::borrow::{BorrowMut, Borrow};
 
     #[duplicate(
     the_class sort_field;
-    [ WordIndex<'a> ] [ id ];
-    [ WordSorted<'a> ] [ value ];
+    [ WordIndex ] [ id ];
+    [ WordSorted ] [ value ];
     )]
 
     impl <'a> PartialEq for the_class {
@@ -155,8 +155,8 @@ use std::borrow::{BorrowMut, Borrow};
     #[duplicate(
         the_class;
         [ DocumentWordIndex ];
-        [ WordIndex<'a> ];
-        [ WordSorted<'a> ];
+        [ WordIndex ];
+        [ WordSorted ];
         [ FloatSorted ];
         [ IntegerSorted ];
         [ DateSorted ];
@@ -171,8 +171,8 @@ use std::borrow::{BorrowMut, Borrow};
     #[duplicate(
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
-        [ WordIndex<'a> ] [ id ];
-        [ WordSorted<'a> ] [ value ];
+        [ WordIndex ] [ id ];
+        [ WordSorted ] [ value ];
         [ IntegerSorted ] [ value ];
         [ DateSorted  ] [ value ];
     )]
@@ -305,7 +305,7 @@ impl HasChildrenNew<u64> for DocumentWordIndex {
     }
 }
 
-impl <'a> HasChildrenNew<DocumentWordIndex> for WordSorted<'a> {
+impl <'a> HasChildrenNew<DocumentWordIndex> for WordSorted {
     fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordIndex>>> {
         return &self.docs;
     }

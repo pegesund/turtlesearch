@@ -84,8 +84,10 @@ mod tests {
             position: Rc::new(RefCell::new(vec![])),
             freq: 0        };
 
+
+
         let doc_index = WordSorted {
-            value: &"hupp",
+            value: Rc::new(RefCell::new("hupp".to_string())),
             freq: 100,
             docs: Rc::new(RefCell::new(vec![]))
         };
@@ -93,6 +95,7 @@ mod tests {
         doc_index.insert(res1);
         doc_index.insert(res2);
         doc_index.insert(res3);
+
 
         println!("DocumentWordIndex: {:?}", doc_index);
         {
