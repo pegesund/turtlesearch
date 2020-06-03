@@ -299,6 +299,7 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
     }
 }
 
+
 impl HasChildrenNew<u64> for DocumentWordIndex {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u64>>> {
         return &self.position;

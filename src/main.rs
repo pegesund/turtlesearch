@@ -9,6 +9,7 @@ mod test_structures;
 mod rocks;
 mod test_rocks;
 mod build_index_from_db;
+mod text_splitter;
 use crate::server::start_server;
 use structures::DocumentWordIndex;
 use byte_array::{
