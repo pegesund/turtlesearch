@@ -52,7 +52,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct WordSorted {
-        pub value: Rc<RefCell<String>>,
+        pub value: String,
         pub freq: u64,
         pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>
     }

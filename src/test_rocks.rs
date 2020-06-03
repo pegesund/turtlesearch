@@ -70,13 +70,13 @@ mod tests {
             freq: 0        };
 
         let word_sorted1 = WordSorted {
-            value: Rc::new(RefCell::new("hupp".to_string())),
+            value:"hupp".to_string(),
             freq: 100,
             docs: Rc::new(RefCell::new(vec![]))
         };
 
         let word_sorted2 = WordSorted {
-            value:  Rc::new(RefCell::new("hypp".to_string())),
+            value:  "hypp".to_string(),
             freq: 100,
             docs: Rc::new(RefCell::new(vec![]))
         };

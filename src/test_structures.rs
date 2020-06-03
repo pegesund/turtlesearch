@@ -87,7 +87,7 @@ mod tests {
 
 
         let doc_index = WordSorted {
-            value: Rc::new(RefCell::new("hupp".to_string())),
+            value:"hupp".to_string(),
             freq: 100,
             docs: Rc::new(RefCell::new(vec![]))
         };

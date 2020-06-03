@@ -49,7 +49,7 @@ pub fn delete_document_word_index(db: &DB, id: u64) {
 
 fn dwi_and_ws_to_key(dwi: &DocumentWordIndex, ws: &WordSorted) -> ByteArray {
     let dwi_id_raw: [u8; 8] = u64_to_barray!(dwi.id);
-    let w = ws.value.as_ref().borrow();
+    let w = ws.value.clone();
     let word_as_bytes: &[u8] = w.as_bytes();
     let mut key = ByteArray::new();
     for b in word_as_bytes {
@@ -107,7 +107,7 @@ pub fn load_word_sorted(db: &DB, word: &str) -> Vec<u64> {
 /// build new WordSorted based on word
 pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) -> WordSorted {
     let mut ws = WordSorted {
-        value: Rc::new(RefCell::new(word.clone())),
+        value: word.clone(),
         freq: 0,
         docs: Rc::new(RefCell::new(vec![]))
     };
