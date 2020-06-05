@@ -10,7 +10,26 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
-#[allow(dead_code)]
+
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct Document {
+        pub id: u64,
+        pub len: u32
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct DocumentContainer {
+        pub id: u64,
+        pub docs: Rc<RefCell<Vec<Document>>>
+    }
+
+
+    #[allow(dead_code)]
     #[derive(PartialEq)]
     #[derive(Debug)]
     #[derive(Clone)]

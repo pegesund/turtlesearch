@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn test_add_text_to_field() {
         let ws = WordSorted {
-            value: Rc::new(RefCell::new("".to_string())),
+            value:"myfield".to_string(),
             freq: 0,
             docs: Rc::new(RefCell::new(vec![]))
         };
