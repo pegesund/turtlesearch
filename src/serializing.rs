@@ -8,6 +8,7 @@ use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::Borrow;
+use std::ptr;
 
 
 /*
@@ -42,7 +43,8 @@ impl BinaryBuilder for DocumentWordIndex {
             let res = DocumentWordIndex {
                 id: 0,
                 position: Rc::new(RefCell::new(vec![])),
-                freq: 0
+                freq: 0,
+                doc:  ptr::null_mut()
             };
         return res
     }
@@ -56,7 +58,8 @@ impl BinaryBuilder for DocumentWordIndex {
         return Some(DocumentWordIndex {
             id: id,
             position: Rc::new(RefCell::new(vec![])),
-            freq: freq
+            freq: freq,
+            doc: ptr::null_mut()
         });
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
@@ -77,7 +80,8 @@ mod tests {
         let wi = DocumentWordIndex {
             id: 199,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            freq: 0,
+            doc: ptr::null_mut()
         };
 
         wi.insert(22);

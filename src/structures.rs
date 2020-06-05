@@ -63,7 +63,8 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     pub struct DocumentWordIndex {
         pub id: u64,
         pub position: Rc<RefCell<Vec<u64>>>,
-        pub freq: u64
+        pub freq: u64,
+        pub doc: *mut Document
     }    
 
     #[allow(dead_code)]
@@ -73,7 +74,8 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     pub struct WordSorted {
         pub value: String,
         pub freq: u64,
-        pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>
+        pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>,
+        pub optimized: bool
     }
 
     #[allow(dead_code)]

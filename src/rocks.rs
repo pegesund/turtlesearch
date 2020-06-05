@@ -109,7 +109,8 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
     let mut ws = WordSorted {
         value: word.clone(),
         freq: 0,
-        docs: Rc::new(RefCell::new(vec![]))
+        docs: Rc::new(RefCell::new(vec![])),
+        optimized: false
     };
     let doc_ids = load_word_sorted(db_words, &word.to_owned());
     for i in 0..doc_ids.len() {

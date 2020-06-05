@@ -7,6 +7,7 @@ mod tests {
     use std::rc::Rc;
     use std::cell::RefCell;
     use std::borrow::BorrowMut;
+    use std::ptr;
 
     #[test]
     fn between() {
@@ -67,29 +68,46 @@ mod tests {
         let res0 = DocumentWordIndex {
             id: 0,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            freq: 0,
+            doc: ptr::null_mut()
         };
         let res1 = DocumentWordIndex {
             id: 10,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            freq: 0,
+            doc: ptr::null_mut()
         };
         let res2 = DocumentWordIndex {
             id: 5,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0        };
+            freq: 0,
+            doc: ptr::null_mut()
+        };
+
+
+        let mut doc1 = Document {
+            id: 0,
+            len: 1000
+        };
 
         let res3 = DocumentWordIndex {
             id: 12,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0        };
+            freq: 0,
+            doc: &mut doc1
+        };
 
 
+        unsafe {
+            let doc1 = &mut *res3.doc;
+            assert_eq!(doc1.len, 1000);
+        }
 
         let doc_index = WordSorted {
             value:"hupp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![]))
+            docs: Rc::new(RefCell::new(vec![])),
+            optimized: false
         };
         doc_index.insert(res0);
         doc_index.insert(res1);

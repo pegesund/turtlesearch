@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use im::HashMap;
 use std::hash::Hash;
 use std::convert::TryInto;
+use std::ptr;
 
 /// very simple tokenizer, lower case and split on space
 fn simple_tokenizer(text: &str) -> Vec<String> {
@@ -28,15 +29,15 @@ fn add_text_to_field_index(text: &str, mut word_sorted: WordSorted) {
     }
     for (key, value) in h {
         let freq = value.borrow();
-        let number_of_word_occurences = freq.len() as u64;
+        let number_of_word_occurrences = freq.len() as u64;
         let dwi = DocumentWordIndex {
             id: 0,
             position: Rc::new(RefCell::new(vec![])),
-            freq: number_of_word_occurences
+            freq: number_of_word_occurrences,
+            doc: ptr::null_mut()
         };
         word_sorted.insert(dwi);
-        word_sorted.freq += number_of_word_occurences;
-
+        word_sorted.freq += number_of_word_occurrences;
     }
 }
 
@@ -49,7 +50,8 @@ mod tests {
         let ws = WordSorted {
             value:"myfield".to_string(),
             freq: 0,
-            docs: Rc::new(RefCell::new(vec![]))
+            docs: Rc::new(RefCell::new(vec![])),
+            optimized: false
         };
         let t = "This is Petter writing. This is a test.";
         add_text_to_field_index(&t, ws);
