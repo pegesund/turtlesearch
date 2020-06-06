@@ -106,6 +106,11 @@ mod tests {
         let all_dwi_for_the_a_word = children[0].get_vec().as_ref().borrow();
         let all_positions_for_the_a_word = all_dwi_for_the_a_word[0].get_vec().as_ref().borrow();
         assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,106]);
-        println!("Field index: {:#?}", &all_positions_for_the_a_word);
+        let possible_doc = all_dwi_for_the_a_word[0].doc;
+        println!("Field index: {:#?}", &all_dwi_for_the_a_word);
+        unsafe {
+            let doc2 :&mut Document = &mut *possible_doc ;
+            assert_eq!(doc2.len, 99);
+         }
     }
 }
