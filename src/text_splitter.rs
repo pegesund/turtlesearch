@@ -9,7 +9,9 @@ use std::borrow::{BorrowMut, Borrow};
 
 /// very simple tokenizer, lower case and split on space
 fn simple_tokenizer(text: &str) -> Vec<String> {
-    let text_vec = text.to_lowercase().split(" ").map(|s| s.to_string()).collect();
+    let text_without_special_chars: String = text.to_string().chars().enumerate().map(|(u, c)| c) .
+        filter(|c| c.is_alphabetic() || c.is_digit(10) || c.is_whitespace()).collect();
+    let text_vec = text_without_special_chars.to_lowercase().split(" ").map(|s| s.to_string()).collect();
     return text_vec;
 }
 
@@ -38,9 +40,6 @@ fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell
             h.insert(w, Rc::new(RefCell::new(new_vec)));
         }
     }
-
-
-
 }
 
 fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<WordSorted>, doc: &mut Document) {
@@ -63,6 +62,7 @@ fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<W
                 optimized: false
             })
         }
+
         let mut words_sorted = field_index.index.as_ref().borrow_mut();
         let val = h.get(key).unwrap().as_ref().borrow();
         words_sorted[pos].freq += val.len() as u64;
@@ -74,7 +74,6 @@ fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<W
         };
         words_sorted[pos].insert(dwi);
     }
-
 }
 
 
@@ -102,7 +101,11 @@ mod tests {
             len: 99
         };
         add_multi_text_to_field_index(string_vec, &mut field_index, &mut doc);
-        
-        println!("Field index: {:#?}", &field_index);
+        let children = field_index.get_vec().as_ref().borrow();
+        assert_eq!(children.len(), 6);
+        let all_dwi_for_the_a_word = children[0].get_vec().as_ref().borrow();
+        let all_positions_for_the_a_word = all_dwi_for_the_a_word[0].get_vec().as_ref().borrow();
+        assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,106]);
+        println!("Field index: {:#?}", &all_positions_for_the_a_word);
     }
 }
