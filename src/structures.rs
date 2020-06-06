@@ -62,7 +62,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Eq)]
     pub struct DocumentWordIndex {
         pub id: u64,
-        pub position: Rc<RefCell<Vec<u64>>>,
+        pub position: Rc<RefCell<Vec<u32>>>,
         pub freq: u64,
         pub doc: *mut Document
     }    
@@ -321,8 +321,30 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
 }
 
 
-impl HasChildrenNew<u64> for DocumentWordIndex {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<u64>>> {
+pub trait HasSortKey<I: Ord + Debug + Clone> {
+    fn sort_key(&self) -> I;
+}
+
+/*
+pub trait GetChild<E: HasChildrenNew<G>, I: Ord + Debug + Clone, G: Clone + Debug + Ord + HasSortKey<I>> {
+    fn get_pos(&self, id: I) -> Option<usize> where Self: HasChildrenNew<G> {
+        let vec = self.get_vec().as_ref().borrow();
+        return match vec.binary_search_by_key(&id, |e: &G| e.sort_key() ) {
+             Ok(pos) => Some(pos),
+             Err(pos) => None
+         };
+    }
+}
+
+impl HasSortKey<&String> for WordSorted {
+    fn sort_key(&self) -> String {
+        return &self.value;
+    }
+}
+*/
+
+impl HasChildrenNew<u32> for DocumentWordIndex {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
         return &self.position;
     }
 }
