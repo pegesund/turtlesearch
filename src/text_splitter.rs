@@ -72,6 +72,7 @@ fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<W
             freq: 0,
             doc: &mut *doc
         };
+        words_sorted[pos].insert(dwi);
     }
 
 }
@@ -101,6 +102,7 @@ mod tests {
             len: 99
         };
         add_multi_text_to_field_index(string_vec, &mut field_index, &mut doc);
+        
         println!("Field index: {:#?}", &field_index);
     }
 }

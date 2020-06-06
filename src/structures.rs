@@ -325,23 +325,6 @@ pub trait HasSortKey<I: Ord + Debug + Clone> {
     fn sort_key(&self) -> I;
 }
 
-/*
-pub trait GetChild<E: HasChildrenNew<G>, I: Ord + Debug + Clone, G: Clone + Debug + Ord + HasSortKey<I>> {
-    fn get_pos(&self, id: I) -> Option<usize> where Self: HasChildrenNew<G> {
-        let vec = self.get_vec().as_ref().borrow();
-        return match vec.binary_search_by_key(&id, |e: &G| e.sort_key() ) {
-             Ok(pos) => Some(pos),
-             Err(pos) => None
-         };
-    }
-}
-
-impl HasSortKey<&String> for WordSorted {
-    fn sort_key(&self) -> String {
-        return &self.value;
-    }
-}
-*/
 
 impl HasChildrenNew<u32> for DocumentWordIndex {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
