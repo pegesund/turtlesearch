@@ -69,7 +69,6 @@ fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<W
         let dwi = DocumentWordIndex {
             id: 0,
             position: Rc::new(RefCell::new(val.to_vec())),
-            freq: 0,
             doc: &mut *doc
         };
         words_sorted[pos].insert(dwi);

@@ -68,19 +68,16 @@ mod tests {
         let res0 = DocumentWordIndex {
             id: 0,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
         let res1 = DocumentWordIndex {
             id: 10,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
         let res2 = DocumentWordIndex {
             id: 5,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
 
@@ -93,7 +90,6 @@ mod tests {
         let res3 = DocumentWordIndex {
             id: 12,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: &mut doc1
         };
 
@@ -119,7 +115,6 @@ mod tests {
         {
             let zero = &mut doc_index.get_vec().as_ref().borrow_mut()[0];
             println!("Zero: {:?}", zero);
-            zero.freq = 88;
             zero.insert(888);
             zero.insert(88);
             zero.insert(8888);
@@ -128,7 +123,6 @@ mod tests {
 
         {
             let zero = &doc_index.get_vec().as_ref().borrow()[0];
-            assert_eq!(zero.freq, 88);
             let zero_children = zero.get_vec().as_ref().borrow().to_vec();
             assert_eq!(zero_children, vec![88,888,8888])
         }

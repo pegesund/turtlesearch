@@ -63,7 +63,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     pub struct DocumentWordIndex {
         pub id: u64,
         pub position: Rc<RefCell<Vec<u32>>>,
-        pub freq: u64,
         pub doc: *mut Document
     }    
 

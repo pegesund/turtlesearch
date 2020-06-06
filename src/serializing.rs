@@ -43,7 +43,6 @@ impl BinaryBuilder for DocumentWordIndex {
             let res = DocumentWordIndex {
                 id: 0,
                 position: Rc::new(RefCell::new(vec![])),
-                freq: 0,
                 doc:  ptr::null_mut()
             };
         return res
@@ -56,9 +55,8 @@ impl BinaryBuilder for DocumentWordIndex {
         for i in 0..num { vec.borrow_mut().push(ba.read()) }
         let freq: u64 = ba.read();
         return Some(DocumentWordIndex {
-            id: id,
+            id,
             position: Rc::new(RefCell::new(vec![])),
-            freq: freq,
             doc: ptr::null_mut()
         });
     }
@@ -66,7 +64,6 @@ impl BinaryBuilder for DocumentWordIndex {
         ba <<= &self.id;
         ba <<= &self.position.as_ref().borrow().len();
         for i in 0..self.position.as_ref().borrow().len() { ba <<= &self.position.as_ref().borrow()[i] }
-        ba <<= &self.freq;
     }
  }
 
@@ -80,7 +77,6 @@ mod tests {
         let wi = DocumentWordIndex {
             id: 199,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
 

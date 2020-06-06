@@ -25,7 +25,6 @@ mod tests {
         let dwi = DocumentWordIndex {
             id: 199,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 127,
             doc: ptr::null_mut()
         };
         dwi.insert(88);
@@ -40,7 +39,6 @@ mod tests {
         save_document_word_index(&db, &dwi);
         let dwi2 = load_document_word_index(&db, dwi.id);
         assert_eq!(dwi.id, dwi2.id);
-        assert_eq!(dwi.freq, dwi.freq);
         assert_eq!(dwi.position, dwi.position);
         assert_eq!(dwi.position.borrow().len(), 2);
 
@@ -54,26 +52,22 @@ mod tests {
         let dwi1 = DocumentWordIndex {
             id: 1,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
         let dwi2 = DocumentWordIndex {
             id: 2,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
         let dwi3 = DocumentWordIndex {
             id: 3,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
 
         let dwi4 = DocumentWordIndex {
             id: 4,
             position: Rc::new(RefCell::new(vec![])),
-            freq: 0,
             doc: ptr::null_mut()
         };
 

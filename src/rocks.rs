@@ -106,7 +106,7 @@ pub fn load_word_sorted(db: &DB, word: &str) -> Vec<u64> {
 
 /// build new WordSorted based on word
 pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) -> WordSorted {
-    let mut ws = WordSorted {
+    let ws = WordSorted {
         value: word.clone(),
         freq: 0,
         docs: Rc::new(RefCell::new(vec![])),
@@ -115,7 +115,6 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
     let doc_ids = load_word_sorted(db_words, &word.to_owned());
     for i in 0..doc_ids.len() {
         let doc = load_document_word_index(db_docs, doc_ids[i]);
-        ws.freq += doc.freq;
         ws.insert(doc);
     }
     return ws;
