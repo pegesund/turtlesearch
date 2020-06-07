@@ -117,6 +117,7 @@ pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>
 }
 
 /// this counts number of total dwis in a field index
+/// deletes words also if the last dwi is deleted
 /// used only for statistics
 pub fn count_number_of_dwis_in_field_index(field_index: &FieldIndex<WordSorted>) -> u64 {
     let mut counter: u64 = 0;
@@ -201,7 +202,8 @@ mod tests {
         delete_document_from_field_index(&mut field_index, &doc1);
         println!("Petters Field index: {:#?}", &field_index);
         let c2 = count_number_of_dwis_in_field_index(&field_index);
-        // assert_eq!(c1, c2 * 2);
+        assert_eq!(c1, 13);
+        assert_eq!(c2, 6);
 
     }
 }
