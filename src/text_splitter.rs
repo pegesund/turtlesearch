@@ -8,7 +8,8 @@ use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
 /// very simple tokenizer, lower case and split on space
-fn simple_tokenizer(text: &str) -> Vec<String> {
+/// to be moved out and genralized later
+pub fn simple_tokenizer(text: &str) -> Vec<String> {
     let text_without_special_chars: String = text.to_string().chars().enumerate().map(|(u, c)| c) .
         filter(|c| c.is_alphabetic() || c.is_digit(10) || c.is_whitespace()).collect();
     let text_vec = text_without_special_chars.to_lowercase().split(" ").map(|s| s.to_string()).collect();
@@ -42,7 +43,8 @@ fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell
     }
 }
 
-fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<WordSorted>, doc: &mut Document) {
+/// Add text content to a FieldIndex
+pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<WordSorted>, doc: &mut Document) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
@@ -54,7 +56,6 @@ fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<W
     for key in h.keys() {
         let (pos, do_insert) = find_pos(field_index, &key);
         if do_insert {
-            println!("----------------- Inserting: {:?}", &key);
             field_index.insert(WordSorted {
                 value: key.clone(),
                 freq: 0,
@@ -75,6 +76,42 @@ fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<W
     }
 }
 
+
+/// delete all dwis connected to a doc from the field index
+/// pretty slow as it iterates all dwis to to this
+pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: &Document) {
+    let words_sorted = field_index.get_vec().as_ref().borrow_mut();
+    for i in 0..words_sorted.len() {
+        let word_sorted = &words_sorted[i];
+        let mut word_sorted_children = word_sorted.get_vec().as_ref().borrow_mut();
+        for j in 0..word_sorted_children.len() {
+            let dwi = &word_sorted_children[j];
+            let dwi_doc_ptr = dwi.doc;
+            unsafe {
+                let dwi_doc :&mut Document = &mut *dwi_doc_ptr ;
+                if dwi_doc.id == doc.id {
+                    word_sorted_children.remove(j);
+                }
+            }
+        }
+    }
+}
+
+/// this counts number of total dwis in a field index
+/// used only for statistics
+pub fn count_number_of_dwis_in_field_index(field_index: &FieldIndex<WordSorted>) -> u64 {
+    let mut counter: u64 = 0;
+    let words_sorted = field_index.get_vec().as_ref().borrow();
+    for i in 0..words_sorted.len() {
+        let word_sorted = &words_sorted[i];
+        let word_sorted_children = word_sorted.get_vec().as_ref().borrow();
+        for j in 0..word_sorted_children.len() {
+            let dwi = &word_sorted_children[j];
+            counter += 1;
+        }
+    }
+    return counter;
+}
 
 #[cfg(test)]
 mod tests {
@@ -106,10 +143,46 @@ mod tests {
         let all_positions_for_the_a_word = all_dwi_for_the_a_word[0].get_vec().as_ref().borrow();
         assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,106]);
         let possible_doc = all_dwi_for_the_a_word[0].doc;
-        println!("Field index: {:#?}", &all_dwi_for_the_a_word);
         unsafe {
             let doc2 :&mut Document = &mut *possible_doc ;
             assert_eq!(doc2.len, 99);
          }
+        assert_eq!(children[0].freq, 2); // there should be two a
+        assert_eq!(children[1].freq, 4); // there should 4 of is
+    }
+
+    #[test]
+    fn test_delete_doc_from_field_index() {
+        let mut field_index = FieldIndex {
+            name: "".to_string(),
+            index: Rc::new(RefCell::new(vec![]))
+        };
+
+        let t1 = "This is Petter writing. This is a test.";
+        let t2 = "This is Petter writing. This is a test.";
+        let mut string_vec1 = vec![];
+        let mut string_vec2 = vec![];
+        string_vec1.push(t1);
+        string_vec2.push(t2);
+
+        let mut doc1 = Document {
+            id: 88,
+            len: 99
+        };
+
+        let mut doc2 = Document {
+            id: 888,
+            len: 999
+        };
+
+        add_multi_text_to_field_index(string_vec1, &mut field_index, &mut doc1);
+        add_multi_text_to_field_index(string_vec2, &mut field_index, &mut doc2);
+        let c1 = count_number_of_dwis_in_field_index(&field_index);
+        // println!("Petters Field index: {:#?}", &field_index);
+        delete_document_from_field_index(&mut field_index, &doc1);
+        // println!("Petters Field index: {:#?}", &field_index);
+        let c2 = count_number_of_dwis_in_field_index(&field_index);
+        assert_eq!(c1, c2 * 2);
+
     }
 }

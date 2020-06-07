@@ -12,7 +12,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
 
 
-    #[allow(dead_code)]
+#[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
     pub struct Document {
@@ -316,6 +316,18 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
         {
             (*(*self.get_vec())).borrow_mut().insert(insert_pos, element);
         }
+    }
+
+    fn delete(&self, element: &E) {
+        let delete_pos = match self.get_vec().as_ref().borrow().binary_search(&element) {
+            Ok(pos) => Some(pos),
+            Err(pos) => None
+        };
+
+        match delete_pos {
+            Some(pos) =>  { (*(*self.get_vec())).borrow_mut().remove(pos); () },
+            _ => ()
+        };
     }
 }
 
