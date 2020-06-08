@@ -7,6 +7,10 @@ use std::convert::TryInto;
 use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
+
+/// This file holds functions to add/remove a document to a field index with text content
+
+
 /// very simple tokenizer, lower case and split on space
 /// to be moved out and genralized later
 pub fn simple_tokenizer(text: &str) -> Vec<String> {
@@ -17,6 +21,8 @@ pub fn simple_tokenizer(text: &str) -> Vec<String> {
 }
 
 
+/// Finds index in search index vector vector for a word
+/// returns true and insert position if index not is found
 fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
     let ws_vec = field_index.get_vec().as_ref().borrow();
     let mut do_insert = false;
@@ -28,6 +34,7 @@ fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
 }
 
 
+/// Called once for each multifield value
 fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
     let text_vec = simple_tokenizer(text);
     for i in 0..text_vec.len() {
