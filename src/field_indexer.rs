@@ -12,6 +12,7 @@ use duplicate::duplicate;
 pub trait PlainContent<F: Ord + Clone + Debug, G: Clone + Debug> {
     fn put_content(&self, content: G, doc_id: u64);
     fn get_ids(&self, content: G) -> Option<Vec<u64>>;
+    fn delete_doc(&self, doc_id: u64);
 }
 
 #[duplicate(
@@ -24,6 +25,8 @@ the_class val_type;
 
 #[allow(unused_assignments)]
 impl PlainContent<the_class, val_type> for FieldIndex<the_class> {
+
+    /// adds content to a index
     fn put_content(&self, content: val_type, doc_id: u64) {
         let mut do_insert = false;
         {
@@ -47,12 +50,41 @@ impl PlainContent<the_class, val_type> for FieldIndex<the_class> {
         }
     }
 
+    /// get docs based on value query
     fn get_ids(&self, content: val_type) -> Option<Vec<u64>> {
         let children = self.get_vec().as_ref().borrow();
         return match children.binary_search_by(|e| e.value.cmp(&content)) {
             Ok(pos) => Some(children[pos].doc_ids.as_ref().borrow_mut().to_vec()),
             Err(pos) => None
         };
+    }
+
+    /// delete doc from index
+    /// pretty slow as it iterates all index to find the docs
+    fn delete_doc(&self, doc_id: u64) {
+        let mut empty_values = vec![];
+        {
+            let mut children = self.get_vec().as_ref().borrow_mut();
+            for i in 0..children.len() {
+                let child = &mut children[i];
+                let mut docs = child.get_vec().as_ref().borrow_mut();
+                match docs.binary_search_by(|e| e.cmp(&doc_id)) {
+                            Ok(pos) => {
+                                docs.remove(pos);
+                                if docs.len() == 0 {
+                                    empty_values.push(i);
+                                }
+                            },
+                            Err(pos) => ()
+                        };
+            }
+        }
+        let mut children = self.get_vec().as_ref().borrow_mut();
+        let mut i = 0;
+        for doc_idx in empty_values {
+            children.remove(doc_idx - i);
+            i += 1;
+        }
     }
 }
 
@@ -101,6 +133,9 @@ mod tests {
 
         assert_eq!(field_index_bool.get_ids(true), Some(vec![1,3]));
 
-
+        field_index.delete_doc(201);
+        assert_eq!(field_index.get_ids(100), Some(vec![200]));
+        field_index.delete_doc(200);
+        assert_eq!(field_index.get_ids(100), None);
     }
 }
