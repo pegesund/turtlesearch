@@ -28,13 +28,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         pub docs: Rc<RefCell<Vec<Document>>>
     }
 
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    pub struct FloatWrapper {
-        pub value: f64
-    }
-
 
 
     #[allow(dead_code)]
@@ -61,6 +54,14 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     pub struct AppState {
         pub send_channel: async_std::sync::Sender<SearchCommand>,
         pub counter: RwLock<u64>
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+     #[derive(Copy)]
+    pub struct FloatWrapper {
+        pub value: f64
     }
 
 
@@ -116,8 +117,9 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
+    #[derive(Eq)]
     pub struct FloatSorted {
-        pub value: f64,
+        pub value: FloatWrapper,
         pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
 
@@ -157,6 +159,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         [ DocumentWordIndex ] [ id ];
         [ IntegerSorted ] [ value ];
         [ DateSorted ] [ value ];
+        [ FloatSorted ] [ value ];
         [ BoolSorted ] [ value ];
         [ ParentDocs ] [ doc_ids ];
         [ ChildrenDocs ] [ doc_ids ];
@@ -181,13 +184,13 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         }
 }
 
-    impl PartialEq for FloatSorted {
+    impl PartialEq for FloatWrapper {
         fn eq(&self, other: &Self) -> bool {
             self.value.approx_eq(other.value, (0.0, 2))
         }
     }
 
-    impl Eq for FloatSorted {
+    impl Eq for FloatWrapper {
 
     }
 
@@ -207,7 +210,15 @@ use std::borrow::{BorrowMut, Borrow, Cow};
             Some(self.cmp(other))
         }
     }
-    
+
+    impl PartialOrd for FloatWrapper {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            let c = self.value.partial_cmp(&other.value);
+            return c;
+        }
+    }
+
+
     #[duplicate(
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
@@ -215,6 +226,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         [ WordSorted ] [ value ];
         [ IntegerSorted ] [ value ];
         [ DateSorted  ] [ value ];
+        [ FloatSorted  ] [ value ];
         [ BoolSorted  ] [ value ];
     )]
 
@@ -224,7 +236,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         }
     }
 
-    impl Ord for FloatSorted {
+    impl Ord for FloatWrapper {
         fn cmp(&self, other: &Self) -> Ordering {
             self.value.partial_cmp(&other.value).unwrap()
         }
@@ -253,7 +265,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     [ IntegerSorted  ] [ i64 ];
     [ DateSorted  ] [ u64 ];
     [ BoolSorted  ] [ bool ];
-    [ FloatSorted ] [ f64 ];
+    [ FloatSorted ] [ FloatWrapper ];
     )]
     impl <'a> GetValue<val_type> for the_class {
         fn get_value(&self) -> val_type {
@@ -265,6 +277,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     the_class val_type;
     [ IntegerSorted ] [ i64 ];
     [ DateSorted ][ u64 ];
+    [ FloatSorted ][ FloatWrapper ];
     )]
     impl <'a> Between<val_type> for FieldIndex<the_class> {
 
@@ -297,7 +310,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         }
     }
 
-
+/*
 impl Between<f64> for FieldIndex<FloatSorted> {
 
     fn between(&self,start: f64, stop: f64) -> (usize, usize) {
@@ -326,6 +339,7 @@ impl Between<f64> for FieldIndex<FloatSorted> {
 
     }
 }
+*/
 
 pub trait HasChildrenNew<E: Debug + Clone + Ord> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
