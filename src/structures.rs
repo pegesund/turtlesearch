@@ -127,6 +127,16 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
+    pub struct BoolSorted {
+        pub value: bool,
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
+    }
+
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    #[derive(Eq)]
     pub struct WordIndex {
         pub id: u64,
         pub freq: u64,
@@ -139,6 +149,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         [ DocumentWordIndex ] [ id ];
         [ IntegerSorted ] [ value ];
         [ DateSorted ] [ value ];
+        [ BoolSorted ] [ value ];
         [ ParentDocs ] [ doc_ids ];
         [ ChildrenDocs ] [ doc_ids ];
 
@@ -180,6 +191,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         [ FloatSorted ];
         [ IntegerSorted ];
         [ DateSorted ];
+        [ BoolSorted ];
     )]
 
     impl <'a> PartialOrd for the_class {
@@ -195,6 +207,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         [ WordSorted ] [ value ];
         [ IntegerSorted ] [ value ];
         [ DateSorted  ] [ value ];
+        [ BoolSorted  ] [ value ];
     )]
 
     impl <'a> Ord for the_class {
@@ -231,6 +244,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     the_class val_type;
     [ IntegerSorted  ] [ u64 ];
     [ DateSorted  ] [ u64 ];
+    [ BoolSorted  ] [ bool ];
     [ FloatSorted ] [ f64 ];
     )]
     impl <'a> GetValue<val_type> for the_class {
@@ -354,6 +368,7 @@ impl <'a> HasChildrenNew<DocumentWordIndex> for WordSorted {
 the_class val_type;
     [ IntegerSorted ] [ u64 ];
     [ DateSorted ] [ u64 ];
+    [ BoolSorted ] [ u64 ];
     [ FloatSorted ] [ u64 ];
     [ ChildrenDocs ] [ u64 ];
     [ ParentDocs ] [ u64 ];
