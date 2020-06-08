@@ -1,10 +1,11 @@
 //! This file contains code to add float/int/date to a field_index
 //! for indexing of text content, look into the text_splitters
 
-use crate::structures::{FieldIndex, Document, HasChildrenNew, DateSorted};
+use crate::structures::*;
 use std::fmt::Debug;
 use std::rc::Rc;
 use std::cell::RefCell;
+use duplicate::duplicate;
 
 
 
@@ -13,9 +14,16 @@ pub trait PlainContent<F: Ord + Clone + Debug, G: Clone + Debug> {
     fn get_ids(&self, content: G) -> Option<Vec<u64>>;
 }
 
+#[duplicate(
+the_class val_type;
+[ IntegerSorted  ] [ i64 ];
+[ DateSorted  ] [ u64 ];
+[ BoolSorted  ] [ bool ];
+)]
+
 #[allow(unused_assignments)]
-impl PlainContent<DateSorted, u64> for FieldIndex<DateSorted> {
-    fn put_content(&self, content: u64, doc_id: u64) {
+impl PlainContent<the_class, val_type> for FieldIndex<the_class> {
+    fn put_content(&self, content: val_type, doc_id: u64) {
         let mut do_insert = false;
         {
             let mut children = self.get_vec().as_ref().borrow_mut();
@@ -30,7 +38,7 @@ impl PlainContent<DateSorted, u64> for FieldIndex<DateSorted> {
         }
 
         if do_insert == true {
-            let element = DateSorted {
+            let element = the_class {
                 value: content,
                 doc_ids: Rc::new(RefCell::new(vec![doc_id]))
             };
@@ -38,7 +46,7 @@ impl PlainContent<DateSorted, u64> for FieldIndex<DateSorted> {
         }
     }
 
-    fn get_ids(&self, content: u64) -> Option<Vec<u64>> {
+    fn get_ids(&self, content: val_type) -> Option<Vec<u64>> {
         let children = self.get_vec().as_ref().borrow();
         return match children.binary_search_by(|e| e.value.cmp(&content)) {
             Ok(pos) => Some(children[pos].doc_ids.as_ref().borrow_mut().to_vec()),
@@ -59,11 +67,11 @@ mod tests {
             index: Rc::new(RefCell::new(vec![]))
         };
 
-        field_index.put_content(99, 199);
-        field_index.put_content(98, 198);
-        field_index.put_content(100, 200);
-        field_index.put_content(100, 201);
-        field_index.put_content(99, 300);
+        field_index.put_content(99 as i64, 199);
+        field_index.put_content(98 as i64, 198);
+        field_index.put_content(100 as i64, 200);
+        field_index.put_content(100 as i64, 201);
+        field_index.put_content(99 as i64, 300);
 
         let d_99 = field_index.get_ids(99);
         assert_eq!(d_99, Some(vec![199,300]));

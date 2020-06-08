@@ -28,6 +28,14 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         pub docs: Rc<RefCell<Vec<Document>>>
     }
 
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct FloatWrapper {
+        pub value: f64
+    }
+
+
 
     #[allow(dead_code)]
     #[derive(PartialEq)]
@@ -100,7 +108,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct IntegerSorted {
-        pub value: u64,
+        pub value: i64,
         pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
 
@@ -242,7 +250,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted  ] [ u64 ];
+    [ IntegerSorted  ] [ i64 ];
     [ DateSorted  ] [ u64 ];
     [ BoolSorted  ] [ bool ];
     [ FloatSorted ] [ f64 ];
@@ -255,10 +263,10 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted ] [ u64 ];
+    [ IntegerSorted ] [ i64 ];
     [ DateSorted ][ u64 ];
     )]
-    impl <'a> Between<u64> for FieldIndex<the_class> {
+    impl <'a> Between<val_type> for FieldIndex<the_class> {
 
         fn between(&self,start: val_type, stop: val_type) -> (usize, usize) {
 
