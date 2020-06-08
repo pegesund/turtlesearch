@@ -17,6 +17,7 @@ pub trait PlainContent<F: Ord + Clone + Debug, G: Clone + Debug> {
 #[duplicate(
 the_class val_type;
 [ IntegerSorted  ] [ i64 ];
+[ FloatSorted  ] [ FloatWrapper ];
 [ DateSorted  ] [ u64 ];
 [ BoolSorted  ] [ bool ];
 )]
@@ -76,6 +77,30 @@ mod tests {
         let d_99 = field_index.get_ids(99);
         assert_eq!(d_99, Some(vec![199,300]));
 
-        println!("date-field: {:?}", field_index);
+        let field_index_float = FieldIndex {
+            name: "myfield_float".to_string(),
+            index: Rc::new(RefCell::new(vec![]))
+        };
+
+        field_index_float.put_content(FloatWrapper{value: 88.9}, 188);
+        field_index_float.put_content(FloatWrapper{value: 39.9}, 139);
+        field_index_float.put_content(FloatWrapper{value: 88.9}, 288);
+        field_index_float.put_content(FloatWrapper{value: 99.9}, 199);
+
+        assert_eq!(field_index_float.get_ids(FloatWrapper{value: 88.9}), Some(vec![188,288]));
+
+        let field_index_bool = FieldIndex {
+            name: "myfield_bool".to_string(),
+            index: Rc::new(RefCell::new(vec![]))
+        };
+
+        field_index_bool.put_content(true, 1);
+        field_index_bool.put_content(false, 2);
+        field_index_bool.put_content(true, 3);
+        field_index_bool.put_content(false, 4);
+
+        assert_eq!(field_index_bool.get_ids(true), Some(vec![1,3]));
+
+
     }
 }

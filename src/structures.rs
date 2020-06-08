@@ -310,36 +310,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         }
     }
 
-/*
-impl Between<f64> for FieldIndex<FloatSorted> {
-
-    fn between(&self,start: f64, stop: f64) -> (usize, usize) {
-
-        let index = self.get_vec().as_ref().borrow();
-
-        let mut start_index = match index.binary_search_by(|e| e.value.partial_cmp(&start).unwrap() ) {
-            Ok(pos) => pos,
-            Err(pos) => pos
-        };
-
-        let stop_index = match index.binary_search_by(|e| e.value.partial_cmp(&stop).unwrap() ) {
-            Ok(pos) => pos,
-            Err(pos) => pos
-        };
-
-        while index[start_index].value.approx_eq(start, (0.0, 2)) && start_index > 0{
-            start_index = start_index - 1
-        }
-
-        while index[stop_index].value.approx_eq(stop, (0.0, 2)) && stop_index < index.len() - 1 {
-            start_index = start_index + 1
-        }
-
-        return (start_index, stop_index)
-
-    }
-}
-*/
 
 pub trait HasChildrenNew<E: Debug + Clone + Ord> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
