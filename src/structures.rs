@@ -70,10 +70,9 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct DocumentWordIndex {
-        pub id: u64,
+        pub doc_id: u64,
         pub position: Rc<RefCell<Vec<u32>>>,
-        pub doc: *mut Document
-    }    
+    }
 
     #[allow(dead_code)]
     #[derive(Debug)]
@@ -147,7 +146,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
         the_class sort_field;
-        [ DocumentWordIndex ] [ id ];
+        [ DocumentWordIndex ] [ doc_id ];
         [ IntegerSorted ] [ value ];
         [ DateSorted ] [ value ];
         [ FloatSorted ] [ value ];
@@ -210,7 +209,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
         the_class sort_field;
-        [ DocumentWordIndex ] [ id ];
+        [ DocumentWordIndex ] [ doc_id ];
         [ WordSorted ] [ value ];
         [ IntegerSorted ] [ value ];
         [ DateSorted  ] [ value ];

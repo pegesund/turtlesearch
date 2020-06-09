@@ -75,9 +75,8 @@ pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<W
         let val = h.get(key).unwrap().as_ref().borrow();
         words_sorted[pos].freq += val.len() as u64;
         let dwi = DocumentWordIndex {
-            id: 0,
-            position: Rc::new(RefCell::new(val.to_vec())),
-            doc: &mut *doc
+            doc_id: doc.id,
+            position: Rc::new(RefCell::new(val.to_vec()))
         };
         words_sorted[pos].insert(dwi);
     }
@@ -95,25 +94,25 @@ pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>
             let mut word_sorted_children = word_sorted.get_vec().as_ref().borrow_mut();
             let mut cj: usize = 0;
             // println!("Number of children: {:?}", word_sorted_children.len());
-            for j in 0..word_sorted_children.len() {
-                let dwi = &word_sorted_children[j];
-                let dwi_doc_ptr = dwi.doc;
-                unsafe {
-                    let dwi_doc :&mut Document = &mut *dwi_doc_ptr ;
-                    if dwi_doc.id == doc.id {
-                        word_sorted_children.remove(cj);
-                        if word_sorted_children.len() == 0 {
-                            remove_words.push(word_sorted.value.clone());
-                        } else {
-                            cj += 1;
-                        }
+            let children_len = word_sorted_children.len();
+            let mut number_of_removed_dwis = 0;
+            for j in 0.. children_len {
+                if cj == children_len - number_of_removed_dwis { break }
+                let dwi = &word_sorted_children[cj];
+                if dwi.doc_id == doc.id {
+                    word_sorted_children.remove(cj);
+                    number_of_removed_dwis += 1;
+                    if word_sorted_children.len() == 0 {
+                        remove_words.push(word_sorted.value.clone());
+                    } else {
+                        cj += 1;
                     }
                 }
             }
         }
     }
+
     for word_id in remove_words {
-        println!("Remove word: {:?}", word_id);
         field_index.delete(&WordSorted {
             value: word_id,
             freq: 0,
@@ -169,11 +168,6 @@ mod tests {
         let all_dwi_for_the_a_word = children[0].get_vec().as_ref().borrow();
         let all_positions_for_the_a_word = all_dwi_for_the_a_word[0].get_vec().as_ref().borrow();
         assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,106]);
-        let possible_doc = all_dwi_for_the_a_word[0].doc;
-        unsafe {
-            let doc2 :&mut Document = &mut *possible_doc ;
-            assert_eq!(doc2.len, 99);
-         }
         assert_eq!(children[0].freq, 2); // there should be two a
         assert_eq!(children[1].freq, 4); // there should 4 of is
     }
@@ -207,10 +201,8 @@ mod tests {
         let c1 = count_number_of_dwis_in_field_index(&field_index);
         // println!("Petters Field index: {:#?}", &field_index);
         delete_document_from_field_index(&mut field_index, &doc1);
-        println!("Petters Field index: {:#?}", &field_index);
         let c2 = count_number_of_dwis_in_field_index(&field_index);
         assert_eq!(c1, 13);
         assert_eq!(c2, 6);
-
     }
 }

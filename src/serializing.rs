@@ -41,9 +41,8 @@ impl BinaryBuilder for DocumentWordIndex {
     fn new() ->
              DocumentWordIndex {
             let res = DocumentWordIndex {
-                id: 0,
-                position: Rc::new(RefCell::new(vec![])),
-                doc:  ptr::null_mut()
+                doc_id: 0,
+                position: Rc::new(RefCell::new(vec![]))
             };
         return res
     }
@@ -57,13 +56,12 @@ impl BinaryBuilder for DocumentWordIndex {
             vec.borrow_mut().push(v)
         }
         return Some(DocumentWordIndex {
-            id,
-            position: Rc::new(RefCell::new(vec![])),
-            doc: ptr::null_mut()
+            doc_id: id,
+            position: Rc::new(RefCell::new(vec![]))
         });
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
-        ba <<= &self.id;
+        ba <<= &self.doc_id;
         ba <<= &self.position.as_ref().borrow().len();
         let len = self.position.as_ref().borrow().len();
         for i in 0..len { ba <<= &self.position.as_ref().borrow()[i] }
@@ -78,9 +76,8 @@ mod tests {
     #[test]
     fn serializing_word_index() {
         let wi = DocumentWordIndex {
-            id: 199,
-            position: Rc::new(RefCell::new(vec![])),
-            doc: ptr::null_mut()
+            doc_id: 199,
+            position: Rc::new(RefCell::new(vec![]))
         };
 
         wi.insert(22);

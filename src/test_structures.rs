@@ -66,38 +66,30 @@ mod tests {
     #[test]
     fn test_new_children() {
         let res0 = DocumentWordIndex {
-            id: 0,
-            position: Rc::new(RefCell::new(vec![])),
-            doc: ptr::null_mut()
+            doc_id: 0,
+            position: Rc::new(RefCell::new(vec![]))
         };
         let res1 = DocumentWordIndex {
-            id: 10,
-            position: Rc::new(RefCell::new(vec![])),
-            doc: ptr::null_mut()
+            doc_id: 10,
+            position: Rc::new(RefCell::new(vec![]))
         };
         let res2 = DocumentWordIndex {
-            id: 5,
-            position: Rc::new(RefCell::new(vec![])),
-            doc: ptr::null_mut()
+            doc_id: 5,
+            position: Rc::new(RefCell::new(vec![]))
         };
 
 
-        let mut doc1 = Document {
+        let doc1 = Document {
             id: 0,
             len: 1000
         };
 
         let res3 = DocumentWordIndex {
-            id: 12,
-            position: Rc::new(RefCell::new(vec![])),
-            doc: &mut doc1
+            doc_id: 12,
+            position: Rc::new(RefCell::new(vec![]))
         };
 
 
-        unsafe {
-            let doc1 = &mut *res3.doc;
-            assert_eq!(doc1.len, 1000);
-        }
 
         let doc_index = WordSorted {
             value:"hupp".to_string(),
@@ -128,7 +120,7 @@ mod tests {
         }
 
         {
-            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordIndex| e.id).collect::<Vec<u64>>();
+            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordIndex| e.doc_id).collect::<Vec<u64>>();
             assert_eq!(children, &vec![0, 5, 10, 12])
         }
 
