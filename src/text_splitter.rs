@@ -51,7 +51,7 @@ fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell
 }
 
 /// Add text content to a FieldIndex
-pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &mut FieldIndex<WordSorted>, doc: &mut Document) {
+pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<WordSorted>, doc: &mut Document) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
@@ -202,8 +202,8 @@ mod tests {
             len: 999
         };
 
-        add_multi_text_to_field_index(string_vec1, &mut field_index, &mut doc1);
-        add_multi_text_to_field_index(string_vec2, &mut field_index, &mut doc2);
+        add_multi_text_to_field_index(string_vec1, &field_index, &mut doc1);
+        add_multi_text_to_field_index(string_vec2, &field_index, &mut doc2);
         let c1 = count_number_of_dwis_in_field_index(&field_index);
         // println!("Petters Field index: {:#?}", &field_index);
         delete_document_from_field_index(&mut field_index, &doc1);

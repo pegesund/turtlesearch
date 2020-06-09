@@ -51,9 +51,11 @@ impl BinaryBuilder for DocumentWordIndex {
     fn from_raw(ba: &mut ByteArray) -> Option<Self> {
         let id: u64 = ba.read();
         let num: u64 = ba.read();
-        let vec: Rc<RefCell<Vec<u64>>> = Rc::new(RefCell::new(vec![]));
-        for i in 0..num { vec.borrow_mut().push(ba.read()) }
-        let freq: u64 = ba.read();
+        let vec: Rc<RefCell<Vec<u32>>> = Rc::new(RefCell::new(vec![]));
+        for i in 0..num {
+            let v = ba.read();
+            vec.borrow_mut().push(v)
+        }
         return Some(DocumentWordIndex {
             id,
             position: Rc::new(RefCell::new(vec![])),
@@ -63,7 +65,8 @@ impl BinaryBuilder for DocumentWordIndex {
     fn to_raw(&self, mut ba: &mut ByteArray) {
         ba <<= &self.id;
         ba <<= &self.position.as_ref().borrow().len();
-        for i in 0..self.position.as_ref().borrow().len() { ba <<= &self.position.as_ref().borrow()[i] }
+        let len = self.position.as_ref().borrow().len();
+        for i in 0..len { ba <<= &self.position.as_ref().borrow()[i] }
     }
  }
 
@@ -86,10 +89,8 @@ mod tests {
         wi.insert(18);
         wi.insert(33);
         let ba = &mut ByteArray::new();
-        println!("wi: {:?}", wi);
         let raw = wi.to_raw(ba);
         let wi2 = DocumentWordIndex::from_raw(ba).unwrap();
-        println!("Here is wi2: {:?}", wi2);
         assert_eq!(wi, wi2);
     }
 

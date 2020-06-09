@@ -9,7 +9,7 @@ use duplicate::duplicate;
 
 
 
-pub trait PlainContent<F: Ord + Clone + Debug, G: Clone + Debug> {
+pub trait PlainContent<G: Clone + Debug + Ord> {
     fn put_content(&self, content: G, doc_id: u64);
     fn get_ids(&self, content: G) -> Option<Vec<u64>>;
     fn delete_doc(&self, doc_id: u64);
@@ -24,7 +24,7 @@ the_class val_type;
 )]
 
 #[allow(unused_assignments)]
-impl PlainContent<the_class, val_type> for FieldIndex<the_class> {
+impl PlainContent<val_type> for FieldIndex<the_class> {
 
     /// adds content to a index
     fn put_content(&self, content: val_type, doc_id: u64) {
@@ -87,6 +87,9 @@ impl PlainContent<the_class, val_type> for FieldIndex<the_class> {
         }
     }
 }
+
+
+
 
 #[cfg(test)]
 mod tests {
