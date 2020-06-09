@@ -11,6 +11,7 @@ mod test_rocks;
 mod build_index_from_db;
 mod text_splitter;
 mod field_indexer;
+mod id_generator;
 use crate::server::start_server;
 use structures::DocumentWordIndex;
 use byte_array::{

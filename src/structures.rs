@@ -143,15 +143,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     }
 
 
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    #[derive(Eq)]
-    pub struct WordIndex {
-        pub id: u64,
-        pub freq: u64,
-        pub words: Rc<RefCell<Vec<WordSorted>>>
-    }
 
 
     #[duplicate(
@@ -174,7 +165,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
     the_class sort_field;
-    [ WordIndex ] [ id ];
     [ WordSorted ] [ value ];
     )]
 
@@ -197,7 +187,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[duplicate(
         the_class;
         [ DocumentWordIndex ];
-        [ WordIndex ];
         [ WordSorted ];
         [ FloatSorted ];
         [ IntegerSorted ];
@@ -222,7 +211,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[duplicate(
         the_class sort_field;
         [ DocumentWordIndex ] [ id ];
-        [ WordIndex ] [ id ];
         [ WordSorted ] [ value ];
         [ IntegerSorted ] [ value ];
         [ DateSorted  ] [ value ];
