@@ -7,6 +7,7 @@ mod tests {
     use std::rc::Rc;
     use std::cell::RefCell;
     use std::borrow::BorrowMut;
+    use std::ptr;
 
     #[test]
     fn between() {
@@ -65,31 +66,36 @@ mod tests {
     #[test]
     fn test_new_children() {
         let res0 = DocumentWordIndex {
-            id: 0,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            doc_id: 0,
+            position: Rc::new(RefCell::new(vec![]))
         };
         let res1 = DocumentWordIndex {
-            id: 10,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            doc_id: 10,
+            position: Rc::new(RefCell::new(vec![]))
         };
         let res2 = DocumentWordIndex {
-            id: 5,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0        };
+            doc_id: 5,
+            position: Rc::new(RefCell::new(vec![]))
+        };
+
+
+        let doc1 = Document {
+            id: 0,
+            len: 1000
+        };
 
         let res3 = DocumentWordIndex {
-            id: 12,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0        };
+            doc_id: 12,
+            position: Rc::new(RefCell::new(vec![]))
+        };
 
 
 
         let doc_index = WordSorted {
-            value: Rc::new(RefCell::new("hupp".to_string())),
+            value:"hupp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![]))
+            docs: Rc::new(RefCell::new(vec![])),
+            optimized: false
         };
         doc_index.insert(res0);
         doc_index.insert(res1);
@@ -101,7 +107,6 @@ mod tests {
         {
             let zero = &mut doc_index.get_vec().as_ref().borrow_mut()[0];
             println!("Zero: {:?}", zero);
-            zero.freq = 88;
             zero.insert(888);
             zero.insert(88);
             zero.insert(8888);
@@ -110,13 +115,12 @@ mod tests {
 
         {
             let zero = &doc_index.get_vec().as_ref().borrow()[0];
-            assert_eq!(zero.freq, 88);
             let zero_children = zero.get_vec().as_ref().borrow().to_vec();
             assert_eq!(zero_children, vec![88,888,8888])
         }
 
         {
-            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordIndex| e.id).collect::<Vec<u64>>();
+            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordIndex| e.doc_id).collect::<Vec<u64>>();
             assert_eq!(children, &vec![0, 5, 10, 12])
         }
 

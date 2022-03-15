@@ -10,7 +10,27 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
+
+
 #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct Document {
+        pub id: u64,
+        pub len: u32
+    }
+
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct DocumentContainer {
+        pub id: u64,
+        pub docs: Rc<RefCell<Vec<Document>>>
+    }
+
+
+
+    #[allow(dead_code)]
     #[derive(PartialEq)]
     #[derive(Debug)]
     #[derive(Clone)]
@@ -36,25 +56,33 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         pub counter: RwLock<u64>
     }
 
+    #[allow(dead_code)]
+    #[derive(Debug)]
+    #[derive(Clone)]
+     #[derive(Copy)]
+    pub struct FloatWrapper {
+        pub value: f64
+    }
+
 
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct DocumentWordIndex {
-        pub id: u64,
-        pub position: Rc<RefCell<Vec<u64>>>,
-        pub freq: u64
-    }    
+        pub doc_id: u64,
+        pub position: Rc<RefCell<Vec<u32>>>,
+    }
 
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct WordSorted {
-        pub value: Rc<RefCell<String>>,
+        pub value: String,
         pub freq: u64,
-        pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>
+        pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>,
+        pub optimized: bool
     }
 
     #[allow(dead_code)]
@@ -80,7 +108,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Clone)]
     #[derive(Eq)]
     pub struct IntegerSorted {
-        pub value: u64,
+        pub value: i64,
         pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
 
@@ -88,8 +116,9 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
+    #[derive(Eq)]
     pub struct FloatSorted {
-        pub value: f64,
+        pub value: FloatWrapper,
         pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
 
@@ -107,18 +136,21 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct WordIndex {
-        pub id: u64,
-        pub freq: u64,
-        pub words: Rc<RefCell<Vec<WordSorted>>>
+    pub struct BoolSorted {
+        pub value: bool,
+        pub doc_ids: Rc<RefCell<Vec<u64>>>
     }
+
+
 
 
     #[duplicate(
         the_class sort_field;
-        [ DocumentWordIndex ] [ id ];
+        [ DocumentWordIndex ] [ doc_id ];
         [ IntegerSorted ] [ value ];
         [ DateSorted ] [ value ];
+        [ FloatSorted ] [ value ];
+        [ BoolSorted ] [ value ];
         [ ParentDocs ] [ doc_ids ];
         [ ChildrenDocs ] [ doc_ids ];
 
@@ -132,7 +164,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
     the_class sort_field;
-    [ WordIndex ] [ id ];
     [ WordSorted ] [ value ];
     )]
 
@@ -142,24 +173,24 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         }
 }
 
-    impl PartialEq for FloatSorted {
+    impl PartialEq for FloatWrapper {
         fn eq(&self, other: &Self) -> bool {
             self.value.approx_eq(other.value, (0.0, 2))
         }
     }
 
-    impl Eq for FloatSorted {
+    impl Eq for FloatWrapper {
 
     }
 
     #[duplicate(
         the_class;
         [ DocumentWordIndex ];
-        [ WordIndex ];
         [ WordSorted ];
         [ FloatSorted ];
         [ IntegerSorted ];
         [ DateSorted ];
+        [ BoolSorted ];
     )]
 
     impl <'a> PartialOrd for the_class {
@@ -167,14 +198,23 @@ use std::borrow::{BorrowMut, Borrow, Cow};
             Some(self.cmp(other))
         }
     }
-    
+
+    impl PartialOrd for FloatWrapper {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            let c = self.value.partial_cmp(&other.value);
+            return c;
+        }
+    }
+
+
     #[duplicate(
         the_class sort_field;
-        [ DocumentWordIndex ] [ id ];
-        [ WordIndex ] [ id ];
+        [ DocumentWordIndex ] [ doc_id ];
         [ WordSorted ] [ value ];
         [ IntegerSorted ] [ value ];
         [ DateSorted  ] [ value ];
+        [ FloatSorted  ] [ value ];
+        [ BoolSorted  ] [ value ];
     )]
 
     impl <'a> Ord for the_class {
@@ -183,7 +223,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         }
     }
 
-    impl Ord for FloatSorted {
+    impl Ord for FloatWrapper {
         fn cmp(&self, other: &Self) -> Ordering {
             self.value.partial_cmp(&other.value).unwrap()
         }
@@ -209,9 +249,10 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted  ] [ u64 ];
+    [ IntegerSorted  ] [ i64 ];
     [ DateSorted  ] [ u64 ];
-    [ FloatSorted ] [ f64 ];
+    [ BoolSorted  ] [ bool ];
+    [ FloatSorted ] [ FloatWrapper ];
     )]
     impl <'a> GetValue<val_type> for the_class {
         fn get_value(&self) -> val_type {
@@ -221,10 +262,11 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
     #[duplicate(
     the_class val_type;
-    [ IntegerSorted ] [ u64 ];
+    [ IntegerSorted ] [ i64 ];
     [ DateSorted ][ u64 ];
+    [ FloatSorted ][ FloatWrapper ];
     )]
-    impl <'a> Between<u64> for FieldIndex<the_class> {
+    impl <'a> Between<val_type> for FieldIndex<the_class> {
 
         fn between(&self,start: val_type, stop: val_type) -> (usize, usize) {
 
@@ -256,35 +298,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     }
 
 
-impl Between<f64> for FieldIndex<FloatSorted> {
-
-    fn between(&self,start: f64, stop: f64) -> (usize, usize) {
-
-        let index = self.get_vec().as_ref().borrow();
-
-        let mut start_index = match index.binary_search_by(|e| e.value.partial_cmp(&start).unwrap() ) {
-            Ok(pos) => pos,
-            Err(pos) => pos
-        };
-
-        let stop_index = match index.binary_search_by(|e| e.value.partial_cmp(&stop).unwrap() ) {
-            Ok(pos) => pos,
-            Err(pos) => pos
-        };
-
-        while index[start_index].value.approx_eq(start, (0.0, 2)) && start_index > 0{
-            start_index = start_index - 1
-        }
-
-        while index[stop_index].value.approx_eq(stop, (0.0, 2)) && stop_index < index.len() - 1 {
-            start_index = start_index + 1
-        }
-
-        return (start_index, stop_index)
-
-    }
-}
-
 pub trait HasChildrenNew<E: Debug + Clone + Ord> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
 
@@ -297,11 +310,28 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
             (*(*self.get_vec())).borrow_mut().insert(insert_pos, element);
         }
     }
+
+    fn delete(&self, element: &E) {
+        let delete_pos = match self.get_vec().as_ref().borrow().binary_search(&element) {
+            Ok(pos) => Some(pos),
+            Err(pos) => None
+        };
+
+        match delete_pos {
+            Some(pos) =>  { (*(*self.get_vec())).borrow_mut().remove(pos); () },
+            _ => ()
+        };
+    }
 }
 
 
-impl HasChildrenNew<u64> for DocumentWordIndex {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<u64>>> {
+pub trait HasSortKey<I: Ord + Debug + Clone> {
+    fn sort_key(&self) -> I;
+}
+
+
+impl HasChildrenNew<u32> for DocumentWordIndex {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
         return &self.position;
     }
 }
@@ -317,6 +347,7 @@ impl <'a> HasChildrenNew<DocumentWordIndex> for WordSorted {
 the_class val_type;
     [ IntegerSorted ] [ u64 ];
     [ DateSorted ] [ u64 ];
+    [ BoolSorted ] [ u64 ];
     [ FloatSorted ] [ u64 ];
     [ ChildrenDocs ] [ u64 ];
     [ ParentDocs ] [ u64 ];
@@ -333,3 +364,6 @@ impl<G: Debug + Clone + Ord > HasChildrenNew<G> for FieldIndex<G> {
         return &self.index;
     }
 }
+
+
+

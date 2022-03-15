@@ -16,15 +16,15 @@ mod tests {
     use super::*;
     use std::rc::Rc;
     use crate::structures::HasChildrenNew;
+    use std::ptr;
 
     #[test]
     fn test_save_document_word_index() {
         let path = "/tmp/document_index.rock";
 
         let dwi = DocumentWordIndex {
-            id: 199,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 127
+            doc_id: 199,
+            position: Rc::new(RefCell::new(vec![]))
         };
         dwi.insert(88);
         dwi.insert(89);
@@ -36,9 +36,8 @@ mod tests {
         };
 
         save_document_word_index(&db, &dwi);
-        let dwi2 = load_document_word_index(&db, dwi.id);
-        assert_eq!(dwi.id, dwi2.id);
-        assert_eq!(dwi.freq, dwi.freq);
+        let dwi2 = load_document_word_index(&db, dwi.doc_id);
+        assert_eq!(dwi.doc_id, dwi2.doc_id);
         assert_eq!(dwi.position, dwi.position);
         assert_eq!(dwi.position.borrow().len(), 2);
 
@@ -50,35 +49,35 @@ mod tests {
     #[test]
     fn test_save_and_load_word_sorted() {
         let dwi1 = DocumentWordIndex {
-            id: 1,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            doc_id: 1,
+            position: Rc::new(RefCell::new(vec![]))
         };
         let dwi2 = DocumentWordIndex {
-            id: 2,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0
+            doc_id: 2,
+            position: Rc::new(RefCell::new(vec![]))
         };
         let dwi3 = DocumentWordIndex {
-            id: 3,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0        };
+            doc_id: 3,
+            position: Rc::new(RefCell::new(vec![]))
+        };
 
         let dwi4 = DocumentWordIndex {
-            id: 4,
-            position: Rc::new(RefCell::new(vec![])),
-            freq: 0        };
+            doc_id: 4,
+            position: Rc::new(RefCell::new(vec![]))
+        };
 
         let word_sorted1 = WordSorted {
-            value: Rc::new(RefCell::new("hupp".to_string())),
+            value:"hupp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![]))
+            docs: Rc::new(RefCell::new(vec![])),
+            optimized: false
         };
 
         let word_sorted2 = WordSorted {
-            value:  Rc::new(RefCell::new("hypp".to_string())),
+            value:  "hypp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![]))
+            docs: Rc::new(RefCell::new(vec![])),
+            optimized: false
         };
 
         let path = "/tmp/words_sorted.rock";

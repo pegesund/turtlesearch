@@ -30,7 +30,7 @@ fn vec_to_bytearray(res: Vec<u8>) -> ByteArray {
 pub fn save_document_word_index(db: &DB, document_word_index: &DocumentWordIndex) {
     let ba = &mut ByteArray::new();
     let raw = document_word_index.to_raw(ba);
-    let id_raw: [u8; 8] = u64_to_barray!(document_word_index.id);
+    let id_raw: [u8; 8] = u64_to_barray!(document_word_index.doc_id);
     db.put(id_raw, ba.as_vec()).unwrap();
 }
 
@@ -48,8 +48,8 @@ pub fn delete_document_word_index(db: &DB, id: u64) {
 }
 
 fn dwi_and_ws_to_key(dwi: &DocumentWordIndex, ws: &WordSorted) -> ByteArray {
-    let dwi_id_raw: [u8; 8] = u64_to_barray!(dwi.id);
-    let w = ws.value.as_ref().borrow();
+    let dwi_id_raw: [u8; 8] = u64_to_barray!(dwi.doc_id);
+    let w = ws.value.clone();
     let word_as_bytes: &[u8] = w.as_bytes();
     let mut key = ByteArray::new();
     for b in word_as_bytes {
@@ -66,7 +66,7 @@ fn dwi_and_ws_to_key(dwi: &DocumentWordIndex, ws: &WordSorted) -> ByteArray {
 /// value is just 1
 pub fn save_dwi_to_words_sorted(db: &DB, dwi: &DocumentWordIndex, ws: &WordSorted) {
     let mut key = dwi_and_ws_to_key(dwi, ws);
-    let val: [u8; 8] = u64_to_barray!(dwi.id);
+    let val: [u8; 8] = u64_to_barray!(dwi.doc_id);
     db.put(key.as_vec(), val).unwrap();
 }
 
@@ -106,15 +106,15 @@ pub fn load_word_sorted(db: &DB, word: &str) -> Vec<u64> {
 
 /// build new WordSorted based on word
 pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) -> WordSorted {
-    let mut ws = WordSorted {
-        value: Rc::new(RefCell::new(word.clone())),
+    let ws = WordSorted {
+        value: word.clone(),
         freq: 0,
-        docs: Rc::new(RefCell::new(vec![]))
+        docs: Rc::new(RefCell::new(vec![])),
+        optimized: false
     };
     let doc_ids = load_word_sorted(db_words, &word.to_owned());
     for i in 0..doc_ids.len() {
         let doc = load_document_word_index(db_docs, doc_ids[i]);
-        ws.freq += doc.freq;
         ws.insert(doc);
     }
     return ws;
