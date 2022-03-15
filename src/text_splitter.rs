@@ -11,7 +11,7 @@ fn simple_tokenizer(text: &str) -> Vec<String> {
     return text_vec;
 }
 
-fn add_text_to_field_index(text: &str, mut word_sorted: WordSorted) {
+fn add_text_to_field_index(text: &str, mut word_sorted: WordSorted) -> WordSorted {
     let text_vec = simple_tokenizer(text);
     let mut h: HashMap<String, Rc<RefCell<Vec<u64>>>> = HashMap::new();
     for i in 0..text_vec.len() {
@@ -24,20 +24,21 @@ fn add_text_to_field_index(text: &str, mut word_sorted: WordSorted) {
             new_vec.push(i as u64);
             h.insert(w, Rc::new(RefCell::new(new_vec)));
         }
-        println!("Hashmap: {:?}", h);
     }
     for (key, value) in h {
         let freq = value.borrow();
         let number_of_word_occurences = freq.len() as u64;
         let dwi = DocumentWordIndex {
             id: 0,
-            position: Rc::new(RefCell::new(vec![])),
+            position: Rc::new(RefCell::new(freq.to_vec())),
             freq: number_of_word_occurences
         };
         word_sorted.insert(dwi);
         word_sorted.freq += number_of_word_occurences;
 
+
     }
+    return word_sorted;
 }
 
 #[cfg(test)]
@@ -46,12 +47,13 @@ mod tests {
 
     #[test]
     fn test_add_text_to_field() {
-        let ws = WordSorted {
+        let mut ws = WordSorted {
             value: Rc::new(RefCell::new("".to_string())),
             freq: 0,
             docs: Rc::new(RefCell::new(vec![]))
         };
         let t = "This is Petter writing. This is a test.";
-        add_text_to_field_index(&t, ws);
+        ws = add_text_to_field_index(&t, ws);
+        println!("Hashmap: {:?}", ws);
     }
 }
