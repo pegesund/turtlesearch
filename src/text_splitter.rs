@@ -145,7 +145,7 @@ mod tests {
 
     #[test]
     fn test_add_text_to_field() {
-        let mut ws = WordSorted {
+        let ws = WordSorted {
             value: "".to_string(),
             freq: 0,
             docs: Rc::new(RefCell::new(vec![])),
