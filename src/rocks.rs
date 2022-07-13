@@ -15,7 +15,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
 macro_rules! u64_to_barray {
     ($input:expr) => {
-       unsafe { transmute($input.to_be()) };
+       unsafe { transmute($input.to_be()) }
     }
 }
 

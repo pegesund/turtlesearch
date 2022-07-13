@@ -20,10 +20,6 @@ pub fn simple_tokenizer(text: &str) -> Vec<String> {
     return text_vec;
 }
 
-<<<<<<< HEAD
-fn add_text_to_field_index(text: &str, mut word_sorted: WordSorted) -> WordSorted {
-=======
-
 /// Finds index in search index vector vector for a word
 /// returns true and insert position if index not is found
 fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
@@ -39,7 +35,6 @@ fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
 
 /// Called once for each multifield value
 fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
->>>>>>> 022a2f94f74f3a3d16b92d9dfffa5aebfbaf4156
     let text_vec = simple_tokenizer(text);
     for i in 0..text_vec.len() {
         let w = text_vec[i].clone();
@@ -79,22 +74,14 @@ pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<W
         let val = h.get(key).unwrap().as_ref().borrow();
         words_sorted[pos].freq += val.len() as u64;
         let dwi = DocumentWordIndex {
-<<<<<<< HEAD
-            id: 0,
-            position: Rc::new(RefCell::new(freq.to_vec())),
-            freq: number_of_word_occurences
-=======
             doc_id: doc.id,
             position: Rc::new(RefCell::new(val.to_vec()))
->>>>>>> 022a2f94f74f3a3d16b92d9dfffa5aebfbaf4156
         };
         words_sorted[pos].insert(dwi);
     }
 }
 
 
-<<<<<<< HEAD
-=======
 /// delete all dwis connected to a doc from the field index
 /// pretty slow as it iterates all dwis to to this
 pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: &Document) {
@@ -131,9 +118,7 @@ pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>
             docs: Rc::new(RefCell::new(vec![])),
             optimized: false
         })
->>>>>>> 022a2f94f74f3a3d16b92d9dfffa5aebfbaf4156
     }
-    return word_sorted;
 }
 
 /// this counts number of total dwis in a field index
@@ -160,17 +145,13 @@ mod tests {
 
     #[test]
     fn test_add_text_to_field() {
-<<<<<<< HEAD
         let mut ws = WordSorted {
-            value: Rc::new(RefCell::new("".to_string())),
+            value: "".to_string(),
             freq: 0,
-            docs: Rc::new(RefCell::new(vec![]))
+            docs: Rc::new(RefCell::new(vec![])),
+            optimized: false
         };
         let t = "This is Petter writing. This is a test.";
-        ws = add_text_to_field_index(&t, ws);
-        println!("Hashmap: {:?}", ws);
-=======
-
         let mut field_index = FieldIndex {
             name: "".to_string(),
             index: Rc::new(RefCell::new(vec![]))
@@ -228,6 +209,5 @@ mod tests {
         let c2 = count_number_of_dwis_in_field_index(&field_index);
         assert_eq!(c1, 13);
         assert_eq!(c2, 6);
->>>>>>> 022a2f94f74f3a3d16b92d9dfffa5aebfbaf4156
     }
 }
