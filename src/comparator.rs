@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::cmp::Ordering;
 use std::rc::Rc;
 use std::str;
 
@@ -7,6 +8,7 @@ use byte_array::BinaryBuilder;
 use num_derive::FromPrimitive;    
 use num_traits::FromPrimitive;
 use std::vec::Vec;
+use std::convert::TryFrom;
 
 struct WrappedU8Vec {vec: Vec<u8>}
 
@@ -24,11 +26,10 @@ enum RocksType {
     U32,
     F32,
     F64,
-    String,
-    End
+    String
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 enum RocksValue {
     I64 { value: i64 },
     U64 { value: u64 },
@@ -42,8 +43,7 @@ enum RocksValue {
     U32 { value: i32 },
     F32 { value: f32 },
     F64 { value: f64 },
-    String { value: String },
-    None
+    String { value: String }
 }
 
 
@@ -67,8 +67,7 @@ fn get_value(ba: &mut ByteArray) -> RocksValue {
         RocksType::Isize => RocksValue::Isize {value: ba.read()},
         RocksType::F32 => RocksValue::F32 {value: ba.read::<f32>()},
         RocksType::F64 => RocksValue::F64 {value: ba.read::<f64>()},
-        RocksType::String => RocksValue::String {value: ba.read::<String>() },
-        RocksType::End => RocksValue::None,
+        RocksType::String => RocksValue::String {value: ba.read::<String>() }
     };
     return res
 }
@@ -87,11 +86,26 @@ fn put_value(mut ba: &mut ByteArray, val: &RocksValue) {
         RocksValue::U32 { value } => { ba <<= &(RocksType::U32 as u32); ba <<= value },
         RocksValue::F32 { value } => { ba <<= &(RocksType::F32 as u32); ba <<= value },
         RocksValue::F64 { value } => { ba <<= &(RocksType::F64 as u32); ba <<= value },
-        RocksValue::String { value } => { ba <<= &(RocksType::String as u32); ba <<= value },
-        RocksValue::None => ()
+        RocksValue::String { value } => { ba <<= &(RocksType::String as u32); ba <<= value }
     }
-    
 }
+
+/*
+    Todo: currently copies the arrays into a vector, which is slow.. Large potential for optimize.
+*/
+fn compare(one: &[u8], two: &[u8]) -> Ordering {
+    let mut ba1 = ByteArray {raw: one.to_vec(), pointer: 0 };
+    let mut ba2 = ByteArray {raw: two.to_vec(), pointer: 0 };
+    while ba1.bytes_available() > 0 {
+        let v1:RocksValue = get_value(&mut ba1);
+        let v2:RocksValue = get_value(&mut ba2);
+        println!("Values: {:?} - {:?}", v1, v2);
+        if v1 < v2 { return Ordering::Less } else
+        if v1 > v2 { return Ordering::Greater};
+    };
+    Ordering::Equal
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -152,6 +166,68 @@ mod tests {
     }
 
 
+    #[test]
+    fn test_compare_strings() {
+        let mut ba1 = ByteArray::new();
+        let mut ba2 = ByteArray::new();
+        let val1 = RocksValue::String {value: String::from("Hello1") };
+        let val2 = RocksValue::String {value: String::from("Hello2") };
+        put_value(&mut ba1, &val1);
+        put_value(&mut ba2, &val2);
+        let a1: &[u8] = ba1.as_vec().as_slice();
+        let a2: &[u8] = ba2.as_vec().as_slice();
+        let res = compare(a1, a2);
+        assert_eq!(res, Ordering::Less)
+    }
 
+    #[test]
+    fn test_compare_simple() {
+        let mut ba1 = ByteArray::new();
+        let mut ba2 = ByteArray::new();
+        let val1 = RocksValue::U64 {value: 1 };
+        let val2 = RocksValue::U64 {value: 2 };
+        put_value(&mut ba1, &val1);
+        put_value(&mut ba2, &val2);
+        let a1: &[u8] = ba1.as_vec().as_slice();
+        let a2: &[u8] = ba2.as_vec().as_slice();
+        let res = compare(a1, a2);
+        assert_eq!(res, Ordering::Less)
+    }
+    #[test]
+    fn test_compare_compound1() {
+        let mut ba1 = ByteArray::new();
+        let mut ba2 = ByteArray::new();
+        let val11 = RocksValue::U64 {value: 1 };
+        let val22 = RocksValue::U64 {value: 2 };
+        let val1 = RocksValue::String {value: String::from("Hello") };
+        let val2 = RocksValue::String {value: String::from("Hello") };
+        put_value(&mut ba1, &val1);
+        put_value(&mut ba1, &val11);
+        put_value(&mut ba2, &val2);
+        put_value(&mut ba2, &val22);
+        let a1: &[u8] = ba1.as_vec().as_slice();
+        let a2: &[u8] = ba2.as_vec().as_slice();
+        let res = compare(a1, a2);
+        assert_eq!(res, Ordering::Less)
+    }
+
+    fn test_compare_compound2() {
+        let mut ba1 = ByteArray::new();
+        let mut ba2 = ByteArray::new();
+        let val11 = RocksValue::U64 {value: 1 };
+        let val22 = RocksValue::U64 {value: 1 };
+        let val1 = RocksValue::String {value: String::from("Hello") };
+        let val2 = RocksValue::String {value: String::from("Hello") };
+        put_value(&mut ba1, &val1);
+        put_value(&mut ba1, &val11);
+        put_value(&mut ba2, &val2);
+        put_value(&mut ba2, &val22);
+        let a1: &[u8] = ba1.as_vec().as_slice();
+        let a2: &[u8] = ba2.as_vec().as_slice();
+        let res = compare(a1, a2);
+        assert_eq!(res, Ordering::Equal)
+    }
+
+    
 }
 

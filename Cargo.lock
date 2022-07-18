@@ -512,9 +512,7 @@ dependencies = [
 
 [[package]]
 name = "byte_array"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "303caac12bf4e61cc83bd2d19ac58ea09adaecb2ab0b4beaf0c10a11d5125ba3"
+version = "0.1.5"
 dependencies = [
  "byteorder",
 ]
