@@ -94,4 +94,15 @@ mod tests {
         }
         DB::destroy(&Options::default(), path).unwrap();
     }
+
+    #[test]
+    fn test_new_comparator() {
+        let path = "/tmp/new_comparator.rock";
+        {
+            let mut opts = Options::default();
+            opts.create_if_missing(true);
+            DB::open(&opts, path).unwrap();
+        }
+        DB::destroy(&Options::default(), path).unwrap();
+    }
 }

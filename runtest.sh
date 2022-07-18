@@ -1,1 +1,1 @@
-cargo +nightly  test  --package testhash --bin testhash test_structures::tests -- --show-output
+cargo test  --package testhash --bin testhash comparator::tests -- --show-output
