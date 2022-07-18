@@ -47,34 +47,6 @@ enum RocksValue {
 }
 
 
-impl BinaryBuilder for WrappedU8Vec {
-
-    fn new() -> Self { 
-        let vec = WrappedU8Vec {vec: vec![] };
-        return vec;
-     }
-    
-
-    fn from_raw(ba: &mut ByteArray) -> Option<Self> {
-        let mut v = vec![];
-        let len: usize = ba.read();
-        for i in 0..len {
-            let val:u8 = ba.read();
-            v.push(val);
-        }
-        return Some(WrappedU8Vec {vec: v});
-    }
-
-    fn to_raw(&self, mut ba: &mut ByteArray) {
-       ba <<= &self.vec.len();
-       for b in &self.vec {
-            ba <<= b;
-        }
-
-    }
-
-     
-}
 
 
 fn get_value(ba: &mut ByteArray) -> RocksValue {
@@ -95,13 +67,8 @@ fn get_value(ba: &mut ByteArray) -> RocksValue {
         RocksType::Isize => RocksValue::Isize {value: ba.read()},
         RocksType::F32 => RocksValue::F32 {value: ba.read::<f32>()},
         RocksType::F64 => RocksValue::F64 {value: ba.read::<f64>()},
-        RocksType::String => {
-            let len: usize = ba.read();
-            let wrapped_vector: WrappedU8Vec = ba.read();
-            let s = str::from_utf8(&wrapped_vector.vec).unwrap();
-            RocksValue::String { value: s.to_string()}
-        },      
-        _            => RocksValue::None,
+        RocksType::String => RocksValue::String {value: ba.read::<String>() },
+        RocksType::End => RocksValue::None,
     };
     return res
 }
@@ -120,15 +87,10 @@ fn put_value(mut ba: &mut ByteArray, val: &RocksValue) {
         RocksValue::U32 { value } => { ba <<= &(RocksType::U32 as u32); ba <<= value },
         RocksValue::F32 { value } => { ba <<= &(RocksType::F32 as u32); ba <<= value },
         RocksValue::F64 { value } => { ba <<= &(RocksType::F64 as u32); ba <<= value },
-        RocksValue::None => (),
-        RocksValue::String { value } => { 
-            ba <<= &(RocksType::String as u32);
-            let string_b = value; 
-            let string_bytes = string_b.as_bytes();
-            ba <<= &(string_bytes.len());
-            ba <<= &WrappedU8Vec {vec: string_bytes.to_vec() };
-        }
+        RocksValue::String { value } => { ba <<= &(RocksType::String as u32); ba <<= value },
+        RocksValue::None => ()
     }
+    
 }
 
 #[cfg(test)]
