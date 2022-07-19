@@ -1,8 +1,11 @@
-use crate::structures::*;
+// use crate::structures::*;
+use crate::sorted_vector::*;
 
 
 #[cfg(test)]
 mod tests {
+    use crate::structures::Document;
+
     use super::*;
     use std::rc::Rc;
     use std::cell::RefCell;

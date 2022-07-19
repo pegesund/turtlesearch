@@ -2,8 +2,9 @@ use std::sync::Arc;
 use threadpool::ThreadPool;
 use async_std::task;
 use std::thread;
-use crate::structures::SearchCommand;
-use crate::structures::SearchCommands;
+
+use crate::web_glue::{SearchCommands, SearchCommand};
+
 
 pub fn main_search(channel_receiver: async_std::sync::Receiver<SearchCommand>) {
     println!("Entering here");

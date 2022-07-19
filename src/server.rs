@@ -1,5 +1,6 @@
 use crate::searcher::main_search;
 use crate::structures::*;
+use crate::web_glue::*;
 use actix_web::{web, App, HttpServer};
 use async_std::sync::channel;
 use std::sync::mpsc::channel as sync_channel;

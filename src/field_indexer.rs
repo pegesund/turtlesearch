@@ -1,11 +1,13 @@
 //! This file contains code to add float/int/date to a field_index
 //! for indexing of text content, look into the text_splitters
 
+use crate::sorted_vector::FieldIndex;
 use crate::structures::*;
 use std::fmt::Debug;
 use std::rc::Rc;
 use std::cell::RefCell;
 use duplicate::duplicate;
+use crate::sorted_vector::*;
 
 
 
