@@ -1,11 +1,11 @@
 use rocksdb::{DB, Options, IteratorMode, Direction};
-use crate::structures::{DocumentWordIndex, WordSorted, SortedVector, FieldIndex};
 use std::rc::Rc;
 use std::cell::RefCell;
 use crate::rocks::*;
+use crate::sorted_vector::{WordSorted, FieldIndex};
 use std::str;
 
-
+/*
 pub fn build_field_index_docs<'a>(db_words: &'a DB, db_words_docs: &'a DB, db_docs: &'a DB, field_name: String) -> FieldIndex<WordSorted> {
     let field_index = FieldIndex {
         name: field_name.clone(),
@@ -43,3 +43,4 @@ mod tests {
         DB::destroy(&Options::default(), path_db_docs).unwrap();
     }
 }
+ */

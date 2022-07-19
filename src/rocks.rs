@@ -1,5 +1,5 @@
 use rocksdb::{DB, Options, IteratorMode, Direction};
-use crate::structures::{DocumentWordIndex, WordSorted, SortedVector, FieldIndex};
+use crate::sorted_vector::{DocumentWordIndex, WordSorted, SortedVector, FieldIndex};
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::cell::{RefCell, RefMut};
@@ -10,7 +10,7 @@ use std::fs::read_to_string;
 use im::Vector;
 use std::convert::TryInto;
 use std::rc::Rc;
-use std::borrow::{BorrowMut, Borrow, Cow};
+use std::borrow::{BorrowMut, Borrow, Cow}; 
 
 
 macro_rules! u64_to_barray {

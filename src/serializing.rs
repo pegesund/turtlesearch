@@ -2,7 +2,8 @@ use std::vec::Vec;
 use rocksdb::{DB, Options};
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
-use crate::structures::*;
+// use crate::structures::*;
+use crate::sorted_vector::*;
 
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
