@@ -1,4 +1,4 @@
-use crate::structures::{FieldIndex, WordSorted, DocumentWordIndex, HasChildrenNew, Document};
+use crate::structures::{FieldIndex, WordSorted, DocumentWordIndex, SortedVector, Document};
 use std::rc::Rc;
 use std::cell::RefCell;
 use im::HashMap;

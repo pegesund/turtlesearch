@@ -12,9 +12,10 @@ mod build_index_from_db;
 mod text_splitter;
 mod field_indexer;
 mod id_generator;
+mod sorted_vector;
 mod comparator; 
+mod web_glue;
 use crate::server::start_server;
-use structures::DocumentWordIndex;
 use byte_array::{
     BinaryBuilder,
     ByteArray,

@@ -15,7 +15,7 @@ use crate::rocks::*;
 mod tests {
     use super::*;
     use std::rc::Rc;
-    use crate::structures::HasChildrenNew;
+    use crate::structures::SortedVector;
     use std::ptr;
 
     #[test]

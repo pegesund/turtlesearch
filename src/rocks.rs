@@ -1,5 +1,5 @@
 use rocksdb::{DB, Options, IteratorMode, Direction};
-use crate::structures::{DocumentWordIndex, WordSorted, HasChildrenNew, FieldIndex};
+use crate::structures::{DocumentWordIndex, WordSorted, SortedVector, FieldIndex};
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::cell::{RefCell, RefMut};

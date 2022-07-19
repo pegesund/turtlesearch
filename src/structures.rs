@@ -279,7 +279,7 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     }
 
 
-pub trait HasChildrenNew<E: Debug + Clone + Ord> {
+pub trait SortedVector<E: Debug + Clone + Ord> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
 
     fn insert(&self, element: E) -> () {
@@ -306,18 +306,13 @@ pub trait HasChildrenNew<E: Debug + Clone + Ord> {
 }
 
 
-pub trait HasSortKey<I: Ord + Debug + Clone> {
-    fn sort_key(&self) -> I;
-}
-
-
-impl HasChildrenNew<u32> for DocumentWordIndex {
+impl SortedVector<u32> for DocumentWordIndex {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
         return &self.position;
     }
 }
 
-impl <'a> HasChildrenNew<DocumentWordIndex> for WordSorted {
+impl <'a> SortedVector<DocumentWordIndex> for WordSorted {
     fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordIndex>>> {
         return &self.docs;
     }
@@ -332,13 +327,13 @@ the_class val_type;
     [ FloatSorted ] [ u64 ];
 )]
 
-impl <'a> HasChildrenNew<val_type> for the_class {
+impl <'a> SortedVector<val_type> for the_class {
     fn get_vec(&self) -> &Rc<RefCell<Vec<val_type>>> {
         return &self.doc_ids;
     }
 }
 
-impl<G: Debug + Clone + Ord > HasChildrenNew<G> for FieldIndex<G> {
+impl<G: Debug + Clone + Ord > SortedVector<G> for FieldIndex<G> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<G>>> {
         return &self.index;
     }
