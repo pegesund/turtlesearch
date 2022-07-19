@@ -1,4 +1,4 @@
-use crate::structures::{FieldIndex, WordSorted, DocumentWordIndex, SortedVector, Document};
+
 use std::rc::Rc;
 use std::cell::RefCell;
 use im::HashMap;
@@ -6,6 +6,9 @@ use std::hash::Hash;
 use std::convert::TryInto;
 use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
+
+use crate::sorted_vector::*;
+use crate::structures::Document;
 
 
 /// This file holds functions to add/remove a document to a field index with text content

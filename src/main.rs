@@ -9,7 +9,7 @@ mod test_structures;
 mod rocks;
 mod test_rocks;
 mod build_index_from_db;
-mod text_splitter;
+mod text_indexer;
 mod field_indexer;
 mod id_generator;
 mod sorted_vector;
