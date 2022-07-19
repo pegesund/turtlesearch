@@ -10,7 +10,7 @@ mod tests {
     use std::rc::Rc;
     use std::cell::RefCell;
     use std::borrow::BorrowMut;
-    use std::ptr;
+
 
     #[test]
     fn between() {

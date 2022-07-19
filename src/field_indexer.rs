@@ -15,7 +15,7 @@ pub trait PlainContent<G: Clone + Debug + Ord> {
     fn get_ids(&self, content: G) -> Option<Vec<u64>>;
     fn delete_doc(&self, doc_id: u64);
 }
-
+ 
 #[duplicate(
 the_class val_type;
 [ IntegerSorted  ] [ i64 ];

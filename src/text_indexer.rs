@@ -37,29 +37,31 @@ fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
 
 
 /// Called once for each multifield value
-fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
+/// Add each word in the doc to the hash, and add the position of the word to the word entry
+fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, &start: &u32) {
     let text_vec = simple_tokenizer(text);
     for i in 0..text_vec.len() {
         let w = text_vec[i].clone();
         if h.contains_key(&w) {
             let mut old =  h.get(&w).unwrap().as_ref().borrow_mut();
-            old.push((i as u32) + *start);
+            old.push((i as u32) + start);
         } else {
             let mut new_vec = Vec::new();
-            new_vec.push((i as u32) + *start);
+            new_vec.push((i as u32) + start);
             h.insert(w, Rc::new(RefCell::new(new_vec)));
         }
     }
 }
 
 /// Add text content to a FieldIndex
+/// For each text add 10 to position to avoid separate texts being positioned next to each other
 pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<WordSorted>, doc: &mut Document) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
     for doc_part in text {
         add_single_text_to_field_index(doc_part, &mut h, &start);
-        start += 100;
+        start += 10;
     }
 
     for key in h.keys() {
@@ -190,7 +192,7 @@ mod tests {
         let t1 = "This is Petter writing. This is a test newword.";
         let t2 = "This is Petter writing. This is a test.";
         let mut string_vec1 = vec![];
-        let mut string_vec2 = vec![];
+        let mut string_vec2 = vec![]; 
         string_vec1.push(t1);
         string_vec2.push(t2);
 

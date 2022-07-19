@@ -12,6 +12,23 @@ use std::borrow::{BorrowMut, Borrow, Cow};
 
 use crate::sorted_vector::SortedVector;
 
+/*
+
+This file contains in-memory structures
+
+
+DocumentContainer has many Documents
+    Docment keeps only an id and the doc length    
+WordSorted contains word count, the word, and many DocumentWordIndexes
+    DocumentWordIndexes contains the position of the words in the different docs
+FieldIndex contains one of the SortedVectors, for example WordSoerted or IntegerSorted and a list to all docs containing this sorted value
+
+
+
+
+*/
+
+
 
 
 #[allow(dead_code)]
@@ -31,11 +48,8 @@ use crate::sorted_vector::SortedVector;
     }
 
 
-    impl PartialEq for DocumentWordIndex {
-        fn eq(&self, other: &Self) -> bool {
-            self.doc_id == other.doc_id
-        }
-    }
+
+/// DocumentWordIndex
 
 
     #[allow(dead_code)]
@@ -47,12 +61,14 @@ use crate::sorted_vector::SortedVector;
         pub position: Rc<RefCell<Vec<u32>>>,
     } 
 
-    #[duplicate(
-    the_class;
-    [ DocumentWordIndex ];
-)]
+    impl PartialEq for DocumentWordIndex {
+        fn eq(&self, other: &Self) -> bool {
+            self.doc_id == other.doc_id
+        }
+    }
 
-impl <'a> PartialOrd for the_class {
+
+impl <'a> PartialOrd for DocumentWordIndex {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -63,6 +79,10 @@ impl <'a> Ord for DocumentWordIndex {
         self.doc_id.cmp(&other.doc_id)
     }
 }
+
+
+/// FieldIndex
+
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -77,12 +97,3 @@ impl<G: Debug + Clone + Ord > SortedVector<G> for FieldIndex<G> {
         return &self.index;
     }
 }
-
-
-
-
-
-
-
-
-
