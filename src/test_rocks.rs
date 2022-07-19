@@ -12,6 +12,8 @@ use crate::rocks::*;
 
 #[cfg(test)]
 mod tests {
+    use crate::structures::DocumentWordIndex;
+
     use super::*;
     use std::rc::Rc;
     use std::ptr;

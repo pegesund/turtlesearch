@@ -28,13 +28,10 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         pub docs: Rc<RefCell<Vec<Document>>>
     }
 
-    #[duplicate(
-        the_class sort_field;
-        [ DocumentWordIndex ] [ doc_id ];
-    )]
-    impl PartialEq for the_class {
+
+    impl PartialEq for DocumentWordIndex {
         fn eq(&self, other: &Self) -> bool {
-            self.sort_field == other.sort_field
+            self.doc_id == other.doc_id
         }
     }
 
@@ -46,7 +43,26 @@ use std::borrow::{BorrowMut, Borrow, Cow};
     pub struct DocumentWordIndex {
         pub doc_id: u64,
         pub position: Rc<RefCell<Vec<u32>>>,
+    } 
+
+    #[duplicate(
+    the_class;
+    [ DocumentWordIndex ];
+)]
+
+impl <'a> PartialOrd for the_class {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
+}
+
+
+
+impl <'a> Ord for DocumentWordIndex {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.doc_id.cmp(&other.doc_id)
+    }
+}
 
 
 

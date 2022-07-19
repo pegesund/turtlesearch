@@ -4,6 +4,7 @@ use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 // use crate::structures::*;
 use crate::sorted_vector::*;
+use crate::structures::DocumentWordIndex;
 
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;

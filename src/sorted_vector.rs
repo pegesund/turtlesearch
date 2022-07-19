@@ -10,15 +10,9 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
+use crate::structures::DocumentWordIndex;
 
-#[allow(dead_code)]
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(Eq)]
-pub struct DocumentWordIndex {
-    pub doc_id: u64,
-    pub position: Rc<RefCell<Vec<u32>>>,
-}
+
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -30,7 +24,6 @@ pub struct FloatWrapper {
 
 #[duplicate(
     the_class sort_field;
-    [ DocumentWordIndex ] [ doc_id ];
     [ IntegerSorted ] [ value ];
     [ DateSorted ] [ value ];
     [ FloatSorted ] [ value ];
@@ -67,7 +60,6 @@ impl Eq for FloatWrapper {
 
 #[duplicate(
     the_class;
-    [ DocumentWordIndex ];
     [ WordSorted ];
     [ FloatSorted ];
     [ IntegerSorted ];
@@ -82,7 +74,7 @@ impl <'a> PartialOrd for the_class {
 }
 
 impl PartialOrd for FloatWrapper {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> { 
         let c = self.value.partial_cmp(&other.value);
         return c;
     }
@@ -91,7 +83,6 @@ impl PartialOrd for FloatWrapper {
 
 #[duplicate(
     the_class sort_field;
-    [ DocumentWordIndex ] [ doc_id ];
     [ WordSorted ] [ value ];
     [ IntegerSorted ] [ value ];
     [ DateSorted  ] [ value ];
