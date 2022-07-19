@@ -1,5 +1,4 @@
 use rocksdb::{DB, Options};
-use crate::structures::{DocumentWordIndex};
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::cell::{RefCell, RefMut};
@@ -7,7 +6,7 @@ use std::vec::Vec;
 use std::mem::transmute;
 use std::fmt::Debug;
 use std::fs::read_to_string;
-use crate::structures::*;
+use crate::sorted_vector::*;
 use crate::rocks::*;
 
 
