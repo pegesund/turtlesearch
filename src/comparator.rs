@@ -93,13 +93,12 @@ fn put_value(mut ba: &mut ByteArray, val: &RocksValue) {
 /*
     Todo: currently copies the arrays into a vector, which is slow.. Large potential for optimize.
 */
-fn compare(one: &[u8], two: &[u8]) -> Ordering {
+pub fn rocks_compare(one: &[u8], two: &[u8]) -> Ordering {
     let mut ba1 = ByteArray {raw: one.to_vec(), pointer: 0 };
     let mut ba2 = ByteArray {raw: two.to_vec(), pointer: 0 };
     while ba1.bytes_available() > 0 {
         let v1:RocksValue = get_value(&mut ba1);
         let v2:RocksValue = get_value(&mut ba2);
-        println!("Values: {:?} - {:?}", v1, v2);
         if v1 < v2 { return Ordering::Less } else
         if v1 > v2 { return Ordering::Greater};
     };
@@ -176,7 +175,7 @@ mod tests {
         put_value(&mut ba2, &val2);
         let a1: &[u8] = ba1.as_vec().as_slice();
         let a2: &[u8] = ba2.as_vec().as_slice();
-        let res = compare(a1, a2);
+        let res = rocks_compare(a1, a2);
         assert_eq!(res, Ordering::Less)
     }
 
@@ -190,7 +189,7 @@ mod tests {
         put_value(&mut ba2, &val2);
         let a1: &[u8] = ba1.as_vec().as_slice();
         let a2: &[u8] = ba2.as_vec().as_slice();
-        let res = compare(a1, a2);
+        let res = rocks_compare(a1, a2);
         assert_eq!(res, Ordering::Less)
     }
     #[test]
@@ -207,7 +206,7 @@ mod tests {
         put_value(&mut ba2, &val22);
         let a1: &[u8] = ba1.as_vec().as_slice();
         let a2: &[u8] = ba2.as_vec().as_slice();
-        let res = compare(a1, a2);
+        let res = rocks_compare(a1, a2);
         assert_eq!(res, Ordering::Less)
     }
 
@@ -224,7 +223,7 @@ mod tests {
         put_value(&mut ba2, &val22);
         let a1: &[u8] = ba1.as_vec().as_slice();
         let a2: &[u8] = ba2.as_vec().as_slice();
-        let res = compare(a1, a2);
+        let res = rocks_compare(a1, a2);
         assert_eq!(res, Ordering::Equal)
     }
 

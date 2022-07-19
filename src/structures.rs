@@ -85,23 +85,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         pub optimized: bool
     }
 
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    #[derive(Eq)]
-    pub struct ChildrenDocs {
-        pub value: u64,
-        pub doc_ids: Rc<RefCell<Vec<u64>>>
-    }
-
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    #[derive(Eq)]
-    pub struct ParentDocs {
-        pub value: u64,
-        pub doc_ids: Rc<RefCell<Vec<u64>>>
-    }
 
     #[allow(dead_code)]
     #[derive(Debug)]
@@ -151,8 +134,6 @@ use std::borrow::{BorrowMut, Borrow, Cow};
         [ DateSorted ] [ value ];
         [ FloatSorted ] [ value ];
         [ BoolSorted ] [ value ];
-        [ ParentDocs ] [ doc_ids ];
-        [ ChildrenDocs ] [ doc_ids ];
 
 
     )]
@@ -349,8 +330,6 @@ the_class val_type;
     [ DateSorted ] [ u64 ];
     [ BoolSorted ] [ u64 ];
     [ FloatSorted ] [ u64 ];
-    [ ChildrenDocs ] [ u64 ];
-    [ ParentDocs ] [ u64 ];
 )]
 
 impl <'a> HasChildrenNew<val_type> for the_class {
