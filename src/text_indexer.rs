@@ -38,7 +38,7 @@ fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
 
 /// Called once for each multifield value
 /// Add each word in the doc to the hash, and add the position of the word to the word entry
-fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, &start: &u32) {
+fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
     let text_vec = simple_tokenizer(text);
     for i in 0..text_vec.len() {
         let w = text_vec[i].clone();
@@ -177,7 +177,7 @@ mod tests {
         assert_eq!(children.len(), 6);
         let all_dwi_for_the_a_word = children[0].get_vec().as_ref().borrow();
         let all_positions_for_the_a_word = all_dwi_for_the_a_word[0].get_vec().as_ref().borrow();
-        assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,106]);
+        assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,16]);
         assert_eq!(children[0].freq, 2); // there should be two a
         assert_eq!(children[1].freq, 4); // there should 4 of is
     }
