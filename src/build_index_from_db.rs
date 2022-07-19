@@ -2,7 +2,7 @@ use rocksdb::{DB, Options, IteratorMode, Direction};
 use std::rc::Rc;
 use std::cell::RefCell;
 use crate::rocks::*;
-use crate::sorted_vector::{WordSorted, FieldIndex};
+use crate::sorted_vector::{WordSorted};
 use std::str;
 
 /*

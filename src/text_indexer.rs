@@ -8,7 +8,7 @@ use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
 use crate::sorted_vector::*;
-use crate::structures::{Document, DocumentWordIndex};
+use crate::structures::{Document, DocumentWordIndex, FieldIndex};
 
 
 /// This file holds functions to add/remove a document to a field index with text content

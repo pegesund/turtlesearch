@@ -80,7 +80,6 @@ impl PartialOrd for FloatWrapper {
     }
 }
 
-
 #[duplicate(
     the_class sort_field;
     [ WordSorted ] [ value ];
@@ -102,27 +101,20 @@ impl Ord for FloatWrapper {
     }
 }
 
-#[allow(dead_code)]
-#[derive(Debug)]
-#[derive(Clone)]
 
-pub struct FieldIndex<G:Debug + Clone + Ord > {
-    pub name: String,
-    pub index:  Rc<RefCell<Vec<G>>>
-}
+
 
 
 #[allow(dead_code)]
 #[derive(Debug)]
-#[derive(Clone)]
 #[derive(Eq)]
+#[derive(Clone)]
 pub struct WordSorted {
     pub value: String,
     pub freq: u64,
     pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>,
     pub optimized: bool
 }
-
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -152,7 +144,6 @@ pub struct DateSorted {
     pub doc_ids: Rc<RefCell<Vec<u64>>>
 }
 
-
 #[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Clone)]
@@ -161,10 +152,6 @@ pub struct BoolSorted {
     pub value: bool,
     pub doc_ids: Rc<RefCell<Vec<u64>>>
 }
-
-
-
-
 
 pub trait SortedVector<E: Debug + Clone + Ord> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
@@ -192,7 +179,6 @@ pub trait SortedVector<E: Debug + Clone + Ord> {
     }
 }
 
-
 impl SortedVector<u32> for DocumentWordIndex {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
         return &self.position;
@@ -204,7 +190,6 @@ impl <'a> SortedVector<DocumentWordIndex> for WordSorted {
         return &self.docs;
     }
 }
-
 
 #[duplicate(
 the_class val_type;
@@ -220,10 +205,6 @@ impl <'a> SortedVector<val_type> for the_class {
     }
 }
 
-impl<G: Debug + Clone + Ord > SortedVector<G> for FieldIndex<G> {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<G>>> {
-        return &self.index;
-    }
-}
+
 
 

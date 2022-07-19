@@ -1,7 +1,6 @@
 //! This file contains code to add float/int/date to a field_index
-//! for indexing of text content, look into the text_splitters
+//! for indexing of text content, look into the text_indexer
 
-use crate::sorted_vector::FieldIndex;
 use crate::structures::*;
 use std::fmt::Debug;
 use std::rc::Rc;

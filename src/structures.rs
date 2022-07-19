@@ -10,6 +10,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
+use crate::sorted_vector::SortedVector;
+
 
 
 #[allow(dead_code)]
@@ -56,14 +58,25 @@ impl <'a> PartialOrd for the_class {
     }
 }
 
-
-
 impl <'a> Ord for DocumentWordIndex {
     fn cmp(&self, other: &Self) -> Ordering {
         self.doc_id.cmp(&other.doc_id)
     }
 }
 
+#[allow(dead_code)]
+#[derive(Debug)]
+#[derive(Clone)]
+pub struct FieldIndex<G:Debug + Clone + Ord > {
+    pub name: String,
+    pub index:  Rc<RefCell<Vec<G>>>
+}
+
+impl<G: Debug + Clone + Ord > SortedVector<G> for FieldIndex<G> {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<G>>> {
+        return &self.index;
+    }
+}
 
 
 
