@@ -4,7 +4,7 @@ use crate::sorted_vector::*;
 
 #[cfg(test)]
 mod tests {
-    use crate::structures::{Document, DocumentWordIndex, FieldIndex};
+    use crate::structures::{DocumentId, DocumentWordIndex, FieldIndex};
 
     use super::*;
     use std::rc::Rc;
@@ -82,10 +82,6 @@ mod tests {
         };
 
 
-        let doc1 = Document {
-            id: 0,
-            len: 1000
-        };
 
         let res3 = DocumentWordIndex {
             doc_id: 12,

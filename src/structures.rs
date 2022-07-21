@@ -18,22 +18,24 @@ use crate::sorted_vector::SortedVector;
 This file contains in-memory structures
 
 
-DocumentContainer has many Documents
-    Docment keeps only an id and the doc length    
+DocmentId keeps only an id and the doc length    
 WordSorted contains word count, the word, and many DocumentWordIndexes
     DocumentWordIndexes contains the position of the words in the different docs
-FieldIndex contains one of the SortedVectors, for example WordSoerted or IntegerSorted and a list to all docs containing this sorted value
+FieldIndex contains one of the SortedVectors, for example WordSorted or IntegerSorted and a list to all docs containing this sorted value
 
 
 */
 
 
 
+///
+/// Pointer to the documentid and the length of the doc in number of words
+/// 
 
 #[allow(dead_code)]
     #[derive(Debug)]
     #[derive(Clone)]
-    pub struct Document {
+    pub struct DocumentId {
         pub id: u64,
         pub len: u32
     }

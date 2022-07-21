@@ -8,7 +8,7 @@ use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
 use crate::sorted_vector::*;
-use crate::structures::{Document, DocumentWordIndex, FieldIndex};
+use crate::structures::{DocumentId, DocumentWordIndex, FieldIndex};
 
 
 /// This file holds functions to add/remove a document to a field index with text content
@@ -55,7 +55,7 @@ fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell
 
 /// Add text content to a FieldIndex
 /// For each text add 10 to position to avoid separate texts being positioned next to each other
-pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<WordSorted>, doc: &mut Document) {
+pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<WordSorted>, doc: &mut DocumentId) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
@@ -89,7 +89,7 @@ pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<W
 
 /// delete all dwis connected to a doc from the field index
 /// pretty slow as it iterates all dwis to to this
-pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: &Document) {
+pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: &DocumentId) {
     let mut remove_words = vec![];
     {
         let words_sorted = field_index.get_vec().as_ref().borrow_mut();
@@ -146,7 +146,7 @@ pub fn count_number_of_dwis_in_field_index(field_index: &FieldIndex<WordSorted>)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::structures::Document;
+    use crate::structures::DocumentId;
 
     #[test]
     fn test_add_text_to_field() {
@@ -168,7 +168,7 @@ mod tests {
         string_vec.push(t1);
         string_vec.push(t2);
 
-        let mut doc = Document {
+        let mut doc = DocumentId {
             id: 88,
             len: 99
         };
@@ -197,12 +197,12 @@ mod tests {
         string_vec1.push(t1);
         string_vec2.push(t2);
 
-        let mut doc1 = Document {
+        let mut doc1 = DocumentId {
             id: 88,
             len: 99
         };
 
-        let mut doc2 = Document {
+        let mut doc2 = DocumentId {
             id: 888,
             len: 999
         };

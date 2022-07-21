@@ -95,7 +95,6 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::structures::Document;
 
     #[test]
     fn test_add_content_date() {
