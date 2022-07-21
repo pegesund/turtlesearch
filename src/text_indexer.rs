@@ -19,8 +19,8 @@ use crate::structures::{DocumentId, DocumentWordIndex, FieldIndex};
 pub fn simple_tokenizer(text: &str) -> Vec<String> {
     let text_without_special_chars: String = text.to_string().chars().enumerate().map(|(u, c)| c) .
         filter(|c| c.is_alphabetic() || c.is_digit(10) || c.is_whitespace()).collect();
-    let text_vec = text_without_special_chars.to_lowercase().split(" ").map(|s| s.to_string()).collect();
-    return text_vec;
+    let text_vec: Vec<String> = text_without_special_chars.to_lowercase().split(" ").map(|s | s.to_string()).collect();
+    return text_vec
 }
 
 /// Finds index in search index vector vector for a word
@@ -38,8 +38,7 @@ fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
 
 /// Called once for each multifield value
 /// Add each word in the doc to the hash, and add the position of the word to the word entry
-fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
-    let text_vec = simple_tokenizer(text);
+fn add_single_text_to_field_index(text_vec: Vec<String>, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
     for i in 0..text_vec.len() {
         let w = text_vec[i].clone();
         if h.contains_key(&w) {
@@ -55,7 +54,7 @@ fn add_single_text_to_field_index(text: &str, h: &mut HashMap<String, Rc<RefCell
 
 /// Add text content to a FieldIndex
 /// For each text add 10 to position to avoid separate texts being positioned next to each other
-pub fn add_multi_text_to_field_index(text: Vec<&str>, field_index: &FieldIndex<WordSorted>, doc: &mut DocumentId) {
+pub fn add_multi_text_to_field_index(text: Vec<Vec<String>>, field_index: &FieldIndex<WordSorted>, doc: &mut DocumentId) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
@@ -156,14 +155,14 @@ mod tests {
             docs: Rc::new(RefCell::new(vec![])),
             optimized: false
         };
-        let t = "This is Petter writing. This is a test.";
+        // let t = "This is Petter writing. This is a test.";
         let mut field_index = FieldIndex {
             name: "".to_string(),
             index: Rc::new(RefCell::new(vec![]))
         };
 
-        let t1 = "This is Petter writing. This is a test.";
-        let t2 = "This is Petter writing. This is a test.";
+        let t1 = simple_tokenizer("This is Petter writing. This is a test.");
+        let t2 = simple_tokenizer("This is Petter writing. This is a test.");
         let mut string_vec = vec![];
         string_vec.push(t1);
         string_vec.push(t2);
@@ -190,8 +189,8 @@ mod tests {
             index: Rc::new(RefCell::new(vec![]))
         };
 
-        let t1 = "This is Petter writing. This is a test newword.";
-        let t2 = "This is Petter writing. This is a test.";
+        let t1 = simple_tokenizer("This is Petter writing. This is a test newword.");
+        let t2 = simple_tokenizer("This is Petter writing. This is a test.");
         let mut string_vec1 = vec![];
         let mut string_vec2 = vec![]; 
         string_vec1.push(t1);
