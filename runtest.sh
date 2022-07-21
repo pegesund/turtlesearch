@@ -1,1 +1,1 @@
-cargo test  --package testhash --bin testhash comparator::tests -- --show-output
+cargo test  --package testhash --bin testhash text_indexer::tests -- --show-output

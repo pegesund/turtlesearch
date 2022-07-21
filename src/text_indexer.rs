@@ -180,6 +180,7 @@ mod tests {
         assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,16]);
         assert_eq!(children[0].freq, 2); // there should be two a
         assert_eq!(children[1].freq, 4); // there should 4 of is
+        println!("Textindex: {:?}", &field_index)
     }
 
     #[test]

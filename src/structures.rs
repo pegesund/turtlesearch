@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
+use crate::comparator::FieldType;
 use crate::sorted_vector::SortedVector;
 
 /*
@@ -22,8 +23,6 @@ DocumentContainer has many Documents
 WordSorted contains word count, the word, and many DocumentWordIndexes
     DocumentWordIndexes contains the position of the words in the different docs
 FieldIndex contains one of the SortedVectors, for example WordSoerted or IntegerSorted and a list to all docs containing this sorted value
-
-
 
 
 */
@@ -39,18 +38,11 @@ FieldIndex contains one of the SortedVectors, for example WordSoerted or Integer
         pub len: u32
     }
 
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    pub struct DocumentContainer {
-        pub id: u64,
-        pub docs: Rc<RefCell<Vec<Document>>>
-    }
 
 
-
+///
 /// DocumentWordIndex
-
+///
 
     #[allow(dead_code)]
     #[derive(Debug)]
@@ -80,9 +72,9 @@ impl <'a> Ord for DocumentWordIndex {
     }
 }
 
-
+///
 /// FieldIndex
-
+///
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -96,4 +88,32 @@ impl<G: Debug + Clone + Ord > SortedVector<G> for FieldIndex<G> {
     fn get_vec(&self) -> &Rc<RefCell<Vec<G>>> {
         return &self.index;
     }
+}
+
+
+///
+/// Field
+/// 
+#[allow(dead_code)]
+#[derive(Debug)]
+#[derive(Clone)]
+
+pub struct Field <G:Debug + Clone + Ord > {
+    pub name: String,
+    pub field_type: FieldType,
+    pub index:  Option<FieldIndex<G>>,
+    pub size:  Rc<RefCell<u64>>
+}
+
+
+///
+/// Collections
+/// 
+
+#[allow(dead_code)]
+#[derive(Debug)]
+#[derive(Clone)]
+pub struct Collection <G:Debug + Clone + Ord > {
+    pub name: String,
+    pub fields:  Rc<RefCell<Vec<Field<G>>>>
 }

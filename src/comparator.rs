@@ -12,8 +12,8 @@ use std::convert::TryFrom;
 
 struct WrappedU8Vec {vec: Vec<u8>}
 
-#[derive(FromPrimitive, Clone)]
-enum RocksType {
+#[derive(FromPrimitive, Clone, Debug)]
+pub enum FieldType {
     I64,
     U64,
     Isize,
@@ -53,40 +53,40 @@ fn get_value(ba: &mut ByteArray) -> RocksValue {
 
     let rocks_raw_type: u32 =  ba.read();
     println!("Value: {:?}",  rocks_raw_type);
-    let rocks_type: RocksType = FromPrimitive::from_u32(rocks_raw_type).unwrap();
+    let rocks_type: FieldType = FromPrimitive::from_u32(rocks_raw_type).unwrap();
     let res: RocksValue = match rocks_type {
-        RocksType::I8 => RocksValue::I8 {value: ba.read()},
-        RocksType::I16 => RocksValue::I16 {value: ba.read()},
-        RocksType::I32 => RocksValue::I32 {value: ba.read()},
-        RocksType::I64 => RocksValue::I64 {value: ba.read()},
-        RocksType::U8 => RocksValue::U8 {value: ba.read()},
-        RocksType::U16 => RocksValue::U16 {value: ba.read()},
-        RocksType::U32 => RocksValue::U32 {value: ba.read()},
-        RocksType::U64 => RocksValue::U64 {value: ba.read()},
-        RocksType::Usize => RocksValue::Usize {value: ba.read()},
-        RocksType::Isize => RocksValue::Isize {value: ba.read()},
-        RocksType::F32 => RocksValue::F32 {value: ba.read::<f32>()},
-        RocksType::F64 => RocksValue::F64 {value: ba.read::<f64>()},
-        RocksType::String => RocksValue::String {value: ba.read::<String>() }
+        FieldType::I8 => RocksValue::I8 {value: ba.read()},
+        FieldType::I16 => RocksValue::I16 {value: ba.read()},
+        FieldType::I32 => RocksValue::I32 {value: ba.read()},
+        FieldType::I64 => RocksValue::I64 {value: ba.read()},
+        FieldType::U8 => RocksValue::U8 {value: ba.read()},
+        FieldType::U16 => RocksValue::U16 {value: ba.read()},
+        FieldType::U32 => RocksValue::U32 {value: ba.read()},
+        FieldType::U64 => RocksValue::U64 {value: ba.read()},
+        FieldType::Usize => RocksValue::Usize {value: ba.read()},
+        FieldType::Isize => RocksValue::Isize {value: ba.read()},
+        FieldType::F32 => RocksValue::F32 {value: ba.read::<f32>()},
+        FieldType::F64 => RocksValue::F64 {value: ba.read::<f64>()},
+        FieldType::String => RocksValue::String {value: ba.read::<String>() }
     };
     return res
 }
 
 fn put_value(mut ba: &mut ByteArray, val: &RocksValue) {
     match val {
-        RocksValue::I64 { value } => { ba <<= &(RocksType::I64 as u32); ba <<= value },
-        RocksValue::U64 { value } => { ba <<= &(RocksType::U64 as u32); ba <<= value },
-        RocksValue::Isize { value } => { ba <<= &(RocksType::Isize as u32); ba <<= value },
-        RocksValue::I8 { value } => { ba <<= &(RocksType::I8 as u32); ba <<= value },
-        RocksValue::I16 { value } => { ba <<= &(RocksType::I16 as u32); ba <<= value },
-        RocksValue::I32 { value } => { ba <<= &(RocksType::I32 as u32); ba <<= value },
-        RocksValue::Usize { value } => { ba <<= &(RocksType::Usize as u32); ba <<= value },
-        RocksValue::U8 { value } => { ba <<= &(RocksType::U8 as u32); ba <<= value },
-        RocksValue::U16 { value } => { ba <<= &(RocksType::U16 as u32); ba <<= value },
-        RocksValue::U32 { value } => { ba <<= &(RocksType::U32 as u32); ba <<= value },
-        RocksValue::F32 { value } => { ba <<= &(RocksType::F32 as u32); ba <<= value },
-        RocksValue::F64 { value } => { ba <<= &(RocksType::F64 as u32); ba <<= value },
-        RocksValue::String { value } => { ba <<= &(RocksType::String as u32); ba <<= value }
+        RocksValue::I64 { value } => { ba <<= &(FieldType::I64 as u32); ba <<= value },
+        RocksValue::U64 { value } => { ba <<= &(FieldType::U64 as u32); ba <<= value },
+        RocksValue::Isize { value } => { ba <<= &(FieldType::Isize as u32); ba <<= value },
+        RocksValue::I8 { value } => { ba <<= &(FieldType::I8 as u32); ba <<= value },
+        RocksValue::I16 { value } => { ba <<= &(FieldType::I16 as u32); ba <<= value },
+        RocksValue::I32 { value } => { ba <<= &(FieldType::I32 as u32); ba <<= value },
+        RocksValue::Usize { value } => { ba <<= &(FieldType::Usize as u32); ba <<= value },
+        RocksValue::U8 { value } => { ba <<= &(FieldType::U8 as u32); ba <<= value },
+        RocksValue::U16 { value } => { ba <<= &(FieldType::U16 as u32); ba <<= value },
+        RocksValue::U32 { value } => { ba <<= &(FieldType::U32 as u32); ba <<= value },
+        RocksValue::F32 { value } => { ba <<= &(FieldType::F32 as u32); ba <<= value },
+        RocksValue::F64 { value } => { ba <<= &(FieldType::F64 as u32); ba <<= value },
+        RocksValue::String { value } => { ba <<= &(FieldType::String as u32); ba <<= value }
     }
 }
 
