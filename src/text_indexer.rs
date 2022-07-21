@@ -7,6 +7,7 @@ use std::convert::TryInto;
 use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
+use crate::field_indexer::PlainContent;
 use crate::sorted_vector::*;
 use crate::structures::{DocumentWordAndPositions, FieldIndex};
 
@@ -88,6 +89,7 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &Fiel
 
 /// delete all dwis connected to a doc from the field index
 /// pretty slow as it iterates all dwis to to this
+/// TODO: Fix speed by looking up each word instead of iterating all
 pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: u64) {
     let mut remove_words = vec![];
     {
@@ -142,18 +144,57 @@ pub fn count_number_of_dwis_in_field_index(field_index: &FieldIndex<WordSorted>)
     return counter;
 }
 
+
+impl PlainContent<Vec<Vec<String>>> for FieldIndex<WordSorted> {
+    fn put_content(&self, content: Vec<Vec<String>>, doc_id: u64) {
+        add_multi_text_to_field_index(&content, &self, doc_id);
+    }
+
+    fn get_ids(&self, content: Vec<Vec<String>>) -> Option<Vec<u64>> {
+        None
+    }
+
+    fn delete_doc(&self, doc_id: u64) {
+        // should not be used
+    }
+}
+
+
+impl PlainContent<String> for FieldIndex<WordSorted> {
+    fn put_content(&self, content: String, doc_id: u64) {
+        let t = simple_tokenizer("This is Petter writing. This is a test.");
+        let mut string_vec = vec![];
+        string_vec.push(t);
+        add_multi_text_to_field_index(&string_vec, &self, doc_id);
+    }
+
+
+    fn get_ids(&self, content: String) -> Option<Vec<u64>> {
+        let children = self.get_vec().as_ref().borrow();
+        return match children.binary_search_by(|e| e.value.cmp(&content)) {
+            Ok(pos) => {
+                let docs_and_pos: Vec<DocumentWordAndPositions>= children[pos].docs.as_ref().borrow().to_vec();
+                Some(docs_and_pos.iter().map(|d| d.doc_id).collect())
+            },
+            Err(pos) => None
+        };
+    }
+
+    fn delete_doc(&self, doc_id: u64) {
+        todo!()
+    }
+}
+
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_add_text_to_field() {
-        let ws = WordSorted {
-            value: "".to_string(),
-            freq: 0,
-            docs: Rc::new(RefCell::new(vec![])),
-            optimized: false
-        };
+
         // let t = "This is Petter writing. This is a test.";
         let mut field_index = FieldIndex {
             name: "".to_string(),
@@ -175,7 +216,6 @@ mod tests {
         assert_eq!(all_positions_for_the_a_word.to_vec(), vec![6,16]);
         assert_eq!(children[0].freq, 2); // there should be two a
         assert_eq!(children[1].freq, 4); // there should 4 of is
-        println!("Textindex: {:?}", &field_index)
     }
 
     #[test]
@@ -198,10 +238,28 @@ mod tests {
         add_multi_text_to_field_index(&string_vec1, &field_index, doc1);
         add_multi_text_to_field_index(&string_vec2, &field_index, doc2);
         let c1 = count_number_of_dwis_in_field_index(&field_index);
-        // println!("Petters Field index: {:#?}", &field_index);
         delete_document_from_field_index(&mut field_index, doc1);
         let c2 = count_number_of_dwis_in_field_index(&field_index);
         assert_eq!(c1, 13);
         assert_eq!(c2, 6);
+    }
+
+    #[test]
+    fn test_plain_text_trait() {
+        let field_index = FieldIndex {
+            name: "".to_string(),
+            index: Rc::new(RefCell::new(vec![]))
+        };
+        let t1 = simple_tokenizer("a");
+        let t2 = simple_tokenizer("b a");
+        let mut string_vec = vec![];
+        string_vec.push(t1);
+        let mut string_vec2 = vec![];
+        string_vec2.push(t2);
+        field_index.put_content(string_vec, 100);
+        field_index.put_content(string_vec2, 101);
+        println!("Textindex: {:?}", &field_index);
+        println!("Docs: {:?}", field_index.get_ids( String::from("a")));
+
     }
 }

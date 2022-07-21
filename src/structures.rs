@@ -22,7 +22,7 @@ Collection has many
         FieldIndex contains one of the SortedVectors, for example 
             IntegerSorted 
             ...
-            WordSorted
+            WordSorted (freq holds number of positions in total for this word)
                 DodumentWordIdAndPositions
 
 */

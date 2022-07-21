@@ -55,7 +55,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
     fn get_ids(&self, content: val_type) -> Option<Vec<u64>> {
         let children = self.get_vec().as_ref().borrow();
         return match children.binary_search_by(|e| e.value.cmp(&content)) {
-            Ok(pos) => Some(children[pos].doc_ids.as_ref().borrow_mut().to_vec()),
+            Ok(pos) => Some(children[pos].doc_ids.as_ref().borrow().to_vec()),
             Err(pos) => None
         };
     }
