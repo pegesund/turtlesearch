@@ -9,7 +9,7 @@ use std::borrow::{BorrowMut, Borrow};
 
 use crate::field_indexer::PlainContent;
 use crate::sorted_vector::*;
-use crate::structures::{DocumentWordAndPositions, FieldIndex};
+use crate::structures::{DocumentWordAndPositions, FieldIndex, Field};
 
 
 /// This file holds functions to add/remove a document to a field index with text content
@@ -90,15 +90,14 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &Fiel
 /// delete all dwis connected to a doc from the field index
 /// pretty slow as it iterates all dwis to to this
 /// TODO: Fix speed by looking up each word instead of iterating all
-pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: u64) {
+pub fn delete_document_from_field_index(field_index: &FieldIndex<WordSorted>, doc: u64) {
     let mut remove_words = vec![];
     {
-        let words_sorted = field_index.get_vec().as_ref().borrow_mut();
+        let mut words_sorted = field_index.get_vec().as_ref().borrow_mut();
         for i in 0..words_sorted.len() {
-            let word_sorted = &words_sorted[i];
+            let word_sorted = words_sorted[i].borrow_mut();
             let mut word_sorted_children = word_sorted.get_vec().as_ref().borrow_mut();
             let mut cj: usize = 0;
-            // println!("Number of children: {:?}", word_sorted_children.len());
             let children_len = word_sorted_children.len();
             let mut number_of_removed_dwis = 0;
             for j in 0.. children_len {
@@ -107,12 +106,15 @@ pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>
                 if dwi.doc_id == doc {
                     word_sorted_children.remove(cj);
                     number_of_removed_dwis += 1;
+                    // word_sorted.freq -= 1;
                     if word_sorted_children.len() == 0 {
                         remove_words.push(word_sorted.value.clone());
                     } else {
                         cj += 1;
                     }
-                }
+                } else {
+                    cj += 1;
+                }                
             }
         }
     }
@@ -150,12 +152,12 @@ impl PlainContent<Vec<Vec<String>>> for FieldIndex<WordSorted> {
         add_multi_text_to_field_index(&content, &self, doc_id);
     }
 
-    fn get_ids(&self, content: Vec<Vec<String>>) -> Option<Vec<u64>> {
-        None
+    fn get_ids(&self, content: Vec<Vec<String>>) -> Vec<u64> {
+        vec![]
     }
 
     fn delete_doc(&self, doc_id: u64) {
-        // should not be used
+        todo!()
     }
 }
 
@@ -169,19 +171,19 @@ impl PlainContent<String> for FieldIndex<WordSorted> {
     }
 
 
-    fn get_ids(&self, content: String) -> Option<Vec<u64>> {
+    fn get_ids(&self, content: String) -> Vec<u64> {
         let children = self.get_vec().as_ref().borrow();
         return match children.binary_search_by(|e| e.value.cmp(&content)) {
             Ok(pos) => {
                 let docs_and_pos: Vec<DocumentWordAndPositions>= children[pos].docs.as_ref().borrow().to_vec();
-                Some(docs_and_pos.iter().map(|d| d.doc_id).collect())
+                docs_and_pos.iter().map(|d| d.doc_id).collect()
             },
-            Err(pos) => None
+            Err(pos) => vec![]
         };
     }
 
     fn delete_doc(&self, doc_id: u64) {
-        todo!()
+        delete_document_from_field_index(self, doc_id);
     }
 }
 
@@ -190,6 +192,8 @@ impl PlainContent<String> for FieldIndex<WordSorted> {
 
 #[cfg(test)]
 mod tests {
+    use crate::field_indexer;
+
     use super::*;
 
     #[test]
@@ -258,8 +262,11 @@ mod tests {
         string_vec2.push(t2);
         field_index.put_content(string_vec, 100);
         field_index.put_content(string_vec2, 101);
-        println!("Textindex: {:?}", &field_index);
-        println!("Docs: {:?}", field_index.get_ids( String::from("a")));
-
+        assert_eq!(field_index.get_ids( String::from("a")), vec![100,101]);
+        assert_eq!(field_index.get_ids( String::from("b")), vec![101]);
+        PlainContent::<String>::delete_doc(&field_index, 101);
+        assert_eq!(field_index.get_ids( String::from("a")), vec![100]);
+        let empty: Vec<u64> = vec![];
+        assert_eq!(field_index.get_ids( String::from("b")), empty);
     }
 }

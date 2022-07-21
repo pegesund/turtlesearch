@@ -12,7 +12,7 @@ use crate::sorted_vector::*;
 
 pub trait PlainContent<G: Clone + Debug + Ord> {
     fn put_content(&self, content: G, doc_id: u64);
-    fn get_ids(&self, content: G) -> Option<Vec<u64>>;
+    fn get_ids(&self, content: G) -> Vec<u64>;
     fn delete_doc(&self, doc_id: u64);
 }
  
@@ -52,11 +52,11 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
     }
 
     /// get docs based on value query
-    fn get_ids(&self, content: val_type) -> Option<Vec<u64>> {
+    fn get_ids(&self, content: val_type) ->  Vec<u64> {
         let children = self.get_vec().as_ref().borrow();
         return match children.binary_search_by(|e| e.value.cmp(&content)) {
-            Ok(pos) => Some(children[pos].doc_ids.as_ref().borrow().to_vec()),
-            Err(pos) => None
+            Ok(pos) => children[pos].doc_ids.as_ref().borrow().to_vec(),
+            Err(pos) => vec![]
         };
     }
 
@@ -111,7 +111,7 @@ mod tests {
         field_index.put_content(99 as i64, 300);
 
         let d_99 = field_index.get_ids(99);
-        assert_eq!(d_99, Some(vec![199,300]));
+        assert_eq!(d_99, vec![199,300]);
 
         let field_index_float = FieldIndex {
             name: "myfield_float".to_string(),
@@ -123,7 +123,7 @@ mod tests {
         field_index_float.put_content(FloatWrapper{value: 88.9}, 288);
         field_index_float.put_content(FloatWrapper{value: 99.9}, 199);
 
-        assert_eq!(field_index_float.get_ids(FloatWrapper{value: 88.9}), Some(vec![188,288]));
+        assert_eq!(field_index_float.get_ids(FloatWrapper{value: 88.9}), vec![188,288]);
 
         let field_index_bool = FieldIndex {
             name: "myfield_bool".to_string(),
@@ -135,11 +135,12 @@ mod tests {
         field_index_bool.put_content(true, 3);
         field_index_bool.put_content(false, 4);
 
-        assert_eq!(field_index_bool.get_ids(true), Some(vec![1,3]));
+        assert_eq!(field_index_bool.get_ids(true), vec![1,3]);
 
         field_index.delete_doc(201);
-        assert_eq!(field_index.get_ids(100), Some(vec![200]));
+        assert_eq!(field_index.get_ids(100), vec![200]);
         field_index.delete_doc(200);
-        assert_eq!(field_index.get_ids(100), None);
+        let emtpy: Vec<u64> = vec![];
+        assert_eq!(field_index.get_ids(100), emtpy);
     }
 }
