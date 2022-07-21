@@ -62,6 +62,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
 
     /// delete doc from index
     /// pretty slow as it iterates all index to find the docs
+    /// TODO: Fix speed
     fn delete_doc(&self, doc_id: u64) {
         let mut empty_values = vec![];
         {

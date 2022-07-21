@@ -16,12 +16,14 @@ use crate::sorted_vector::SortedVector;
 /*
 
 This file contains in-memory structures
- 
-FieldIndex contains one of the SortedVectors, for example 
-    IntegerSorted 
-    ...
-    WordSorted
-        DodumentWordAndPositions (word id and positions in the docs)
+
+Collection has many
+    Field maybe has one
+        FieldIndex contains one of the SortedVectors, for example 
+            IntegerSorted 
+            ...
+            WordSorted
+                DodumentWordIdAndPositions
 
 */
 
