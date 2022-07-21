@@ -38,7 +38,7 @@ fn find_pos(field_index: &FieldIndex<WordSorted>, w: &String) -> (usize, bool) {
 
 /// Called once for each multifield value
 /// Add each word in the doc to the hash, and add the position of the word to the word entry
-fn add_single_text_to_field_index(text_vec: Vec<String>, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
+fn add_single_text_to_field_index(text_vec: &Vec<String>, h: &mut HashMap<String, Rc<RefCell<Vec<u32>>>>, start: &u32) {
     for i in 0..text_vec.len() {
         let w = text_vec[i].clone();
         if h.contains_key(&w) {
@@ -54,7 +54,7 @@ fn add_single_text_to_field_index(text_vec: Vec<String>, h: &mut HashMap<String,
 
 /// Add text content to a FieldIndex
 /// For each text add 10 to position to avoid separate texts being positioned next to each other
-pub fn add_multi_text_to_field_index(text: Vec<Vec<String>>, field_index: &FieldIndex<WordSorted>, doc: &mut DocumentId) {
+pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &FieldIndex<WordSorted>, doc: &mut DocumentId) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
@@ -171,7 +171,7 @@ mod tests {
             id: 88,
             len: 99
         };
-        add_multi_text_to_field_index(string_vec, &mut field_index, &mut doc);
+        add_multi_text_to_field_index(&string_vec, &mut field_index, &mut doc);
         let children = field_index.get_vec().as_ref().borrow();
         assert_eq!(children.len(), 6);
         let all_dwi_for_the_a_word = children[0].get_vec().as_ref().borrow();
@@ -206,8 +206,8 @@ mod tests {
             len: 999
         };
 
-        add_multi_text_to_field_index(string_vec1, &field_index, &mut doc1);
-        add_multi_text_to_field_index(string_vec2, &field_index, &mut doc2);
+        add_multi_text_to_field_index(&string_vec1, &field_index, &mut doc1);
+        add_multi_text_to_field_index(&string_vec2, &field_index, &mut doc2);
         let c1 = count_number_of_dwis_in_field_index(&field_index);
         // println!("Petters Field index: {:#?}", &field_index);
         delete_document_from_field_index(&mut field_index, &doc1);
