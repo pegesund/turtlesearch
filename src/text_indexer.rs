@@ -108,14 +108,9 @@ pub fn delete_document_from_field_index(field_index: &FieldIndex<WordSorted>, do
                     number_of_removed_dwis += 1;
                     if word_sorted.get_vec().as_ref().borrow().len() == 0 {
                         remove_words.push(word_sorted.value.clone());
-                        println!("---- Removing");
-                        cj += 1;
-                    } else {
-                        cj += 1;
-                    }
-                } else {
-                    cj += 1;
+                    } 
                 }                
+                cj += 1;
             }
         }
     }
