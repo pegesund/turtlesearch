@@ -4,7 +4,7 @@ use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 // use crate::structures::*;
 use crate::sorted_vector::*;
-use crate::structures::DocumentWordIndex;
+use crate::structures::DocumentWordAndPositions;
 
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
@@ -39,10 +39,10 @@ let _ = DB::destroy(&Options::default(), path);
 }
 
 
-impl BinaryBuilder for DocumentWordIndex {
+impl BinaryBuilder for DocumentWordAndPositions {
     fn new() ->
-             DocumentWordIndex {
-            let res = DocumentWordIndex {
+             DocumentWordAndPositions {
+            let res = DocumentWordAndPositions {
                 doc_id: 0,
                 position: Rc::new(RefCell::new(vec![]))
             };
@@ -57,7 +57,7 @@ impl BinaryBuilder for DocumentWordIndex {
             let v = ba.read();
             vec.borrow_mut().push(v)
         }
-        return Some(DocumentWordIndex {
+        return Some(DocumentWordAndPositions {
             doc_id: id,
             position: Rc::new(RefCell::new(vec![]))
         });
@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn serializing_word_index() {
-        let wi = DocumentWordIndex {
+        let wi = DocumentWordAndPositions {
             doc_id: 199,
             position: Rc::new(RefCell::new(vec![]))
         };
@@ -89,7 +89,7 @@ mod tests {
         wi.insert(33);
         let ba = &mut ByteArray::new();
         let raw = wi.to_raw(ba);
-        let wi2 = DocumentWordIndex::from_raw(ba).unwrap();
+        let wi2 = DocumentWordAndPositions::from_raw(ba).unwrap();
         assert_eq!(wi, wi2);
     }
 

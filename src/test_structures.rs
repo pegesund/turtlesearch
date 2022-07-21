@@ -4,7 +4,7 @@ use crate::sorted_vector::*;
 
 #[cfg(test)]
 mod tests {
-    use crate::structures::{DocumentWordIndex, FieldIndex}; 
+    use crate::structures::{DocumentWordAndPositions, FieldIndex}; 
 
     use super::*;
     use std::rc::Rc;
@@ -68,22 +68,22 @@ mod tests {
 
     #[test]
     fn test_new_children() {
-        let res0 = DocumentWordIndex {
+        let res0 = DocumentWordAndPositions {
             doc_id: 0,
             position: Rc::new(RefCell::new(vec![]))
         };
-        let res1 = DocumentWordIndex {
+        let res1 = DocumentWordAndPositions {
             doc_id: 10,
             position: Rc::new(RefCell::new(vec![]))
         };
-        let res2 = DocumentWordIndex {
+        let res2 = DocumentWordAndPositions {
             doc_id: 5,
             position: Rc::new(RefCell::new(vec![]))
         };
 
 
 
-        let res3 = DocumentWordIndex {
+        let res3 = DocumentWordAndPositions {
             doc_id: 12,
             position: Rc::new(RefCell::new(vec![]))
         };
@@ -119,7 +119,7 @@ mod tests {
         }
 
         {
-            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordIndex| e.doc_id).collect::<Vec<u64>>();
+            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordAndPositions| e.doc_id).collect::<Vec<u64>>();
             assert_eq!(children, &vec![0, 5, 10, 12])
         }
 

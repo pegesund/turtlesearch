@@ -8,7 +8,7 @@ use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
 use crate::sorted_vector::*;
-use crate::structures::{DocumentWordIndex, FieldIndex};
+use crate::structures::{DocumentWordAndPositions, FieldIndex};
 
 
 /// This file holds functions to add/remove a document to a field index with text content
@@ -77,7 +77,7 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &Fiel
         let mut words_sorted = field_index.index.as_ref().borrow_mut();
         let val = h.get(key).unwrap().as_ref().borrow();
         words_sorted[pos].freq += val.len() as u64;
-        let dwi = DocumentWordIndex {
+        let dwi = DocumentWordAndPositions {
             doc_id: doc,
             position: Rc::new(RefCell::new(val.to_vec()))
         };

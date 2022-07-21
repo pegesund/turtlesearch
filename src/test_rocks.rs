@@ -12,7 +12,7 @@ use crate::rocks::*;
 
 #[cfg(test)]
 mod tests {
-    use crate::structures::DocumentWordIndex;
+    use crate::structures::DocumentWordAndPositions;
 
     use super::*;
     use std::rc::Rc;
@@ -22,7 +22,7 @@ mod tests {
     fn test_save_document_word_index() {
         let path = "/tmp/document_index.rock";
 
-        let dwi = DocumentWordIndex {
+        let dwi = DocumentWordAndPositions {
             doc_id: 199,
             position: Rc::new(RefCell::new(vec![]))
         };
@@ -48,20 +48,20 @@ mod tests {
 
     #[test]
     fn test_save_and_load_word_sorted() {
-        let dwi1 = DocumentWordIndex {
+        let dwi1 = DocumentWordAndPositions {
             doc_id: 1,
             position: Rc::new(RefCell::new(vec![]))
         };
-        let dwi2 = DocumentWordIndex {
+        let dwi2 = DocumentWordAndPositions {
             doc_id: 2,
             position: Rc::new(RefCell::new(vec![]))
         };
-        let dwi3 = DocumentWordIndex {
+        let dwi3 = DocumentWordAndPositions {
             doc_id: 3,
             position: Rc::new(RefCell::new(vec![]))
         };
 
-        let dwi4 = DocumentWordIndex {
+        let dwi4 = DocumentWordAndPositions {
             doc_id: 4,
             position: Rc::new(RefCell::new(vec![]))
         };

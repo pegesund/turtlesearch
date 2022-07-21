@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
-use crate::structures::DocumentWordIndex;
+use crate::structures::DocumentWordAndPositions;
 
 
 
@@ -112,7 +112,7 @@ impl Ord for FloatWrapper {
 pub struct WordSorted {
     pub value: String,
     pub freq: u64,
-    pub docs: Rc<RefCell<Vec<DocumentWordIndex>>>,
+    pub docs: Rc<RefCell<Vec<DocumentWordAndPositions>>>,
     pub optimized: bool
 }
 
@@ -179,14 +179,14 @@ pub trait SortedVector<E: Debug + Clone + Ord> {
     }
 }
 
-impl SortedVector<u32> for DocumentWordIndex {
+impl SortedVector<u32> for DocumentWordAndPositions {
     fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
         return &self.position;
     }
 }
 
-impl <'a> SortedVector<DocumentWordIndex> for WordSorted {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordIndex>>> {
+impl <'a> SortedVector<DocumentWordAndPositions> for WordSorted {
+    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordAndPositions>>> {
         return &self.docs;
     }
 }

@@ -1,6 +1,6 @@
 use rocksdb::{DB, Options, IteratorMode, Direction};
 use crate::sorted_vector::*;
-use crate::structures::DocumentWordIndex;
+use crate::structures::DocumentWordAndPositions;
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::cell::{RefCell, RefMut};
@@ -28,18 +28,18 @@ fn vec_to_bytearray(res: Vec<u8>) -> ByteArray {
     return ba;
 }
 
-pub fn save_document_word_index(db: &DB, document_word_index: &DocumentWordIndex) {
+pub fn save_document_word_index(db: &DB, document_word_index: &DocumentWordAndPositions) {
     let ba = &mut ByteArray::new();
     let raw = document_word_index.to_raw(ba);
     let id_raw: [u8; 8] = u64_to_barray!(document_word_index.doc_id);
     db.put(id_raw, ba.as_vec()).unwrap();
 }
 
-pub fn load_document_word_index(db: &DB, id: u64) -> DocumentWordIndex {
+pub fn load_document_word_index(db: &DB, id: u64) -> DocumentWordAndPositions {
     let id_raw: [u8; 8] = u64_to_barray!(id);
     let res = db.get(id_raw).unwrap().unwrap();
     let mut ba = vec_to_bytearray(res);
-    let dwi = DocumentWordIndex::from_raw(&mut ba).unwrap();
+    let dwi = DocumentWordAndPositions::from_raw(&mut ba).unwrap();
     return dwi;
 }
 
@@ -48,7 +48,7 @@ pub fn delete_document_word_index(db: &DB, id: u64) {
     db.delete(id_raw).unwrap();
 }
 
-fn dwi_and_ws_to_key(dwi: &DocumentWordIndex, ws: &WordSorted) -> ByteArray {
+fn dwi_and_ws_to_key(dwi: &DocumentWordAndPositions, ws: &WordSorted) -> ByteArray {
     let dwi_id_raw: [u8; 8] = u64_to_barray!(dwi.doc_id);
     let w = ws.value.clone();
     let word_as_bytes: &[u8] = w.as_bytes();
@@ -65,14 +65,14 @@ fn dwi_and_ws_to_key(dwi: &DocumentWordIndex, ws: &WordSorted) -> ByteArray {
 /// saves connection between a word and the dwi
 /// key is word + dwi.id
 /// value is just 1
-pub fn save_dwi_to_words_sorted(db: &DB, dwi: &DocumentWordIndex, ws: &WordSorted) {
+pub fn save_dwi_to_words_sorted(db: &DB, dwi: &DocumentWordAndPositions, ws: &WordSorted) {
     let mut key = dwi_and_ws_to_key(dwi, ws);
     let val: [u8; 8] = u64_to_barray!(dwi.doc_id);
     db.put(key.as_vec(), val).unwrap();
 }
 
 /// delete connectino between a word and the dwi
-pub fn delete_dwi_to_words_sorted(db: &DB, dwi: &DocumentWordIndex, ws: &WordSorted) {
+pub fn delete_dwi_to_words_sorted(db: &DB, dwi: &DocumentWordAndPositions, ws: &WordSorted) {
     let mut key = dwi_and_ws_to_key(dwi, ws);
     db.delete(key.as_vec()).unwrap();
 }

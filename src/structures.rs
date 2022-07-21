@@ -16,19 +16,14 @@ use crate::sorted_vector::SortedVector;
 /*
 
 This file contains in-memory structures
-
-
-DocmentId keeps only an id and the doc length    
-WordSorted contains word count, the word, and many DocumentWordIndexes
-    DocumentWordIndexes contains the position of the words in the different docs
-FieldIndex contains one of the SortedVectors, for example WordSorted or IntegerSorted and a list to all docs containing this sorted value
-
+ 
+FieldIndex contains one of the SortedVectors, for example 
+    IntegerSorted 
+    ...
+    WordSorted
+        DodumentWordAndPositions (word id and positions in the docs)
 
 */
-
-
-
-
 
 
 
@@ -40,25 +35,25 @@ FieldIndex contains one of the SortedVectors, for example WordSorted or IntegerS
     #[derive(Debug)]
     #[derive(Clone)]
     #[derive(Eq)]
-    pub struct DocumentWordIndex {
+    pub struct DocumentWordAndPositions {
         pub doc_id: u64,
         pub position: Rc<RefCell<Vec<u32>>>,
     } 
 
-    impl PartialEq for DocumentWordIndex {
+    impl PartialEq for DocumentWordAndPositions {
         fn eq(&self, other: &Self) -> bool {
             self.doc_id == other.doc_id
         }
     }
 
 
-impl <'a> PartialOrd for DocumentWordIndex {
+impl <'a> PartialOrd for DocumentWordAndPositions {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl <'a> Ord for DocumentWordIndex {
+impl <'a> Ord for DocumentWordAndPositions {
     fn cmp(&self, other: &Self) -> Ordering {
         self.doc_id.cmp(&other.doc_id)
     }
