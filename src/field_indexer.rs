@@ -13,7 +13,7 @@ use crate::sorted_vector::*;
 pub trait PlainContent<G: Clone + Debug + Ord> {
     fn put_content(&self, content: G, doc_id: u64);
     fn get_ids(&self, content: G) -> Vec<u64>;
-    fn delete_doc(&self, doc_id: u64);
+    fn delete_doc_id(&self, doc_id: u64);
 }
  
 #[duplicate(
@@ -63,7 +63,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
     /// delete doc from index
     /// pretty slow as it iterates all index to find the docs
     /// TODO: Fix speed
-    fn delete_doc(&self, doc_id: u64) {
+    fn delete_doc_id(&self, doc_id: u64) {
         let mut empty_values = vec![];
         {
             let mut children = self.get_vec().as_ref().borrow_mut();
@@ -137,9 +137,9 @@ mod tests {
 
         assert_eq!(field_index_bool.get_ids(true), vec![1,3]);
 
-        field_index.delete_doc(201);
+        field_index.delete_doc_id(201);
         assert_eq!(field_index.get_ids(100), vec![200]);
-        field_index.delete_doc(200);
+        field_index.delete_doc_id(200);
         let emtpy: Vec<u64> = vec![];
         assert_eq!(field_index.get_ids(100), emtpy);
     }

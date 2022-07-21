@@ -87,6 +87,15 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &Fiel
 }
 
 
+pub fn delete_word_from_index(field_index: &FieldIndex<WordSorted>, letter: String) {
+    field_index.delete(&WordSorted {
+        value: letter,
+        freq: 0,
+        docs: Rc::new(RefCell::new(vec![])),
+        optimized: false
+    })
+}
+
 /// delete all dwis connected to a doc from the field index
 /// pretty slow as it iterates all dwis to to this
 /// TODO: Fix speed by looking up each word instead of iterating all
@@ -116,12 +125,7 @@ pub fn delete_document_from_field_index(field_index: &FieldIndex<WordSorted>, do
     }
 
     for word_id in remove_words {
-        field_index.delete(&WordSorted {
-            value: word_id,
-            freq: 0,
-            docs: Rc::new(RefCell::new(vec![])),
-            optimized: false
-        })
+        delete_word_from_index(field_index, word_id);
     }
 }
 
@@ -152,7 +156,7 @@ impl PlainContent<Vec<Vec<String>>> for FieldIndex<WordSorted> {
         vec![]
     }
 
-    fn delete_doc(&self, doc_id: u64) {
+    fn delete_doc_id(&self, doc_id: u64) {
         todo!()
     }
 }
@@ -178,7 +182,7 @@ impl PlainContent<String> for FieldIndex<WordSorted> {
         };
     }
 
-    fn delete_doc(&self, doc_id: u64) {
+    fn delete_doc_id(&self, doc_id: u64) {
         delete_document_from_field_index(self, doc_id);
     }
 }
@@ -265,7 +269,7 @@ mod tests {
         assert_eq!(field_index.get_ids( String::from("a")), vec![100,101,102]);
         assert_eq!(field_index.get_ids( String::from("b")), vec![101]);
         assert_eq!(field_index.get_ids( String::from("d")), vec![101]);
-        PlainContent::<String>::delete_doc(&field_index, 101);
+        PlainContent::<String>::delete_doc_id(&field_index, 101);
         println!("New index: {:?}", field_index);
         assert_eq!(field_index.get_ids( String::from("a")), vec![100, 102]);
         let empty: Vec<u64> = vec![];
