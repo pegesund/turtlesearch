@@ -96,19 +96,20 @@ pub fn delete_document_from_field_index(field_index: &FieldIndex<WordSorted>, do
         let mut words_sorted = field_index.get_vec().as_ref().borrow_mut();
         for i in 0..words_sorted.len() {
             let word_sorted = words_sorted[i].borrow_mut();
-            let mut word_sorted_children = word_sorted.get_vec().as_ref().borrow_mut();
             let mut cj: usize = 0;
-            let children_len = word_sorted_children.len();
+            let children_len = word_sorted.get_vec().as_ref().borrow().len() ;
             let mut number_of_removed_dwis = 0;
             for j in 0.. children_len {
                 if cj == children_len - number_of_removed_dwis { break }
-                let dwi = &word_sorted_children[cj];
-                if dwi.doc_id == doc {
-                    word_sorted_children.remove(cj);
+                let other_doc_id = word_sorted.get_vec().as_ref().borrow()[cj].doc_id ;
+                if other_doc_id == doc {
+                    word_sorted.get_vec().as_ref().borrow_mut().remove(cj);
+                    word_sorted.freq -= 1;
                     number_of_removed_dwis += 1;
-                    // word_sorted.freq -= 1;
-                    if word_sorted_children.len() == 0 {
+                    if word_sorted.get_vec().as_ref().borrow().len() == 0 {
                         remove_words.push(word_sorted.value.clone());
+                        println!("---- Removing");
+                        cj += 1;
                     } else {
                         cj += 1;
                     }
@@ -255,18 +256,25 @@ mod tests {
             index: Rc::new(RefCell::new(vec![]))
         };
         let t1 = simple_tokenizer("a");
-        let t2 = simple_tokenizer("b a");
+        let t2 = simple_tokenizer("b a d");
+        let t3 = simple_tokenizer("c a");
         let mut string_vec = vec![];
         string_vec.push(t1);
         let mut string_vec2 = vec![];
         string_vec2.push(t2);
+        let mut string_vec3 = vec![];
+        string_vec3.push(t3);
         field_index.put_content(string_vec, 100);
         field_index.put_content(string_vec2, 101);
-        assert_eq!(field_index.get_ids( String::from("a")), vec![100,101]);
+        field_index.put_content(string_vec3, 102);
+        assert_eq!(field_index.get_ids( String::from("a")), vec![100,101,102]);
         assert_eq!(field_index.get_ids( String::from("b")), vec![101]);
+        assert_eq!(field_index.get_ids( String::from("d")), vec![101]);
         PlainContent::<String>::delete_doc(&field_index, 101);
-        assert_eq!(field_index.get_ids( String::from("a")), vec![100]);
+        println!("New index: {:?}", field_index);
+        assert_eq!(field_index.get_ids( String::from("a")), vec![100, 102]);
         let empty: Vec<u64> = vec![];
         assert_eq!(field_index.get_ids( String::from("b")), empty);
+        assert_eq!(field_index.get_ids( String::from("d")), empty);
     }
 }
