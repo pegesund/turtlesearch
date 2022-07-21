@@ -4,7 +4,7 @@ use crate::sorted_vector::*;
 
 #[cfg(test)]
 mod tests {
-    use crate::structures::{DocumentId, DocumentWordIndex, FieldIndex};
+    use crate::structures::{DocumentWordIndex, FieldIndex}; 
 
     use super::*;
     use std::rc::Rc;

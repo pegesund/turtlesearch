@@ -28,17 +28,7 @@ FieldIndex contains one of the SortedVectors, for example WordSorted or IntegerS
 
 
 
-///
-/// Pointer to the documentid and the length of the doc in number of words
-/// 
 
-#[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    pub struct DocumentId {
-        pub id: u64,
-        pub len: u32
-    }
 
 
 

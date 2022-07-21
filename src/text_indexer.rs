@@ -8,7 +8,7 @@ use std::ptr;
 use std::borrow::{BorrowMut, Borrow};
 
 use crate::sorted_vector::*;
-use crate::structures::{DocumentId, DocumentWordIndex, FieldIndex};
+use crate::structures::{DocumentWordIndex, FieldIndex};
 
 
 /// This file holds functions to add/remove a document to a field index with text content
@@ -54,7 +54,7 @@ fn add_single_text_to_field_index(text_vec: &Vec<String>, h: &mut HashMap<String
 
 /// Add text content to a FieldIndex
 /// For each text add 10 to position to avoid separate texts being positioned next to each other
-pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &FieldIndex<WordSorted>, doc: &mut DocumentId) {
+pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &FieldIndex<WordSorted>, doc: u64) {
 
     let mut start: u32 = 0;
     let mut h: HashMap<String, Rc<RefCell<Vec<u32>>>> = HashMap::new();
@@ -78,7 +78,7 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &Fiel
         let val = h.get(key).unwrap().as_ref().borrow();
         words_sorted[pos].freq += val.len() as u64;
         let dwi = DocumentWordIndex {
-            doc_id: doc.id,
+            doc_id: doc,
             position: Rc::new(RefCell::new(val.to_vec()))
         };
         words_sorted[pos].insert(dwi);
@@ -88,7 +88,7 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &Fiel
 
 /// delete all dwis connected to a doc from the field index
 /// pretty slow as it iterates all dwis to to this
-pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: &DocumentId) {
+pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>, doc: u64) {
     let mut remove_words = vec![];
     {
         let words_sorted = field_index.get_vec().as_ref().borrow_mut();
@@ -102,7 +102,7 @@ pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>
             for j in 0.. children_len {
                 if cj == children_len - number_of_removed_dwis { break }
                 let dwi = &word_sorted_children[cj];
-                if dwi.doc_id == doc.id {
+                if dwi.doc_id == doc {
                     word_sorted_children.remove(cj);
                     number_of_removed_dwis += 1;
                     if word_sorted_children.len() == 0 {
@@ -145,7 +145,6 @@ pub fn count_number_of_dwis_in_field_index(field_index: &FieldIndex<WordSorted>)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::structures::DocumentId;
 
     #[test]
     fn test_add_text_to_field() {
@@ -167,11 +166,8 @@ mod tests {
         string_vec.push(t1);
         string_vec.push(t2);
 
-        let mut doc = DocumentId {
-            id: 88,
-            len: 99
-        };
-        add_multi_text_to_field_index(&string_vec, &mut field_index, &mut doc);
+        let doc = 88;
+        add_multi_text_to_field_index(&string_vec, &mut field_index, doc);
         let children = field_index.get_vec().as_ref().borrow();
         assert_eq!(children.len(), 6);
         let all_dwi_for_the_a_word = children[0].get_vec().as_ref().borrow();
@@ -196,21 +192,14 @@ mod tests {
         string_vec1.push(t1);
         string_vec2.push(t2);
 
-        let mut doc1 = DocumentId {
-            id: 88,
-            len: 99
-        };
+        let doc1 = 88;
+        let doc2 = 888;
 
-        let mut doc2 = DocumentId {
-            id: 888,
-            len: 999
-        };
-
-        add_multi_text_to_field_index(&string_vec1, &field_index, &mut doc1);
-        add_multi_text_to_field_index(&string_vec2, &field_index, &mut doc2);
+        add_multi_text_to_field_index(&string_vec1, &field_index, doc1);
+        add_multi_text_to_field_index(&string_vec2, &field_index, doc2);
         let c1 = count_number_of_dwis_in_field_index(&field_index);
         // println!("Petters Field index: {:#?}", &field_index);
-        delete_document_from_field_index(&mut field_index, &doc1);
+        delete_document_from_field_index(&mut field_index, doc1);
         let c2 = count_number_of_dwis_in_field_index(&field_index);
         assert_eq!(c1, 13);
         assert_eq!(c2, 6);
