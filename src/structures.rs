@@ -1,6 +1,7 @@
 #[allow(dead_code)]
 use std::fmt::Debug;
 use std::cmp::Ordering;
+use byte_array::BinaryBuilder;
 use duplicate::duplicate;
 
 
@@ -10,9 +11,10 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
 
-use crate::comparator::FieldType;
+use crate::comparator::{FieldType, FieldValue};
 use crate::sorted_vector::SortedVector;
-
+use crate::comparator::FieldValue::*;
+use std::string::String;
 /*
 
 This file contains in-memory structures
@@ -105,4 +107,38 @@ pub struct Field <G:Debug + Clone + Ord > {
 pub struct Collection <G:Debug + Clone + Ord > {
     pub name: String,
     pub fields:  Rc<RefCell<Vec<Field<G>>>>
+}
+
+#[allow(dead_code)]
+#[derive(Debug)]
+#[derive(Clone)]  
+pub struct Document {
+    pub id: u64,
+    pub external_id: FieldValue,
+    pub values: Rc<RefCell<Vec<FieldValue>>>
+}
+
+impl BinaryBuilder for Document {
+    
+    fn new() -> Self {
+        let res = Document {
+            id: 0,
+            external_id: I64 {value: 0},
+            values: Rc::new(RefCell::new(vec![]))
+        };
+        return res
+    }
+     
+
+    fn from_raw(ba: &mut byte_array::ByteArray) -> Option<Self> {
+        todo!()
+    }
+
+    fn to_raw(&self, ba: &mut byte_array::ByteArray) {
+
+        let values = &self.values.as_ref().borrow();
+        for i in 0..values.len()  {
+            // ba <<= &values[i]
+        }
+    }
 }

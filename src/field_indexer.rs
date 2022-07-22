@@ -19,7 +19,7 @@ pub trait PlainContent<G: Clone + Debug + Ord> {
 #[duplicate(
 the_class val_type;
 [ IntegerSorted  ] [ i64 ];
-[ FloatSorted  ] [ FloatWrapper ];
+[ FloatSorted  ] [ FloatWrapper ]; 
 [ DateSorted  ] [ u64 ];
 [ BoolSorted  ] [ bool ];
 )]
