@@ -10,42 +10,10 @@ use num_traits::FromPrimitive;
 use std::vec::Vec;
 use std::convert::TryFrom;
 
+use crate::structures::FieldType;
+use crate::structures::FieldValue;
+
 struct WrappedU8Vec {vec: Vec<u8>}
-
-#[derive(FromPrimitive, Clone, Debug)]
-pub enum FieldType {
-    I64,
-    U64,
-    Isize,
-    I8,
-    I16,
-    I32,
-    Usize,
-    U8,
-    U16,
-    U32,
-    F32,
-    F64,
-    String
-}
-
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
-pub enum FieldValue {
-    I64 { value: i64 },
-    U64 { value: u64 },
-    Isize { value: isize },
-    I8 { value: i8 },
-    I16 { value: i16 },
-    I32 { value: i32 },
-    Usize { value: usize },
-    U8 { value: u8 },
-    U16 { value: u16 },
-    U32 { value: i32 },
-    F32 { value: f32 },
-    F64 { value: f64 },
-    String { value: String }
-}
-
 
 
 

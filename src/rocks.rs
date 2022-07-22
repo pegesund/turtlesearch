@@ -1,6 +1,9 @@
 use rocksdb::{DB, Options, IteratorMode, Direction};
 use crate::sorted_vector::*;
 use crate::structures::DocumentWordAndPositions;
+use crate::structures::Field;
+use crate::structures::FieldType;
+use crate::structures::FieldValue;
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::cell::{RefCell, RefMut};
@@ -28,14 +31,14 @@ fn vec_to_bytearray(res: Vec<u8>) -> ByteArray {
     return ba;
 }
 
-pub fn save_document_word_index(db: &DB, document_word_index: &DocumentWordAndPositions) {
+pub fn save_position_word_index(db: &DB, document_word_index: &DocumentWordAndPositions) {
     let ba = &mut ByteArray::new();
     let raw = document_word_index.to_raw(ba);
     let id_raw: [u8; 8] = u64_to_barray!(document_word_index.doc_id);
     db.put(id_raw, ba.as_vec()).unwrap();
 }
 
-pub fn load_document_word_index(db: &DB, id: u64) -> DocumentWordAndPositions {
+pub fn load_position_word_index(db: &DB, id: u64) -> DocumentWordAndPositions {
     let id_raw: [u8; 8] = u64_to_barray!(id);
     let res = db.get(id_raw).unwrap().unwrap();
     let mut ba = vec_to_bytearray(res);
@@ -43,7 +46,7 @@ pub fn load_document_word_index(db: &DB, id: u64) -> DocumentWordAndPositions {
     return dwi;
 }
 
-pub fn delete_document_word_index(db: &DB, id: u64) {
+pub fn delete_document_position_index(db: &DB, id: u64) {
     let id_raw: [u8; 8] = u64_to_barray!(id);
     db.delete(id_raw).unwrap();
 }
@@ -77,7 +80,7 @@ pub fn delete_dwi_to_words_sorted(db: &DB, dwi: &DocumentWordAndPositions, ws: &
     db.delete(key.as_vec()).unwrap();
 }
 
-pub fn save_word(db: &DB, word: &str) {
+pub fn save_word_sorted(db: &DB, word: &str) {
     db.put(word.as_bytes(), "".as_bytes()).unwrap();
 }
 
@@ -115,10 +118,31 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
     };
     let doc_ids = load_word_sorted(db_words, &word.to_owned());
     for i in 0..doc_ids.len() {
-        let doc = load_document_word_index(db_docs, doc_ids[i]);
+        let doc = load_position_word_index(db_docs, doc_ids[i]);
         ws.insert(doc);
     }
     return ws;
 }
 
 
+
+fn read_field_value_from_rocks<G:Debug + Clone + Ord > (ba: &mut ByteArray, field: Field<G>) -> FieldValue {
+    let val: FieldValue = match field.field_type {
+        FieldType::I64 => FieldValue::I64 { value: ba.read::<i64>() },
+        FieldType::U64 => FieldValue::U64 { value: ba.read::<u64>() },
+        FieldType::Isize => FieldValue::Isize { value: ba.read::<isize>() },
+        FieldType::I8 => FieldValue::I8 { value: ba.read::<i8>() },
+        FieldType::I16 => FieldValue::I16 { value: ba.read::<i16>() },
+        FieldType::I32 => FieldValue::I32 { value: ba.read::<i32>() },
+        FieldType::Usize => FieldValue::Usize { value: ba.read::<usize>() },
+        FieldType::U8 => FieldValue::U8 { value: ba.read::<u8>() },
+        FieldType::U16 => FieldValue::U16 { value: ba.read::<u16>() },
+        FieldType::U32 => FieldValue::U32 { value: ba.read::<u32>() },
+        FieldType::F32 => FieldValue::F32 { value: ba.read::<f32>() },
+        FieldType::F64 => FieldValue::F64 { value: ba.read::<f64>() },
+        FieldType::String => FieldValue::String { value: ba.read::<String>() },
+    };
+    return val
+}
+
+// fn read_doc_fields_from_rocss

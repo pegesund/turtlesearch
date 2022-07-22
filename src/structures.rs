@@ -3,18 +3,19 @@ use std::fmt::Debug;
 use std::cmp::Ordering;
 use byte_array::BinaryBuilder;
 use duplicate::duplicate;
-
-
+use enum_dispatch::enum_dispatch;
 use float_cmp::ApproxEq;
+use num::FromPrimitive;
 use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::borrow::{BorrowMut, Borrow, Cow};
-
-use crate::comparator::{FieldType, FieldValue};
+use num_derive::FromPrimitive;    
 use crate::sorted_vector::SortedVector;
-use crate::comparator::FieldValue::*;
 use std::string::String;
+use crate::structures::FieldValue::I64;
+
+
 /*
 
 This file contains in-memory structures
@@ -28,6 +29,39 @@ Collection has many
                 DodumentWordIdAndPositions
 
 */
+
+#[derive(FromPrimitive, Clone, Debug)]
+pub enum FieldType {
+    I64,
+    U64,
+    Isize,
+    I8,
+    I16,
+    I32,
+    Usize,
+    U8,
+    U16,
+    U32,
+    F32,
+    F64,
+    String
+}
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
+pub enum FieldValue {
+    I64 { value: i64 },
+    U64 { value: u64 },
+    Isize { value: isize },
+    I8 { value: i8 },
+    I16 { value: i16 },
+    I32 { value: i32 },
+    Usize { value: usize },
+    U8 { value: u8 },
+    U16 { value: u16 },
+    U32 { value: u32 },
+    F32 { value: f32 },
+    F64 { value: f64 },
+    String { value: String }
+}
 
 
 
@@ -118,27 +152,3 @@ pub struct Document {
     pub values: Rc<RefCell<Vec<FieldValue>>>
 }
 
-impl BinaryBuilder for Document {
-    
-    fn new() -> Self {
-        let res = Document {
-            id: 0,
-            external_id: I64 {value: 0},
-            values: Rc::new(RefCell::new(vec![]))
-        };
-        return res
-    }
-     
-
-    fn from_raw(ba: &mut byte_array::ByteArray) -> Option<Self> {
-        todo!()
-    }
-
-    fn to_raw(&self, ba: &mut byte_array::ByteArray) {
-
-        let values = &self.values.as_ref().borrow();
-        for i in 0..values.len()  {
-            // ba <<= &values[i]
-        }
-    }
-}

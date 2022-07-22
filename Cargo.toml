@@ -27,6 +27,7 @@ num-traits = "0.2"
 num-derive = "0.3"
 byte_array = { path = "/home/petter/dev/rust/byte-array", version = "0.1.5" }
 once_cell = "1.13.0"
+enum_dispatch = "0.3.8"
 
 
 

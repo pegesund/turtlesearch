@@ -35,8 +35,8 @@ mod tests {
             Ok(db) => db
         };
 
-        save_document_word_index(&db, &dwi);
-        let dwi2 = load_document_word_index(&db, dwi.doc_id);
+        save_position_word_index(&db, &dwi);
+        let dwi2 = load_position_word_index(&db, dwi.doc_id);
         assert_eq!(dwi.doc_id, dwi2.doc_id);
         assert_eq!(dwi.position, dwi.position);
         assert_eq!(dwi.position.borrow().len(), 2);
