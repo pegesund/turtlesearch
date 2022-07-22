@@ -102,9 +102,6 @@ impl Ord for FloatWrapper {
 }
 
 
-
-
-
 #[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Eq)]

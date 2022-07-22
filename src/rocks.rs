@@ -1,5 +1,7 @@
 use rocksdb::{DB, Options, IteratorMode, Direction};
 use crate::sorted_vector::*;
+use crate::structures::Collection;
+use crate::structures::Document;
 use crate::structures::DocumentWordAndPositions;
 use crate::structures::Field;
 use crate::structures::FieldType;
@@ -126,7 +128,7 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
 
 
 
-fn read_field_value_from_rocks<G:Debug + Clone + Ord > (ba: &mut ByteArray, field: Field<G>) -> FieldValue {
+fn read_field_value_from_ba<G: Debug + Clone + Ord >(ba: &mut ByteArray, field: &Field<G>) -> FieldValue {
     let val: FieldValue = match field.field_type {
         FieldType::I64 => FieldValue::I64 { value: ba.read::<i64>() },
         FieldType::U64 => FieldValue::U64 { value: ba.read::<u64>() },
@@ -145,4 +147,71 @@ fn read_field_value_from_rocks<G:Debug + Clone + Ord > (ba: &mut ByteArray, fiel
     return val
 }
 
-// fn read_doc_fields_from_rocss
+fn write_field_value_to_ba (mut ba: &mut ByteArray, val: &FieldValue) {
+    match val {
+        FieldValue::I64 { value } => ba <<= value,
+        FieldValue::U64 { value } => ba <<= value,
+        FieldValue::Isize { value } => ba <<= value,
+        FieldValue::I8 { value } => ba <<= value,
+        FieldValue::I16 { value } => ba <<= value,
+        FieldValue::I32 { value } => ba <<= value,
+        FieldValue::Usize { value } => ba <<= value,
+        FieldValue::U8 { value } => ba <<= value,
+        FieldValue::U16 { value } => ba <<= value,
+        FieldValue::U32 { value } => ba <<= value,
+        FieldValue::F32 { value } => ba <<= value,
+        FieldValue::F64 { value } => ba <<= value,
+        FieldValue::String { value } => ba <<= value,
+    }
+}
+
+fn write_doc_fields_to_ba (ba: &mut ByteArray, doc: &Document, collection: &Collection) {
+    let fields = collection.fields.as_ref().borrow();
+    for i in 0..fields.len() {
+        let field = &fields[i];
+        let field_value = &doc.values.as_ref().borrow()[i];
+        write_field_value_to_ba(ba, field_value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::structures::{DocumentWordAndPositions, FieldEnumStructs};
+
+    use super::*;
+
+    #[test]
+    fn test_write_document_to_ba() {
+        let mut fields =  vec![];
+        let f1 = Field::<u64> {
+            name: "Number1".to_string(),
+            field_type: FieldType::U64,
+            index: None,
+            size: 0
+        };
+
+        fields.push(FieldEnumStructs::U64(f1));
+        // fields.push(f1);
+        let f2 = Field::<i32> {
+            name: "Number2".to_string(),
+            field_type: FieldType::I32,
+            index: None,
+            size: 0
+        };
+        // fields.push(f2);
+        fields.push(FieldEnumStructs::I32(f2));
+        let f3 = Field::<String> {
+            name: "Number2".to_string(),
+            field_type: FieldType::String,
+            index: None,
+            size: 0
+        };
+
+        fields.push(FieldEnumStructs::String(f3));
+
+        println!("Fields: {:?}", fields);
+    }
+    
+
+
+}

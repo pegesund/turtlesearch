@@ -1,5 +1,5 @@
 // use crate::structures::*;
-use crate::sorted_vector::*;
+use crate::{sorted_vector::*, structures::Field};
 
 
 #[cfg(test)]
@@ -126,3 +126,4 @@ mod tests {
 
     }
 }
+
