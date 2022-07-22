@@ -13,6 +13,7 @@ mod text_indexer;
 mod field_indexer;
 mod id_generator;
 mod sorted_vector;
+mod tsorted_vectors;
 mod comparator; 
 mod web_glue;
 use crate::server::start_server;

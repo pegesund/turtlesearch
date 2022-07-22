@@ -176,6 +176,8 @@ fn write_doc_fields_to_ba (ba: &mut ByteArray, doc: &Document, collection: &Coll
 
 #[cfg(test)]
 mod tests {
+    use std::{sync::{Arc, RwLock}, thread};
+
     use crate::structures::{DocumentWordAndPositions, FieldEnumStructs};
 
     use super::*;
@@ -210,7 +212,65 @@ mod tests {
         fields.push(FieldEnumStructs::String(f3));
 
         println!("Fields: {:?}", fields);
+
     }
+
+
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct Bottom {
+        pub values: Vec<u64>
+    }
+
+    #[derive(Debug)]
+    #[derive(Clone)]
+    pub struct Top {
+        pub i: u64,
+        pub value: Bottom
+    }
+
+
+    fn helper(top: Top){
+        let rwlock = RwLock::new(top);
+        let arc = Arc::new(rwlock);
+        let local_arc = arc.clone();
+        let mut threads = vec![];
+        for _ in 0..10{
+            let my_rwlock = arc.clone();
+            let t = thread::spawn(move || {
+                let mut writer = my_rwlock.write().unwrap();
+                writer.i += 1;
+                writer.value.values.push(88);
+                writer.value.values.push(89);
+                writer.value.values[0] = 32;
+                println!("In thread..");
+                // do some stuff
+            });
+            threads.push(t);
+        }
+        for child in threads {
+            let _ = child.join();
+        }
+
+        let reader = local_arc.read().unwrap();
+        println!("Done with threads: {:?}", reader);
+    }
+
+    #[test]
+    fn test_arc() {
+        let b = Bottom {
+            values: vec![]
+        };
+
+        let t = Top { value: b, i: 88 };
+        helper(t);
+
+    }
+    
+
+
+        
+    
     
 
 
