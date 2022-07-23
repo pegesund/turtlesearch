@@ -32,8 +32,8 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
             let children = self.get_vec();
             do_insert = match children.binary_search_by(|e| e.value.cmp(&content)) {
                 Ok(pos) =>  {
-                    let old_date_sorted = &mut children[pos];
-                    old_date_sorted.insert(doc_id);
+                    let old_content_sorted = &mut children[pos];
+                    old_content_sorted.insert(doc_id);
                     false
                 }
                 Err(pos) => true
