@@ -6,10 +6,7 @@ use duplicate::duplicate;
 use enum_dispatch::enum_dispatch;
 use float_cmp::ApproxEq;
 use num::FromPrimitive;
-use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::borrow::{BorrowMut, Borrow, Cow};
 use num_derive::FromPrimitive;    
 use crate::sorted_vector::{SortedVector, FloatWrapper};
 use std::string::String;
@@ -93,7 +90,7 @@ pub enum FieldEnumStructs {
     #[derive(Eq)]
     pub struct DocumentWordAndPositions {
         pub doc_id: u64,
-        pub position: Rc<RefCell<Vec<u32>>>,
+        pub position: Vec<u32>,
     } 
 
     impl PartialEq for DocumentWordAndPositions {
@@ -124,12 +121,12 @@ impl <'a> Ord for DocumentWordAndPositions {
 #[derive(Clone)]
 pub struct FieldIndex<G:Debug + Clone + Ord > {
     pub name: String,
-    pub index:  Rc<RefCell<Vec<G>>>
+    pub index:  Vec<G>
 }
 
-impl<G: Debug + Clone + Ord > SortedVector<G> for FieldIndex<G> {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<G>>> {
-        return &self.index;
+impl<E: Debug + Clone + Ord > SortedVector<E> for FieldIndex<E> {
+    fn get_vec(&mut self) -> &mut Vec<E> {
+        return &mut self.index;
     }
 }
 
@@ -158,7 +155,7 @@ pub struct Field <G:Debug + Clone + Ord > {
 #[derive(Clone)]
 pub struct Collection {
     pub name: String,
-    pub fields:  Rc<RefCell<Vec<FieldEnumStructs>>>
+    pub fields:  Vec<FieldEnumStructs>
 }
 
 #[allow(dead_code)]
@@ -167,7 +164,7 @@ pub struct Collection {
 pub struct Document {
     pub id: u64,
     pub external_id: FieldValue,
-    pub values: Rc<RefCell<Vec<FieldValue>>>
+    pub values: Vec<FieldValue>
 }
 
 

@@ -5,10 +5,8 @@ use duplicate::duplicate;
 
 use std::sync::{RwLock};
 use float_cmp::ApproxEq;
-use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::borrow::{BorrowMut, Borrow, Cow};
+
 
 use crate::structures::DocumentWordAndPositions;
 
@@ -109,7 +107,7 @@ impl Ord for FloatWrapper {
 pub struct WordSorted {
     pub value: String,
     pub freq: u64,
-    pub docs: Rc<RefCell<Vec<DocumentWordAndPositions>>>,
+    pub docs: Vec<DocumentWordAndPositions>,
     pub optimized: bool
 }
 
@@ -119,7 +117,7 @@ pub struct WordSorted {
 #[derive(Eq)]
 pub struct IntegerSorted {
     pub value: i64,
-    pub doc_ids: Rc<RefCell<Vec<u64>>>
+    pub doc_ids: Vec<u64>
 }
 
 
@@ -129,7 +127,7 @@ pub struct IntegerSorted {
 #[derive(Eq)]
 pub struct FloatSorted {
     pub value: FloatWrapper,
-    pub doc_ids: Rc<RefCell<Vec<u64>>>
+    pub doc_ids: Vec<u64>
 }
 
 #[allow(dead_code)]
@@ -138,7 +136,7 @@ pub struct FloatSorted {
 #[derive(Eq)]
 pub struct DateSorted {
     pub value: u64,
-    pub doc_ids: Rc<RefCell<Vec<u64>>>
+    pub doc_ids: Vec<u64>
 }
 
 #[allow(dead_code)]
@@ -147,44 +145,18 @@ pub struct DateSorted {
 #[derive(Eq)]
 pub struct BoolSorted {
     pub value: bool,
-    pub doc_ids: Rc<RefCell<Vec<u64>>>
-}
-
-pub trait SortedVector<E: Debug + Clone + Ord> {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<E>>>;
-
-    fn insert(&self, element: E) -> () {
-        let insert_pos = match self.get_vec().as_ref().borrow().binary_search(&element) {
-            Ok(pos) => pos,
-            Err(pos) => pos
-        };
-        {
-            (*(*self.get_vec())).borrow_mut().insert(insert_pos, element);
-        }
-    }
-
-    fn delete(&self, element: &E) {
-        let delete_pos = match self.get_vec().as_ref().borrow().binary_search(&element) {
-            Ok(pos) => Some(pos),
-            Err(pos) => None
-        };
-
-        match delete_pos {
-            Some(pos) =>  { (*(*self.get_vec())).borrow_mut().remove(pos); () },
-            _ => ()
-        };
-    }
+    pub doc_ids: Vec<u64>
 }
 
 impl SortedVector<u32> for DocumentWordAndPositions {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<u32>>> {
-        return &self.position;
+    fn get_vec(&mut self) -> &mut Vec<u32> {
+        return &mut self.position;
     }
 }
 
 impl <'a> SortedVector<DocumentWordAndPositions> for WordSorted {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<DocumentWordAndPositions>>> {
-        return &self.docs;
+    fn get_vec(&mut self) -> &mut Vec<DocumentWordAndPositions> {
+        return &mut self.docs;
     }
 }
 
@@ -197,11 +169,32 @@ the_class val_type;
 )]
 
 impl <'a> SortedVector<val_type> for the_class {
-    fn get_vec(&self) -> &Rc<RefCell<Vec<val_type>>> {
-        return &self.doc_ids;
+    fn get_vec(&mut self) -> &mut Vec<val_type> {
+        return &mut self.doc_ids;
     }
 }
 
+pub trait SortedVector<E: Debug + Clone + Ord> {
+    fn get_vec(&mut self) -> &mut Vec<E>;
 
+    fn insert(&mut self, element: E) -> () {
+        let insert_pos = match self.get_vec().binary_search(&element) {
+            Ok(pos) => pos,
+            Err(pos) => pos
+        };
+        
+        let _ = &self.get_vec().insert(insert_pos, element);        
+        }
 
+    fn delete(&mut self, element: &E) {
+        let delete_pos = match self.get_vec().binary_search(&element) {
+            Ok(pos) => Some(pos),
+            Err(pos) => None
+        };
+        match delete_pos {
+            Some(pos) =>  { self.get_vec().remove(pos); () },
+            _ => ()
+        };
+    }
+}
 

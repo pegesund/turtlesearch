@@ -5,11 +5,7 @@ use byte_array::BinaryBuilder;
 // use crate::structures::*;
 use crate::sorted_vector::*;
 use crate::structures::DocumentWordAndPositions;
-
-use std::cell::{RefCell, RefMut};
 use std::collections::HashMap;
-use std::rc::Rc;
-use std::borrow::Borrow;
 use std::ptr;
 
 
@@ -44,7 +40,7 @@ impl BinaryBuilder for DocumentWordAndPositions {
              DocumentWordAndPositions {
             let res = DocumentWordAndPositions {
                 doc_id: 0,
-                position: Rc::new(RefCell::new(vec![]))
+                position:vec![]
             };
         return res
     }
@@ -52,21 +48,21 @@ impl BinaryBuilder for DocumentWordAndPositions {
     fn from_raw(ba: &mut ByteArray) -> Option<Self> {
         let id: u64 = ba.read();
         let num: u64 = ba.read();
-        let vec: Rc<RefCell<Vec<u32>>> = Rc::new(RefCell::new(vec![]));
+        let mut vec: Vec<u32> = vec![];
         for i in 0..num {
             let v = ba.read();
-            vec.borrow_mut().push(v)
+            vec.push(v)
         }
         return Some(DocumentWordAndPositions {
             doc_id: id,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         });
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
         ba <<= &self.doc_id;
-        ba <<= &self.position.as_ref().borrow().len();
-        let len = self.position.as_ref().borrow().len();
-        for i in 0..len { ba <<= &self.position.as_ref().borrow()[i] }
+        ba <<= &self.position.len();
+        let len = self.position.len();
+        for i in 0..len { ba <<= &self.position[i] }
     }
  }
 
@@ -77,9 +73,9 @@ mod tests {
 
     #[test]
     fn serializing_word_index() {
-        let wi = DocumentWordAndPositions {
+        let mut wi = DocumentWordAndPositions {
             doc_id: 199,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
 
         wi.insert(22);

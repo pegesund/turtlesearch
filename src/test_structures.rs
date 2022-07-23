@@ -15,46 +15,46 @@ mod tests {
     #[test]
     fn between() {
         println!("---------- Testing between!");
-        let is1 = IntegerSorted {
+        let mut is1 = IntegerSorted {
             value: 0,
-            doc_ids: Rc::new(RefCell::new(vec![]))
+            doc_ids: vec![]
         };
         is1.insert(1);
         is1.insert(2);
 
-        let is2 = IntegerSorted {
+        let mut is2 = IntegerSorted {
             value: 0,
-            doc_ids: Rc::new(RefCell::new(vec![]))
+            doc_ids: vec![]
         };
         is2.insert(1);
         is2.insert(2);
 
         let is3 = IntegerSorted {
             value: 0,
-            doc_ids: Rc::new(RefCell::new(vec![]))
+            doc_ids: vec![]
         };
         is2.insert(1);
         is2.insert(2);
 
         let is4 = IntegerSorted {
             value: 0,
-            doc_ids: Rc::new(RefCell::new(vec![]))
+            doc_ids: vec![]
         };
         is2.insert(1);
         is2.insert(2);
 
         let is5 = IntegerSorted {
             value: 0,
-            doc_ids: Rc::new(RefCell::new(vec![]))
+            doc_ids: vec![]
         };
         is2.insert(1);
         is2.insert(2);
 
 
-        let index = FieldIndex {
+        let mut index = FieldIndex {
             // added comment
             name: "".to_string(),
-            index: Rc::new(RefCell::new(vec![]))
+            index: vec![]
         };
 
         index.insert(is1);
@@ -70,30 +70,30 @@ mod tests {
     fn test_new_children() {
         let res0 = DocumentWordAndPositions {
             doc_id: 0,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
         let res1 = DocumentWordAndPositions {
             doc_id: 10,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
         let res2 = DocumentWordAndPositions {
             doc_id: 5,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
 
 
 
         let res3 = DocumentWordAndPositions {
             doc_id: 12,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
 
 
 
-        let doc_index = WordSorted {
+        let mut doc_index = WordSorted {
             value:"hupp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![])),
+            docs: vec![],
             optimized: false
         };
         doc_index.insert(res0);
@@ -104,7 +104,7 @@ mod tests {
 
         println!("DocumentWordIndex: {:?}", doc_index);
         {
-            let zero = &mut doc_index.get_vec().as_ref().borrow_mut()[0];
+            let zero = &mut doc_index.get_vec()[0];
             println!("Zero: {:?}", zero);
             zero.insert(888);
             zero.insert(88);
@@ -113,13 +113,13 @@ mod tests {
         println!("DocumentWordIndex: {:?}", doc_index);
 
         {
-            let zero = &doc_index.get_vec().as_ref().borrow()[0];
-            let zero_children = zero.get_vec().as_ref().borrow().to_vec();
-            assert_eq!(zero_children, vec![88,888,8888])
+            let zero = &mut doc_index.get_vec()[0];
+            let zero_children = &mut zero.get_vec().to_vec();
+            assert_eq!(zero_children.to_vec(), vec![88,888,8888])
         }
 
         {
-            let children = &doc_index.get_vec().as_ref().borrow().iter().map(|e: &DocumentWordAndPositions| e.doc_id).collect::<Vec<u64>>();
+            let children = &doc_index.get_vec().iter().map(|e: &DocumentWordAndPositions| e.doc_id).collect::<Vec<u64>>();
             assert_eq!(children, &vec![0, 5, 10, 12])
         }
 

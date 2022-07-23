@@ -22,9 +22,9 @@ mod tests {
     fn test_save_document_word_index() {
         let path = "/tmp/document_index.rock";
 
-        let dwi = DocumentWordAndPositions {
+        let mut dwi = DocumentWordAndPositions {
             doc_id: 199,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
         dwi.insert(88);
         dwi.insert(89);
@@ -39,7 +39,7 @@ mod tests {
         let dwi2 = load_position_word_index(&db, dwi.doc_id);
         assert_eq!(dwi.doc_id, dwi2.doc_id);
         assert_eq!(dwi.position, dwi.position);
-        assert_eq!(dwi.position.borrow().len(), 2);
+        assert_eq!(dwi.position.len(), 2);
 
     }
     DB::destroy(&Options::default(), path).unwrap();
@@ -50,33 +50,33 @@ mod tests {
     fn test_save_and_load_word_sorted() {
         let dwi1 = DocumentWordAndPositions {
             doc_id: 1,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
         let dwi2 = DocumentWordAndPositions {
             doc_id: 2,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
         let dwi3 = DocumentWordAndPositions {
             doc_id: 3,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
 
         let dwi4 = DocumentWordAndPositions {
             doc_id: 4,
-            position: Rc::new(RefCell::new(vec![]))
+            position: vec![]
         };
 
         let word_sorted1 = WordSorted {
             value:"hupp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![])),
+            docs: vec![],
             optimized: false
         };
 
         let word_sorted2 = WordSorted {
             value:  "hypp".to_string(),
             freq: 100,
-            docs: Rc::new(RefCell::new(vec![])),
+            docs: vec![],
             optimized: false
         };
 

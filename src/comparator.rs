@@ -1,6 +1,4 @@
-use std::cell::RefCell;
 use std::cmp::Ordering;
-use std::rc::Rc;
 use std::str;
 
 use byte_array::ByteArray;

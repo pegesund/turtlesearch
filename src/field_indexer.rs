@@ -3,17 +3,15 @@
 
 use crate::structures::*;
 use std::fmt::Debug;
-use std::rc::Rc;
-use std::cell::RefCell;
 use duplicate::duplicate;
 use crate::sorted_vector::*;
 
 
 
 pub trait PlainContent<G: Clone + Debug + Ord> {
-    fn put_content(&self, content: G, doc_id: u64);
-    fn get_ids(&self, content: G) -> Vec<u64>;
-    fn delete_doc_id(&self, doc_id: u64);
+    fn put_content(&mut self, content: G, doc_id: u64);
+    fn get_ids(&mut self, content: G) -> Vec<u64>;
+    fn delete_doc_id(&mut self, doc_id: u64);
 }
  
 #[duplicate(
@@ -28,10 +26,10 @@ the_class val_type;
 impl PlainContent<val_type> for FieldIndex<the_class> {
 
     /// adds content to a index
-    fn put_content(&self, content: val_type, doc_id: u64) {
+    fn put_content(&mut self, content: val_type, doc_id: u64) {
         let mut do_insert = false;
         {
-            let mut children = self.get_vec().as_ref().borrow_mut();
+            let children = self.get_vec();
             do_insert = match children.binary_search_by(|e| e.value.cmp(&content)) {
                 Ok(pos) =>  {
                     let old_date_sorted = &mut children[pos];
@@ -45,17 +43,17 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
         if do_insert == true {
             let element = the_class {
                 value: content,
-                doc_ids: Rc::new(RefCell::new(vec![doc_id]))
+                doc_ids: vec![doc_id]
             };
             self.insert(element);
         }
     }
 
     /// get docs based on value query
-    fn get_ids(&self, content: val_type) ->  Vec<u64> {
-        let children = self.get_vec().as_ref().borrow();
+    fn get_ids(&mut self, content: val_type) ->  Vec<u64> {
+        let children = self.get_vec();
         return match children.binary_search_by(|e| e.value.cmp(&content)) {
-            Ok(pos) => children[pos].doc_ids.as_ref().borrow().to_vec(),
+            Ok(pos) => children[pos].doc_ids.to_vec(),
             Err(pos) => vec![]
         };
     }
@@ -63,13 +61,13 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
     /// delete doc from index
     /// pretty slow as it iterates all index to find the docs
     /// TODO: Fix speed
-    fn delete_doc_id(&self, doc_id: u64) {
+    fn delete_doc_id(&mut self, doc_id: u64) {
         let mut empty_values = vec![];
         {
-            let mut children = self.get_vec().as_ref().borrow_mut();
+            let children = self.get_vec();
             for i in 0..children.len() {
                 let child = &mut children[i];
-                let mut docs = child.get_vec().as_ref().borrow_mut();
+                let docs = child.get_vec();
                 match docs.binary_search_by(|e| e.cmp(&doc_id)) {
                             Ok(pos) => {
                                 docs.remove(pos);
@@ -81,7 +79,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
                         };
             }
         }
-        let mut children = self.get_vec().as_ref().borrow_mut();
+        let children = self.get_vec();
         let mut i = 0;
         for doc_idx in empty_values {
             children.remove(doc_idx - i);
@@ -99,9 +97,9 @@ mod tests {
 
     #[test]
     fn test_add_content_date() {
-        let field_index = FieldIndex {
+        let mut field_index = FieldIndex {
             name: "myfield".to_string(),
-            index: Rc::new(RefCell::new(vec![]))
+            index: vec![]
         };
 
         field_index.put_content(99 as i64, 199);
@@ -113,9 +111,9 @@ mod tests {
         let d_99 = field_index.get_ids(99);
         assert_eq!(d_99, vec![199,300]);
 
-        let field_index_float = FieldIndex {
+        let mut field_index_float = FieldIndex {
             name: "myfield_float".to_string(),
-            index: Rc::new(RefCell::new(vec![]))
+            index: vec![]
         };
 
         field_index_float.put_content(FloatWrapper{value: 88.9}, 188);
@@ -125,9 +123,9 @@ mod tests {
 
         assert_eq!(field_index_float.get_ids(FloatWrapper{value: 88.9}), vec![188,288]);
 
-        let field_index_bool = FieldIndex {
+        let mut field_index_bool = FieldIndex {
             name: "myfield_bool".to_string(),
-            index: Rc::new(RefCell::new(vec![]))
+            index: vec![]
         };
 
         field_index_bool.put_content(true, 1);

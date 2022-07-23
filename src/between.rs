@@ -1,8 +1,8 @@
-pub trait Between<B: Clone + Debug> {
+pub trait Between<B: Clone + Debug + Ord> {
     fn between(&self, start: B, stop: B) -> (usize, usize);
 }
 
-pub trait GetValue<V: Clone + Debug > {
+pub trait GetValue<V: Clone + Debug + Ord> {
     fn get_value(&self) -> V;
 }
 
@@ -29,7 +29,7 @@ impl <'a> Between<val_type> for FieldIndex<the_class> {
 
     fn between(&self,start: val_type, stop: val_type) -> (usize, usize) {
 
-        let index = self.get_vec().as_ref().borrow();
+        let index = self.get_vec();
 
 
         let mut start_index = match index.binary_search_by_key(&start, |e| e.value) {

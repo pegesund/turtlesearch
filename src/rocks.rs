@@ -8,15 +8,12 @@ use crate::structures::FieldType;
 use crate::structures::FieldValue;
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
-use std::cell::{RefCell, RefMut};
 use std::vec::Vec;
 use std::mem::transmute;
 use std::fmt::Debug;
 use std::fs::read_to_string;
 use im::Vector;
 use std::convert::TryInto;
-use std::rc::Rc;
-use std::borrow::{BorrowMut, Borrow, Cow}; 
 
 
 macro_rules! u64_to_barray {
@@ -112,10 +109,10 @@ pub fn load_word_sorted(db: &DB, word: &str) -> Vec<u64> {
 
 /// build new WordSorted based on word
 pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) -> WordSorted {
-    let ws = WordSorted {
+    let mut ws = WordSorted {
         value: word.clone(),
         freq: 0,
-        docs: Rc::new(RefCell::new(vec![])),
+        docs: vec![],
         optimized: false
     };
     let doc_ids = load_word_sorted(db_words, &word.to_owned());
@@ -166,10 +163,10 @@ fn write_field_value_to_ba (mut ba: &mut ByteArray, val: &FieldValue) {
 }
 
 fn write_doc_fields_to_ba (ba: &mut ByteArray, doc: &Document, collection: &Collection) {
-    let fields = collection.fields.as_ref().borrow();
+    let fields = &collection.fields;
     for i in 0..fields.len() {
         let field = &fields[i];
-        let field_value = &doc.values.as_ref().borrow()[i];
+        let field_value = &doc.values[i];
         write_field_value_to_ba(ba, field_value)
     }
 }
