@@ -6,6 +6,7 @@ use crate::structures::DocumentWordAndPositions;
 use crate::structures::Field;
 use crate::structures::FieldType;
 use crate::structures::FieldValue;
+use crate::structures::GetFieldInfo;
 use byte_array::ByteArray;
 use byte_array::BinaryBuilder;
 use std::vec::Vec;
@@ -125,8 +126,8 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
 
 
 
-fn read_field_value_from_ba<G: Debug + Clone + Ord >(ba: &mut ByteArray, field: &Field<G>) -> FieldValue {
-    let val: FieldValue = match field.field_type {
+fn read_field_value_from_ba(ba: &mut ByteArray, field_type: FieldType) -> FieldValue {
+    let val: FieldValue = match field_type {
         FieldType::I64 => FieldValue::I64 { value: ba.read::<i64>() },
         FieldType::U64 => FieldValue::U64 { value: ba.read::<u64>() },
         FieldType::Isize => FieldValue::Isize { value: ba.read::<isize>() },
@@ -171,11 +172,24 @@ fn write_doc_fields_to_ba (ba: &mut ByteArray, doc: &Document, collection: &Coll
     }
 }
 
+fn read_doc_field_from_ba (ba: &mut ByteArray, collection: &Collection) -> Document {
+    let mut field_values = vec![];
+    let fields = &collection.fields;
+    for i in 0..fields.len() {
+        let field_enum = &fields[i];
+        let field_type = field_enum.get_field_type();
+        let field_value = read_field_value_from_ba(ba, field_type);
+        field_values.push(field_value)
+
+    }
+    Document { id: 0, external_id: FieldValue::U64 { value: 1000 }, values: field_values }
+}
+
 #[cfg(test)]
 mod tests {
     use std::{sync::{Arc, RwLock}, thread};
 
-    use crate::structures::{DocumentWordAndPositions, FieldEnumStructs};
+    use crate::structures::{DocumentWordAndPositions, FieldEnumStruct};
 
     use super::*;
 
@@ -189,7 +203,7 @@ mod tests {
             size: 0
         };
 
-        fields.push(FieldEnumStructs::U64(f1));
+        fields.push(FieldEnumStruct::U64(f1));
         // fields.push(f1);
         let f2 = Field::<i32> {
             name: "Number2".to_string(),
@@ -198,7 +212,7 @@ mod tests {
             size: 0
         };
         // fields.push(f2);
-        fields.push(FieldEnumStructs::I32(f2));
+        fields.push(FieldEnumStruct::I32(f2));
         let f3 = Field::<String> {
             name: "Number2".to_string(),
             field_type: FieldType::String,
@@ -206,9 +220,33 @@ mod tests {
             size: 0
         };
 
-        fields.push(FieldEnumStructs::String(f3));
+        fields.push(FieldEnumStruct::String(f3));
 
-        println!("Fields: {:?}", fields);
+        let collection = Collection { name: "test-collection".to_string(), fields: fields };
+        
+        let mut field_values = vec![];
+
+        field_values.push(FieldValue::U64 {value: 10});
+        field_values.push(FieldValue::I32 {value: 20});
+        field_values.push(FieldValue::String {value: "Hello!".to_string()});
+
+        let doc = Document {
+            id: 0,
+            external_id: FieldValue::U64 { value: 1000 },
+            values: field_values,
+        };
+
+        let mut ba = ByteArray::new();
+        write_doc_fields_to_ba (&mut ba, &doc, &collection);
+
+        assert_eq!(26, ba.len()); // 8 + 4 + 2*str-len + str-size
+
+        let doc = read_doc_field_from_ba(&mut ba, &collection);
+        println!("Doc: {:?}", doc.values[1]);
+
+        assert_eq!(doc.values[0], FieldValue::U64 {value: 10});
+        assert_eq!(doc.values[1], FieldValue::I32 {value: 20});
+        assert_eq!(doc.values[2], FieldValue::String {value: "Hello!".to_string()});        
 
     }
 

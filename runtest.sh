@@ -1,1 +1,1 @@
-cargo test  --package testhash --bin testhash tsorted_vectors::tests -- --show-output
+cargo test  --package testhash --bin testhash rocks::tests -- --show-output

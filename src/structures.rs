@@ -27,7 +27,7 @@ Collection has many
 
 */
 
-#[derive(FromPrimitive, Clone, Debug)]
+#[derive(FromPrimitive, Clone, Debug, Copy)]
 pub enum FieldType {
     I64,
     U64,
@@ -44,6 +44,7 @@ pub enum FieldType {
     String
 }
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
+
 pub enum FieldValue {
     I64 { value: i64 },
     U64 { value: u64 },
@@ -63,7 +64,9 @@ pub enum FieldValue {
 #[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Clone)]
-pub enum FieldEnumStructs {
+
+#[enum_dispatch]
+pub enum FieldEnumStruct {
     I64(Field::<i64>),
     U64(Field::<u64>),
     Isize(Field::<isize>),
@@ -77,6 +80,34 @@ pub enum FieldEnumStructs {
     F64(Field::<FloatWrapper>),
     String(Field::<String>)
 }
+
+#[duplicate(
+    val_type;
+    [i64];
+    [u64];
+    [isize];
+    [i8];
+    [i16];
+    [i32];
+    [usize];
+    [u8];
+    [u16];
+    [u32];
+    [FloatWrapper];
+    [String]
+    )]
+      
+impl GetFieldInfo for Field<val_type> {
+    fn get_field_type(&self) -> FieldType {
+        self.field_type
+    }
+}
+
+#[enum_dispatch(FieldEnumStruct)]
+pub trait GetFieldInfo {
+    fn get_field_type(&self) -> FieldType;
+}
+
 
 
 
@@ -137,7 +168,6 @@ impl<E: Debug + Clone + Ord > SortedVector<E> for FieldIndex<E> {
 #[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Clone)]
-
 pub struct Field <G:Debug + Clone + Ord > {
     pub name: String,
     pub field_type: FieldType,
@@ -155,7 +185,7 @@ pub struct Field <G:Debug + Clone + Ord > {
 #[derive(Clone)]
 pub struct Collection {
     pub name: String,
-    pub fields:  Vec<FieldEnumStructs>
+    pub fields:  Vec<FieldEnumStruct>
 }
 
 #[allow(dead_code)]

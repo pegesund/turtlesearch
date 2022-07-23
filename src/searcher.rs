@@ -53,7 +53,7 @@ async fn real_main(channel_receiver: async_std::sync::Receiver<SearchCommand>) {
     let task1 = executor_loop(channel_receiver_c);
     task::block_on(async move {
         let future1 = task::spawn(task1);
-        futures::join!(future1);
+        // futures::join!(future1);
     });
 
     println!("Program ended!");
