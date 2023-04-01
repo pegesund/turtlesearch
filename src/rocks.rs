@@ -194,7 +194,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_write_document_to_ba() {
+    fn test_write_and_read_document_to_ba() {
         let mut fields =  vec![];
         let f1 = Field::<u64> {
             name: "Number1".to_string(),
@@ -214,7 +214,7 @@ mod tests {
         // fields.push(f2);
         fields.push(FieldEnumStruct::I32(f2));
         let f3 = Field::<String> {
-            name: "Number2".to_string(),
+            name: "Number3".to_string(),
             field_type: FieldType::String,
             index: None,
             size: 0

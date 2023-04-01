@@ -61,6 +61,10 @@ pub enum FieldValue {
     String { value: String }
 }
 
+pub enum FieldValue2 {
+    I66(i64),
+}
+
 #[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Clone)]
