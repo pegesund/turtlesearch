@@ -2,7 +2,7 @@
 use std::fmt::Debug;
 use std::cmp::Ordering;
 use byte_array::BinaryBuilder;
-use duplicate::duplicate;
+use duplicate::{duplicate, duplicate_item};
 use enum_dispatch::enum_dispatch;
 use float_cmp::ApproxEq;
 use num::FromPrimitive;
@@ -85,7 +85,7 @@ pub enum FieldEnumStruct {
     String(Field::<String>)
 }
 
-#[duplicate(
+#[duplicate_item(
     val_type;
     [i64];
     [u64];

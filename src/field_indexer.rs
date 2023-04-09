@@ -3,7 +3,7 @@
 
 use crate::structures::*;
 use std::fmt::Debug;
-use duplicate::duplicate;
+use duplicate::{duplicate, duplicate_item};
 use crate::sorted_vector::*;
 
 
@@ -14,7 +14,7 @@ pub trait PlainContent<G: Clone + Debug + Ord> {
     fn delete_doc_id(&mut self, doc_id: u64);
 }
  
-#[duplicate(
+#[duplicate_item(
 the_class val_type;
 [ IntegerSorted  ] [ i64 ];
 [ FloatSorted  ] [ FloatWrapper ]; 

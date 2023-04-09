@@ -15,6 +15,8 @@ use std::fmt::Debug;
 use std::fs::read_to_string;
 use im::Vector;
 use std::convert::TryInto;
+use crate::comparator::get_value;
+
 
 
 macro_rules! u64_to_barray {
@@ -90,8 +92,10 @@ pub fn load_word_sorted(db: &DB, word: &str) -> Vec<u64> {
     let lookup_key = word.as_bytes();
     let iter = db.iterator(IteratorMode::From(word.as_bytes(), Direction::Forward));
 
+
     let mut do_break = false;
-    for (key, value) in iter {
+    for item in iter {
+        let (key, value) = item.unwrap();
         for i in 0..lookup_key.len() {
             if lookup_key[i] != key[i] {
                 do_break = true;
@@ -236,11 +240,14 @@ mod tests {
             values: field_values,
         };
 
+        // write doc to ba
         let mut ba = ByteArray::new();
         write_doc_fields_to_ba (&mut ba, &doc, &collection);
 
+        // assure ba has correct length
         assert_eq!(26, ba.len()); // 8 + 4 + 2*str-len + str-size
 
+        // read ba back to document and verify that values are the same
         let doc = read_doc_field_from_ba(&mut ba, &collection);
         println!("Doc: {:?}", doc.values[1]);
 

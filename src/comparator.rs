@@ -15,7 +15,7 @@ struct WrappedU8Vec {vec: Vec<u8>}
 
 
 
-fn get_value(ba: &mut ByteArray) -> FieldValue {
+pub fn get_value(ba: &mut ByteArray) -> FieldValue {
 
     let rocks_raw_type: u32 =  ba.read();
     println!("Value: {:?}",  rocks_raw_type);
@@ -31,14 +31,14 @@ fn get_value(ba: &mut ByteArray) -> FieldValue {
         FieldType::U64 => FieldValue::U64 {value: ba.read()},
         FieldType::Usize => FieldValue::Usize {value: ba.read()},
         FieldType::Isize => FieldValue::Isize {value: ba.read()},
-        FieldType::F32 => FieldValue::F32 {value: ba.read::<f32>()},
-        FieldType::F64 => FieldValue::F64 {value: ba.read::<f64>()},
+        FieldType::F32 => FieldValue::F32 {value: ba.read()},
+        FieldType::F64 => FieldValue::F64 {value: ba.read()},
         FieldType::String => FieldValue::String {value: ba.read::<String>() }
     };
     return res
 }
 
-fn put_value(mut ba: &mut ByteArray, val: &FieldValue) {
+pub fn put_value(mut ba: &mut ByteArray, val: &FieldValue) {
     match val {
         FieldValue::I64 { value } => { ba <<= &(FieldType::I64 as u32); ba <<= value },
         FieldValue::U64 { value } => { ba <<= &(FieldType::U64 as u32); ba <<= value },
@@ -57,6 +57,9 @@ fn put_value(mut ba: &mut ByteArray, val: &FieldValue) {
 }
 
 /*
+    Return cmp for entities in an index
+    An index can be compound by several fields
+    Iterate over the fields util you find a difference or return equal
     Todo: currently copies the arrays into a vector, which is slow.. Large potential for optimize.
 */
 pub fn rocks_compare(one: &[u8], two: &[u8]) -> Ordering {

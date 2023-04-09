@@ -2,8 +2,7 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
 mod structures;
-mod searcher;
-mod server;
+
 mod serializing;
 mod test_structures;
 mod rocks;
@@ -14,17 +13,17 @@ mod field_indexer;
 mod id_generator;
 mod sorted_vector;
 mod comparator; 
-mod web_glue;
-use crate::server::start_server;
 use byte_array::{
     BinaryBuilder,
     ByteArray,
  };
 
+
+
  
 
 
-extern crate rand;
+// extern crate rand;
 
 
 // use hashbrown::{HashMap, HashSet};
@@ -40,11 +39,10 @@ extern crate rand;
 // use async_std::task;
 // use actix_web::{web, App, HttpServer};
 
-
-#[actix_rt::main]
-async fn main() {
-    if false {start_server().await.unwrap() }
+fn main() {
+    println!("I am starting..");
 }
+
 
 
 

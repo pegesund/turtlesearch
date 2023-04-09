@@ -1,7 +1,7 @@
 #[allow(dead_code)]
 use std::fmt::Debug;
 use std::cmp::Ordering;
-use duplicate::duplicate;
+use duplicate::{duplicate, duplicate_item};
 
 use std::sync::{RwLock};
 use float_cmp::ApproxEq;
@@ -20,7 +20,7 @@ pub struct FloatWrapper {
     pub value: f64
 }
 
-#[duplicate(
+#[duplicate_item(
     the_class sort_field;
     [ IntegerSorted ] [ value ];
     [ DateSorted ] [ value ];
@@ -35,7 +35,7 @@ impl PartialEq for the_class {
     }
 }
 
-#[duplicate(
+#[duplicate_item(
 the_class sort_field;
 [ WordSorted ] [ value ];
 )]
@@ -56,7 +56,7 @@ impl Eq for FloatWrapper {
 
 }
 
-#[duplicate(
+#[duplicate_item(
     the_class;
     [ WordSorted ];
     [ FloatSorted ];
@@ -78,7 +78,7 @@ impl PartialOrd for FloatWrapper {
     }
 }
 
-#[duplicate(
+#[duplicate_item(
     the_class sort_field;
     [ WordSorted ] [ value ];
     [ IntegerSorted ] [ value ];
@@ -160,7 +160,7 @@ impl <'a> SortedVector<DocumentWordAndPositions> for WordSorted {
     }
 }
 
-#[duplicate(
+#[duplicate_item(
 the_class val_type;
     [ IntegerSorted ] [ u64 ];
     [ DateSorted ] [ u64 ];
