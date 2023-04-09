@@ -13,7 +13,6 @@ use std::vec::Vec;
 use std::mem::transmute;
 use std::fmt::Debug;
 use std::fs::read_to_string;
-use im::Vector;
 use std::convert::TryInto;
 use crate::comparator::get_value;
 
