@@ -24,7 +24,15 @@ macro_rules! u64_to_barray {
     }
 }
 
+// does not copy bytes
 fn vec_to_bytearray(res: Vec<u8>) -> ByteArray {
+    let ba = ByteArray{raw: res, pointer: 0};
+    return ba;
+}
+
+
+
+fn vec_to_bytearray_old(res: Vec<u8>) -> ByteArray {
     let mut ba = ByteArray::new();
     for r in res {
         ba.write(&r);

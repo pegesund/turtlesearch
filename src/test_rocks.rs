@@ -101,6 +101,7 @@ mod tests {
         {
             let mut opts = Options::default();
             opts.create_if_missing(true);
+            
             DB::open(&opts, path).unwrap();
         }
         DB::destroy(&Options::default(), path).unwrap();
