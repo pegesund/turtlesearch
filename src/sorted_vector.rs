@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 use std::fmt::Debug;
 use std::cmp::Ordering;
 use duplicate::{duplicate, duplicate_item};
@@ -150,13 +150,13 @@ pub struct BoolSorted {
 
 impl SortedVector<u32> for DocumentWordAndPositions {
     fn get_vec(&mut self) -> &mut Vec<u32> {
-        return &mut self.position;
+        &mut self.position
     }
 }
 
 impl <'a> SortedVector<DocumentWordAndPositions> for WordSorted {
     fn get_vec(&mut self) -> &mut Vec<DocumentWordAndPositions> {
-        return &mut self.docs;
+        &mut self.docs
     }
 }
 
@@ -170,14 +170,14 @@ the_class val_type;
 
 impl <'a> SortedVector<val_type> for the_class {
     fn get_vec(&mut self) -> &mut Vec<val_type> {
-        return &mut self.doc_ids;
+        &mut self.doc_ids
     }
 }
 
 pub trait SortedVector<E: Debug + Clone + Ord> {
     fn get_vec(&mut self) -> &mut Vec<E>;
 
-    fn insert(&mut self, element: E) -> () {
+    fn insert(&mut self, element: E) {
         let insert_pos = match self.get_vec().binary_search(&element) {
             Ok(pos) => pos,
             Err(pos) => pos
@@ -187,13 +187,13 @@ pub trait SortedVector<E: Debug + Clone + Ord> {
         }
 
     fn delete(&mut self, element: &E) {
-        let delete_pos = match self.get_vec().binary_search(&element) {
+        let delete_pos = match self.get_vec().binary_search(element) {
             Ok(pos) => Some(pos),
             Err(pos) => None
         };
         match delete_pos {
-            Some(pos) =>  { self.get_vec().remove(pos); () },
-            _ => ()
+            Some(pos) =>  { self.get_vec().remove(pos); },
+            _ => () 
         };
     }
 }

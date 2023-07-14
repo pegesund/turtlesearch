@@ -27,7 +27,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
 
     /// adds content to a index
     fn put_content(&mut self, content: val_type, doc_id: u64) {
-        let mut do_insert = false;
+        let mut do_insert:bool = false;
         {
             let children = self.get_vec();
             do_insert = match children.binary_search_by(|e| e.value.cmp(&content)) {
@@ -40,7 +40,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
             };
         }
 
-        if do_insert == true {
+        if do_insert {
             let element = the_class {
                 value: content,
                 doc_ids: vec![doc_id]
@@ -52,10 +52,10 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
     /// get docs based on value query
     fn get_ids(&mut self, content: val_type) ->  Vec<u64> {
         let children = self.get_vec();
-        return match children.binary_search_by(|e| e.value.cmp(&content)) {
+        match children.binary_search_by(|e| e.value.cmp(&content)) {
             Ok(pos) => children[pos].doc_ids.to_vec(),
             Err(pos) => vec![]
-        };
+        }
     }
 
     /// delete doc from index
@@ -71,7 +71,7 @@ impl PlainContent<val_type> for FieldIndex<the_class> {
                 match docs.binary_search_by(|e| e.cmp(&doc_id)) {
                             Ok(pos) => {
                                 docs.remove(pos);
-                                if docs.len() == 0 {
+                                if docs.is_empty() {
                                     empty_values.push(i);
                                 }
                             },

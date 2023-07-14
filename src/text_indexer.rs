@@ -17,7 +17,7 @@ pub fn simple_tokenizer(text: &str) -> Vec<String> {
     let text_without_special_chars: String = text.to_string().chars().enumerate().map(|(u, c)| c) .
         filter(|c| c.is_alphabetic() || c.is_digit(10) || c.is_whitespace()).collect();
     let text_vec: Vec<String> = text_without_special_chars.to_lowercase().split(" ").map(|s | s.to_string()).collect();
-    return text_vec
+    text_vec
 }
 
 /// Finds index in search index vector vector for a word
@@ -28,7 +28,7 @@ fn find_pos(field_index: &mut FieldIndex<WordSorted>, w: &String) -> (usize, boo
         Ok(pos) => pos,
         Err(pos) =>  { do_insert = true; pos }
     };
-    return (pos, do_insert)
+    (pos, do_insert)
 }
 
 
@@ -60,7 +60,7 @@ pub fn add_multi_text_to_field_index(text: &Vec<Vec<String>>, field_index: &mut 
     }
 
     for key in h.keys() {
-        let (pos, do_insert) = find_pos(field_index, &key);
+        let (pos, do_insert) = find_pos(field_index, key);
         if do_insert {
             field_index.insert(WordSorted {
                 value: key.clone(),
@@ -160,8 +160,7 @@ impl PlainContent<Vec<Vec<String>>> for FieldIndex<WordSorted> {
 impl PlainContent<String> for FieldIndex<WordSorted> {
     fn put_content(&mut self, content: String, doc_id: u64) {
         let t = simple_tokenizer("This is Petter writing. This is a test.");
-        let mut string_vec = vec![];
-        string_vec.push(t);
+        let string_vec = vec![t];
         add_multi_text_to_field_index(&string_vec, self, doc_id);
     }
 
@@ -202,10 +201,7 @@ mod tests {
 
         let t1 = simple_tokenizer("This is Petter writing. This is a test.");
         let t2 = simple_tokenizer("This is Petter writing. This is a test.");
-        let mut string_vec = vec![];
-        string_vec.push(t1);
-        string_vec.push(t2);
-
+        let string_vec = vec![t1, t2];
         let doc = 88;
         add_multi_text_to_field_index(&string_vec, &mut field_index, doc);
         let children = field_index.get_vec();
@@ -252,12 +248,9 @@ mod tests {
         let t1 = simple_tokenizer("a");
         let t2 = simple_tokenizer("b a d");
         let t3 = simple_tokenizer("c a");
-        let mut string_vec = vec![];
-        string_vec.push(t1);
-        let mut string_vec2 = vec![];
-        string_vec2.push(t2);
-        let mut string_vec3 = vec![];
-        string_vec3.push(t3);
+        let string_vec = vec![t1];
+        let string_vec2 = vec![t2];
+        let string_vec3 = vec![t3];
         field_index.put_content(string_vec, 100);
         field_index.put_content(string_vec2, 101);
         field_index.put_content(string_vec3, 102);

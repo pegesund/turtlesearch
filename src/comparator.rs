@@ -35,7 +35,7 @@ pub fn get_value(ba: &mut ByteArray) -> FieldValue {
         FieldType::F64 => FieldValue::F64 {value: ba.read()},
         FieldType::String => FieldValue::String {value: ba.read::<String>() }
     };
-    return res
+    res
 }
 
 pub fn put_value(mut ba: &mut ByteArray, val: &FieldValue) {
@@ -68,7 +68,7 @@ pub fn rocks_compare(one: &[u8], two: &[u8]) -> Ordering {
     while ba1.bytes_available() > 0 {
         let v1:FieldValue = get_value(&mut ba1);
         let v2:FieldValue = get_value(&mut ba2);
-        if v1 < v2 { return Ordering::Less } else
+        if v1 < v2 { return Ordering::Less }; 
         if v1 > v2 { return Ordering::Greater};
     };
     Ordering::Equal

@@ -26,8 +26,7 @@ macro_rules! u64_to_barray {
 
 // does not copy bytes
 fn vec_to_bytearray(res: Vec<u8>) -> ByteArray {
-    let ba = ByteArray{raw: res, pointer: 0};
-    return ba;
+    ByteArray{raw: res, pointer: 0}
 }
 
 
@@ -37,12 +36,12 @@ fn vec_to_bytearray_old(res: Vec<u8>) -> ByteArray {
     for r in res {
         ba.write(&r);
     }
-    return ba;
+    ba
 }
 
 pub fn save_position_word_index(db: &DB, document_word_index: &DocumentWordAndPositions) {
     let ba = &mut ByteArray::new();
-    let raw = document_word_index.to_raw(ba);
+    document_word_index.to_raw(ba);
     let id_raw: [u8; 8] = u64_to_barray!(document_word_index.doc_id);
     db.put(id_raw, ba.as_vec()).unwrap();
 }
@@ -51,8 +50,7 @@ pub fn load_position_word_index(db: &DB, id: u64) -> DocumentWordAndPositions {
     let id_raw: [u8; 8] = u64_to_barray!(id);
     let res = db.get(id_raw).unwrap().unwrap();
     let mut ba = vec_to_bytearray(res);
-    let dwi = DocumentWordAndPositions::from_raw(&mut ba).unwrap();
-    return dwi;
+    DocumentWordAndPositions::from_raw(&mut ba).unwrap()
 }
 
 pub fn delete_document_position_index(db: &DB, id: u64) {
@@ -71,7 +69,7 @@ fn dwi_and_ws_to_key(dwi: &DocumentWordAndPositions, ws: &WordSorted) -> ByteArr
     for b in &dwi_id_raw {
         key.write(b)
     }
-    return key;
+    key
 }
 
 /// saves connection between a word and the dwi
@@ -115,7 +113,7 @@ pub fn load_word_sorted(db: &DB, word: &str) -> Vec<u64> {
         let dwi_id: u64 = unsafe { std::mem::transmute::<[u8; 8], u64>((*value).try_into().unwrap()) }.to_be();
         res.push(dwi_id);
     }
-    return res;
+    res
 }
 
 
@@ -132,7 +130,7 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
         let doc = load_position_word_index(db_docs, doc_ids[i]);
         ws.insert(doc);
     }
-    return ws;
+    ws
 }
 
 
@@ -153,7 +151,7 @@ fn read_field_value_from_ba(ba: &mut ByteArray, field_type: FieldType) -> FieldV
         FieldType::F64 => FieldValue::F64 { value: ba.read::<f64>() },
         FieldType::String => FieldValue::String { value: ba.read::<String>() },
     };
-    return val
+    val
 }
 
 fn write_field_value_to_ba (mut ba: &mut ByteArray, val: &FieldValue) {
@@ -233,13 +231,9 @@ mod tests {
 
         fields.push(FieldEnumStruct::String(f3));
 
-        let collection = Collection { name: "test-collection".to_string(), fields: fields };
+        let collection = Collection { name: "test-collection".to_string(), fields };
         
-        let mut field_values = vec![];
-
-        field_values.push(FieldValue::U64 {value: 10});
-        field_values.push(FieldValue::I32 {value: 20});
-        field_values.push(FieldValue::String {value: "Hello!".to_string()});
+        let field_values = vec![FieldValue::U64 {value: 10}, FieldValue::I32 {value: 20}, FieldValue::String {value: "Hello!".to_string()}];
 
         let doc = Document {
             id: 0,
