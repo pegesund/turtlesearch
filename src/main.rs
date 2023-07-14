@@ -13,6 +13,7 @@ mod field_indexer;
 mod id_generator;
 mod sorted_vector;
 mod comparator; 
+mod between;
 use byte_array::{
     BinaryBuilder,
     ByteArray,

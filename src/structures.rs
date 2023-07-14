@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 use std::fmt::Debug;
 use std::cmp::Ordering;
 use byte_array::BinaryBuilder;
@@ -135,13 +135,13 @@ pub trait GetFieldInfo {
     }
 
 
-impl <'a> PartialOrd for DocumentWordAndPositions {
+impl PartialOrd for DocumentWordAndPositions {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl <'a> Ord for DocumentWordAndPositions {
+impl Ord for DocumentWordAndPositions {
     fn cmp(&self, other: &Self) -> Ordering {
         self.doc_id.cmp(&other.doc_id)
     }
@@ -161,7 +161,7 @@ pub struct FieldIndex<G:Debug + Clone + Ord > {
 
 impl<E: Debug + Clone + Ord > SortedVector<E> for FieldIndex<E> {
     fn get_vec(&mut self) -> &mut Vec<E> {
-        return &mut self.index;
+        &mut self.index
     }
 }
 

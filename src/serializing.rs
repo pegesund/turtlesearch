@@ -37,12 +37,11 @@ let _ = DB::destroy(&Options::default(), path);
 
 impl BinaryBuilder for DocumentWordAndPositions {
     fn new() ->
-             DocumentWordAndPositions {
-            let res = DocumentWordAndPositions {
-                doc_id: 0,
-                position:vec![]
-            };
-        return res
+            DocumentWordAndPositions {
+            DocumentWordAndPositions {
+            doc_id: 0,
+            position:vec![]
+            }
     }
  
     fn from_raw(ba: &mut ByteArray) -> Option<Self> {
@@ -53,10 +52,10 @@ impl BinaryBuilder for DocumentWordAndPositions {
             let v = ba.read();
             vec.push(v)
         }
-        return Some(DocumentWordAndPositions {
+        Some(DocumentWordAndPositions {
             doc_id: id,
             position: vec![]
-        });
+        })
     }
     fn to_raw(&self, mut ba: &mut ByteArray) {
         ba <<= &self.doc_id;
@@ -84,7 +83,7 @@ mod tests {
         wi.insert(18);
         wi.insert(33);
         let ba = &mut ByteArray::new();
-        let raw = wi.to_raw(ba);
+        wi.to_raw(ba);
         let wi2 = DocumentWordAndPositions::from_raw(ba).unwrap();
         assert_eq!(wi, wi2);
     }

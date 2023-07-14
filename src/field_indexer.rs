@@ -1,5 +1,8 @@
 //! This file contains code to add float/int/date to a field_index
 //! for indexing of text content, look into the text_indexer
+#![allow(clippy::transmute_num_to_bytes)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::explicit_counter_loop)]
 
 use crate::structures::*;
 use std::fmt::Debug;
@@ -102,11 +105,11 @@ mod tests {
             index: vec![]
         };
 
-        field_index.put_content(99 as i64, 199);
-        field_index.put_content(98 as i64, 198);
-        field_index.put_content(100 as i64, 200);
-        field_index.put_content(100 as i64, 201);
-        field_index.put_content(99 as i64, 300);
+        field_index.put_content(99_i64, 199);
+        field_index.put_content(98_i64, 198);
+        field_index.put_content(100_i64, 200);
+        field_index.put_content(100_i64, 201);
+        field_index.put_content(99_i64, 300);
 
         let d_99 = field_index.get_ids(99);
         assert_eq!(d_99, vec![199,300]);

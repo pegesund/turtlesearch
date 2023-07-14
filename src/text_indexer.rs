@@ -1,3 +1,6 @@
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::explicit_counter_loop)]
+#![allow(clippy::map_entry)]
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::convert::TryInto;
@@ -15,8 +18,8 @@ use crate::structures::{DocumentWordAndPositions, FieldIndex, Field};
 /// to be moved out and genralized later
 pub fn simple_tokenizer(text: &str) -> Vec<String> {
     let text_without_special_chars: String = text.to_string().chars().enumerate().map(|(u, c)| c) .
-        filter(|c| c.is_alphabetic() || c.is_digit(10) || c.is_whitespace()).collect();
-    let text_vec: Vec<String> = text_without_special_chars.to_lowercase().split(" ").map(|s | s.to_string()).collect();
+        filter(|c| c.is_alphabetic() || c.is_ascii_digit() || c.is_whitespace()).collect();
+    let text_vec: Vec<String> = text_without_special_chars.to_lowercase().split(' ').map(|s | s.to_string()).collect();
     text_vec
 }
 
@@ -41,8 +44,7 @@ fn add_single_text_to_field_index(text_vec: &Vec<String>, h: &mut HashMap<String
             let old =  h.get_mut(&w).unwrap();
             old.push((i as u32) + start);
         } else {
-            let mut new_vec = Vec::new();
-            new_vec.push((i as u32) + start);
+            let new_vec = vec![(i as u32) + start];
             h.insert(w, new_vec);
         }
     }
@@ -110,7 +112,7 @@ pub fn delete_document_from_field_index(field_index: &mut FieldIndex<WordSorted>
                     field_index.get_vec()[i].get_vec().remove(cj);
                     field_index.get_vec()[i].freq -= 1;
                     number_of_removed_dwis += 1;
-                    if field_index.get_vec()[i].get_vec().len() == 0 {
+                    if field_index.get_vec()[i].get_vec().is_empty() {
                         remove_words.push(field_index.get_vec()[i].value.clone());
                     } 
                 }                
@@ -138,7 +140,7 @@ pub fn count_number_of_dwis_in_field_index(field_index: &mut FieldIndex<WordSort
             counter += 1;
         }
     }
-    return counter;
+    counter
 }
 
 

@@ -1,3 +1,5 @@
+#![allow(clippy::transmute_num_to_bytes)]
+#![allow(clippy::needless_range_loop)]
 use rocksdb::{DB, Options, IteratorMode, Direction};
 use crate::sorted_vector::*;
 use crate::structures::Collection;
@@ -15,7 +17,6 @@ use std::fmt::Debug;
 use std::fs::read_to_string;
 use std::convert::TryInto;
 use crate::comparator::get_value;
-
 
 
 macro_rules! u64_to_barray {
@@ -125,7 +126,7 @@ pub fn build_word_sorted<'a>(db_words: &'a DB, db_docs: &'a DB, word: String) ->
         docs: vec![],
         optimized: false
     };
-    let doc_ids = load_word_sorted(db_words, &word.to_owned());
+    let doc_ids = load_word_sorted(db_words, &word);
     for i in 0..doc_ids.len() {
         let doc = load_position_word_index(db_docs, doc_ids[i]);
         ws.insert(doc);

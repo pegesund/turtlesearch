@@ -154,7 +154,7 @@ impl SortedVector<u32> for DocumentWordAndPositions {
     }
 }
 
-impl <'a> SortedVector<DocumentWordAndPositions> for WordSorted {
+impl SortedVector<DocumentWordAndPositions> for WordSorted {
     fn get_vec(&mut self) -> &mut Vec<DocumentWordAndPositions> {
         &mut self.docs
     }
@@ -168,7 +168,7 @@ the_class val_type;
     [ FloatSorted ] [ u64 ];
 )]
 
-impl <'a> SortedVector<val_type> for the_class {
+impl SortedVector<val_type> for the_class {
     fn get_vec(&mut self) -> &mut Vec<val_type> {
         &mut self.doc_ids
     }
@@ -191,10 +191,9 @@ pub trait SortedVector<E: Debug + Clone + Ord> {
             Ok(pos) => Some(pos),
             Err(pos) => None
         };
-        match delete_pos {
-            Some(pos) =>  { self.get_vec().remove(pos); },
-            _ => () 
-        };
+        if let Some(pos) = delete_pos {
+            self.get_vec().remove(pos);
+        }   
     }
 }
 
