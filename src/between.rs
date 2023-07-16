@@ -19,7 +19,7 @@ the_class val_type;
 [ BoolSorted  ] [ bool ];
 [ FloatSorted ] [ FloatWrapper ];
 )]
-impl GetValue<val_type> for the_class {
+impl  GetValue<val_type> for the_class {
     fn get_value(&self) -> val_type {
         self.value
     }
@@ -35,7 +35,7 @@ impl Between<val_type> for FieldIndex<the_class> {
 
     fn between(&mut self,start: val_type, stop: val_type) -> (usize, usize) {
 
-        let index = self.get_vec();
+        let index = self.get_vec_immutable();
 
 
         let mut start_index = match index.binary_search_by_key(&start, |e| e.value) {

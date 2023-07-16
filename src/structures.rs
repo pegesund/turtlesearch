@@ -61,11 +61,7 @@ pub enum FieldValue {
     String { value: String }
 }
 
-pub enum FieldValue2 {
-    I66(i64),
-}
 
-#[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Clone)]
 
@@ -112,27 +108,23 @@ pub trait GetFieldInfo {
     fn get_field_type(&self) -> FieldType;
 }
 
-
-
-
 ///
 /// DocumentWordIndex
 ///
 
-    #[allow(dead_code)]
-    #[derive(Debug)]
-    #[derive(Clone)]
-    #[derive(Eq)]
-    pub struct DocumentWordAndPositions {
-        pub doc_id: u64,
-        pub position: Vec<u32>,
-    } 
+#[derive(Debug)]
+#[derive(Clone)]
+#[derive(Eq)]
+pub struct DocumentWordAndPositions {
+    pub doc_id: u64,
+    pub position: Vec<u32>,
+} 
 
-    impl PartialEq for DocumentWordAndPositions {
-        fn eq(&self, other: &Self) -> bool {
-            self.doc_id == other.doc_id
-        }
+impl PartialEq for DocumentWordAndPositions {
+    fn eq(&self, other: &Self) -> bool {
+        self.doc_id == other.doc_id
     }
+}
 
 
 impl PartialOrd for DocumentWordAndPositions {
@@ -151,7 +143,6 @@ impl Ord for DocumentWordAndPositions {
 /// FieldIndex
 ///
 
-#[allow(dead_code)]
 #[derive(Debug)]
 #[derive(Clone)]
 pub struct FieldIndex<G:Debug + Clone + Ord > {
@@ -162,6 +153,9 @@ pub struct FieldIndex<G:Debug + Clone + Ord > {
 impl<E: Debug + Clone + Ord > SortedVector<E> for FieldIndex<E> {
     fn get_vec(&mut self) -> &mut Vec<E> {
         &mut self.index
+    }
+    fn get_vec_immutable(&self) -> &Vec<E> {
+        &self.index
     }
 }
 

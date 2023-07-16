@@ -65,7 +65,7 @@ impl Eq for FloatWrapper {
     [ BoolSorted ];
 )]
 
-impl <'a> PartialOrd for the_class {
+impl PartialOrd for the_class {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -73,8 +73,7 @@ impl <'a> PartialOrd for the_class {
 
 impl PartialOrd for FloatWrapper {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> { 
-        let c = self.value.partial_cmp(&other.value);
-        return c;
+        self.value.partial_cmp(&other.value)
     }
 }
 
@@ -87,7 +86,7 @@ impl PartialOrd for FloatWrapper {
     [ BoolSorted  ] [ value ];
 )]
 
-impl <'a> Ord for the_class {
+impl Ord for the_class {
     fn cmp(&self, other: &Self) -> Ordering {
         self.sort_field.cmp(&other.sort_field)
     }
@@ -152,11 +151,17 @@ impl SortedVector<u32> for DocumentWordAndPositions {
     fn get_vec(&mut self) -> &mut Vec<u32> {
         &mut self.position
     }
+    fn get_vec_immutable(&self) -> &Vec<u32> {
+        &self.position
+    }
 }
 
 impl SortedVector<DocumentWordAndPositions> for WordSorted {
     fn get_vec(&mut self) -> &mut Vec<DocumentWordAndPositions> {
         &mut self.docs
+    }
+    fn get_vec_immutable(&self) -> &Vec<DocumentWordAndPositions> {
+        &self.docs
     }
 }
 
@@ -172,10 +177,14 @@ impl SortedVector<val_type> for the_class {
     fn get_vec(&mut self) -> &mut Vec<val_type> {
         &mut self.doc_ids
     }
+    fn get_vec_immutable(&self) -> &Vec<val_type> {
+        &self.doc_ids
+    }
 }
 
 pub trait SortedVector<E: Debug + Clone + Ord> {
     fn get_vec(&mut self) -> &mut Vec<E>;
+    fn get_vec_immutable(&self) -> &Vec<E>;
 
     fn insert(&mut self, element: E) {
         let insert_pos = match self.get_vec().binary_search(&element) {
